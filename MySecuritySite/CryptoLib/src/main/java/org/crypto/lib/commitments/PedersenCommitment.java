@@ -112,10 +112,52 @@ public class PedersenCommitment {
     }
 
     /**
+     * Given the public parameters for the public parameters, this method checks the validity of the parameters
+     * and initializes the pedersen commitment.
      *
-     * @param publicParams
+     * @param publicParameters
      */
-    public void initialize(PublicParams publicParams){
+    public void initialize(PublicParams publicParameters) throws CryptoAlgorithmException {
+        /*Check the validity of the provided public parameters and then assign them to publicParams object*/
+        boolean parametersValid = false;
+        String errorMsg = "Provided public parameters of Pedersen Commitment Scheme are incorrect.";
+        // check if p mod q = 1?
+        BigInteger z = publicParameters.getP().mod(publicParameters.getQ());
+        if (log.isDebugEnabled()) {
+            String message = "p mod q = " + z.toString();
+            log.debug(message);
+        }
+        if (z.compareTo(BigInteger.ONE) == 0) {
+            parametersValid = true;
+        } else {
+            log.error(errorMsg);
+            throw new CryptoAlgorithmException(errorMsg);
+        }
+
+        // check if g^q mod p = 1?
+        z = publicParameters.getG().modPow(publicParameters.getQ(), publicParameters.getP());
+        if (log.isDebugEnabled()) {
+            String message = "g^q mod p = " + z.toString();
+            log.debug(message);
+        }
+        if (z.compareTo(BigInteger.ONE) == 0) {
+            parametersValid = true;
+        } else {
+            log.error(errorMsg);
+            throw new CryptoAlgorithmException(errorMsg);
+        }
+        // check if h^q mod p = 1?
+        BigInteger x = publicParameters.getH().modPow(publicParameters.getQ(), publicParameters.getP());
+        if (log.isDebugEnabled()) {
+            String message = "h^q mod p = " + x.toString();
+            log.debug(message);
+        }
+        if (x.compareTo(BigInteger.ONE) != 0) {
+            log.error(errorMsg);
+            throw new CryptoAlgorithmException(errorMsg);
+        }
+
+        this.publicParams = publicParameters;
 
     }
 
@@ -123,16 +165,16 @@ public class PedersenCommitment {
      * This method computes the pedersen commitment, given the public parameters: p, q, g, h, the secret: x and
      * the random value r.
      *
-     * @param publicParams
+     * @param publicParameters
      * @param secret
      * @param random
      * @return
      */
-    public BigInteger createCommitment(PublicParams publicParams, BigInteger secret, BigInteger random) {
-        secret = secret.mod(publicParams.getQ());
-        random = random.mod(publicParams.getQ());
-        BigInteger intermediate1 = publicParams.getG().modPow(secret, publicParams.getP());
-        BigInteger intermediate2 = publicParams.getH().modPow(random, publicParams.getP());
+    public BigInteger createCommitment(PublicParams publicParameters, BigInteger secret, BigInteger random) {
+        secret = secret.mod(publicParameters.getQ());
+        random = random.mod(publicParameters.getQ());
+        BigInteger intermediate1 = publicParameters.getG().modPow(secret, publicParameters.getP());
+        BigInteger intermediate2 = publicParameters.getH().modPow(random, publicParameters.getP());
         //create the commitment: C = g^x.h^y (mod p)
         BigInteger commitment = intermediate1.multiply(intermediate2);
         if (log.isDebugEnabled()) {
@@ -145,6 +187,7 @@ public class PedersenCommitment {
     /**
      * This method computes the pedersen commitment, given the secret: x and the random value r.
      * The public parameters are taken from those created in the initialize method.
+     *
      * @param secret
      * @param random
      * @return
@@ -164,7 +207,23 @@ public class PedersenCommitment {
     }
 
     /**
-     * Helper method that encapsulate the logic of generating the parameters: p.q.g
+     * Commitment verification: Given a commitment and the secrets hidden in it, validate if it is a valid commitment.
+     * @param commitment
+     * @param secret
+     * @param random
+     * @return
+     */
+    public boolean openCommitment(BigInteger commitment, BigInteger secret, BigInteger random) {
+        BigInteger createdCommitment = this.createCommitment(secret, random);
+        if (commitment.compareTo(createdCommitment) == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Helper method that encapsulates the logic of generating the parameters: p.q.g
      *
      * @return
      */

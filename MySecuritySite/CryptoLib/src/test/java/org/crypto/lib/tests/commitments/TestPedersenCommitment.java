@@ -1,5 +1,7 @@
 package org.crypto.lib.tests.commitments;
 
+import junit.framework.Assert;
+import org.junit.Test;
 import org.crypto.lib.commitments.PedersenCommitment;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
 
@@ -14,6 +16,8 @@ import java.security.SecureRandom;
  * Time: 10:54 AM
  */
 public class TestPedersenCommitment {
+
+    @Test
 
     public static void main(String[] args) throws CryptoAlgorithmException, NoSuchAlgorithmException {
         PedersenCommitment pedersenCommitment = new PedersenCommitment();
