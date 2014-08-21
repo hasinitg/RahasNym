@@ -165,18 +165,19 @@ public class PedersenCommitment {
      * This method computes the pedersen commitment, given the public parameters: p, q, g, h, the secret: x and
      * the random value r.
      *
+     *
      * @param publicParameters
-     * @param secret
-     * @param random
+     * @param value
+     * @param randomSecret
      * @return
      */
-    public BigInteger createCommitment(PublicParams publicParameters, BigInteger secret, BigInteger random) {
-        secret = secret.mod(publicParameters.getQ());
-        random = random.mod(publicParameters.getQ());
-        BigInteger intermediate1 = publicParameters.getG().modPow(secret, publicParameters.getP());
-        BigInteger intermediate2 = publicParameters.getH().modPow(random, publicParameters.getP());
+    public BigInteger createCommitment(PublicParams publicParameters, BigInteger value, BigInteger randomSecret) {
+        value = value.mod(publicParameters.getQ());
+        randomSecret = randomSecret.mod(publicParameters.getQ());
+        BigInteger intermediate1 = publicParameters.getG().modPow(value, publicParameters.getP());
+        BigInteger intermediate2 = publicParameters.getH().modPow(randomSecret, publicParameters.getP());
         //create the commitment: C = g^x.h^y (mod p)
-        BigInteger commitment = intermediate1.multiply(intermediate2);
+        BigInteger commitment = (intermediate1.multiply(intermediate2)).mod(publicParameters.getP());
         if (log.isDebugEnabled()) {
             log.debug("Commitment string: " + commitment.toString());
             log.debug("Commitment bit length: " + commitment.bitLength());
@@ -188,17 +189,18 @@ public class PedersenCommitment {
      * This method computes the pedersen commitment, given the secret: x and the random value r.
      * The public parameters are taken from those created in the initialize method.
      *
-     * @param secret
-     * @param random
+     *
+     * @param value
+     * @param randomSecret
      * @return
      */
-    public BigInteger createCommitment(BigInteger secret, BigInteger random) {
-        secret = secret.mod(publicParams.getQ());
-        random = random.mod(publicParams.getQ());
-        BigInteger intermediate1 = publicParams.getG().modPow(secret, publicParams.getP());
-        BigInteger intermediate2 = publicParams.getH().modPow(random, publicParams.getP());
+    public BigInteger createCommitment(BigInteger value, BigInteger randomSecret) {
+        value = value.mod(publicParams.getQ());
+        randomSecret = randomSecret.mod(publicParams.getQ());
+        BigInteger intermediate1 = publicParams.getG().modPow(value, publicParams.getP());
+        BigInteger intermediate2 = publicParams.getH().modPow(randomSecret, publicParams.getP());
         //create the commitment: C = g^x.h^y (mod p)
-        BigInteger commitment = intermediate1.multiply(intermediate2);
+        BigInteger commitment = intermediate1.multiply(intermediate2).mod(publicParams.getP());
         if (log.isDebugEnabled()) {
             log.debug("Commitment string: " + commitment.toString());
             log.debug("Commitment bit length: " + commitment.bitLength());
@@ -208,13 +210,15 @@ public class PedersenCommitment {
 
     /**
      * Commitment verification: Given a commitment and the secrets hidden in it, validate if it is a valid commitment.
+     *
+     *
      * @param commitment
-     * @param secret
-     * @param random
+     * @param value
+     * @param randomSecret
      * @return
      */
-    public boolean openCommitment(BigInteger commitment, BigInteger secret, BigInteger random) {
-        BigInteger createdCommitment = this.createCommitment(secret, random);
+    public boolean openCommitment(BigInteger commitment, BigInteger value, BigInteger randomSecret) {
+        BigInteger createdCommitment = this.createCommitment(value, randomSecret);
         if (commitment.compareTo(createdCommitment) == 0) {
             return true;
         } else {
