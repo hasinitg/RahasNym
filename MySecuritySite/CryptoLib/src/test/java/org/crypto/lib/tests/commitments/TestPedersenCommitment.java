@@ -50,9 +50,9 @@ public class TestPedersenCommitment {
         } catch (CryptoAlgorithmException e) {
             Assert.fail(e.getMessage());
         }
-        //create sample x and r for the commitment:
-        BigInteger x = new BigInteger(params.getQ().bitLength(), new SecureRandom());
-        BigInteger r = new BigInteger(params.getQ().bitLength(), new SecureRandom());
+        //create dummy x and r for the commitment:
+        BigInteger x = new BigInteger(params.getQ().bitLength() - 1, new SecureRandom());
+        BigInteger r = new BigInteger(params.getQ().bitLength() - 1, new SecureRandom());
         BigInteger commitment = pedersenCommitment.createCommitment(x, r);
         //test for the commitment bit length
         Assert.assertTrue((commitment.bitLength() < params.getP().bitLength()) ||
@@ -82,20 +82,22 @@ public class TestPedersenCommitment {
              */
             byte[] emailHash = SHA.SHA256(email);
             //extract the first 160 bits.
-            byte[] emailForCommitment = new byte[20];
-            for (int i = 0; i < 20; i++) {
+            byte[] emailForCommitment = new byte[19];
+            for (int i = 0; i < 19; i++) {
                 emailForCommitment[i] = emailHash[i];
+                System.out.println(emailForCommitment[i]);
             }
             //convert it to a big integer in order to create the commitment.
             BigInteger emailBI = new BigInteger(emailForCommitment);
+            System.out.println("Committable value from email: " + emailBI);
             System.out.println("length of the emailBI:" + emailBI.bitLength());
             byte[] salt = new byte[8];
             new SecureRandom().nextBytes(salt);
-            byte[] derivedSecret = PBKDF.deriveKeyWithPBKDF5(password, salt, 1000, 160);
+            byte[] derivedSecret = PBKDF.deriveKeyWithPBKDF5(password, salt, 1000, 159);
             System.out.println("No. of bytes in the derived secret: " + derivedSecret.length);
             //convert the derived secret into a big integer in order to create the commitment.
             BigInteger secretBI = new BigInteger(derivedSecret);
-            System.out.println("length of the derivedSecretBI:" + secretBI.bitLength());
+            //now create the commitment with the email and the secret C = g^xh^r
             PedersenCommitment pedersenCommitment = new PedersenCommitment();
             pedersenCommitment.initialize();
             BigInteger commitment = pedersenCommitment.createCommitment(emailBI, secretBI);

@@ -7,9 +7,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.interfaces.DSAKey;
 import java.security.interfaces.DSAParams;
+import java.security.spec.InvalidKeySpecException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.crypto.lib.Hash.SHA;
+import org.crypto.lib.PBKDF.PBKDF;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
 
 /**
@@ -32,6 +35,44 @@ public class PedersenCommitment {
     private PublicParams publicParams = new PublicParams();
 
     private BigInteger a;
+
+    private BigInteger commitment;
+
+    public BigInteger getCommitment() {
+        return commitment;
+    }
+
+    public void setCommitment(BigInteger commitment) {
+        this.commitment = commitment;
+    }
+
+    /*Although we include these two properties in this object and expose getters and setters,
+     * user should be careful not to store the values in an object that could be accessed by another party.*/
+    /*first value hidden in the commitment*/
+    private BigInteger x;
+
+    /*second value hidden in the commitment*/
+    private BigInteger r;
+
+    public BigInteger getX() {
+        return x;
+    }
+
+    public void setX(BigInteger x) {
+        this.x = x;
+    }
+
+    public BigInteger getR() {
+        return r;
+    }
+
+    public void setR(BigInteger r) {
+        this.r = r;
+    }
+
+    public PublicParams getPublicParams() {
+        return publicParams;
+    }
 
     /**
      * This method initializes the public parameters: p q. g. h and the secret 'a' for the
@@ -86,7 +127,7 @@ public class PedersenCommitment {
         Boolean aValid = false;
         while (!aValid) {
             // find an integer a in Zq
-            a = new BigInteger(q.bitLength(), new SecureRandom());
+            a = new BigInteger(q.bitLength() - 1, new SecureRandom());
             if (a.equals(a.mod(q))) {
                 aValid = true;
                 if (log.isDebugEnabled()) {
@@ -165,7 +206,6 @@ public class PedersenCommitment {
      * This method computes the pedersen commitment, given the public parameters: p, q, g, h, the secret: x and
      * the random value r.
      *
-     *
      * @param publicParameters
      * @param value
      * @param randomSecret
@@ -189,7 +229,6 @@ public class PedersenCommitment {
      * This method computes the pedersen commitment, given the secret: x and the random value r.
      * The public parameters are taken from those created in the initialize method.
      *
-     *
      * @param value
      * @param randomSecret
      * @return
@@ -210,7 +249,6 @@ public class PedersenCommitment {
 
     /**
      * Commitment verification: Given a commitment and the secrets hidden in it, validate if it is a valid commitment.
-     *
      *
      * @param commitment
      * @param value
