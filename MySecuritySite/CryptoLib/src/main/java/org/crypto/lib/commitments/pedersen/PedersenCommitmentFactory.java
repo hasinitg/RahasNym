@@ -164,7 +164,6 @@ public class PedersenCommitmentFactory {
      * This method computes the pedersen commitment, given the public parameters: p, q, g, h, the secret: x and
      * the random value r.
      *
-     *
      * @param publicParameters
      * @param value
      * @param randomSecret
@@ -191,7 +190,6 @@ public class PedersenCommitmentFactory {
      * This method computes the pedersen commitment, given the secret: x and the random value r.
      * The public parameters are taken from those created in the initialize method.
      *
-     *
      * @param value
      * @param randomSecret
      * @return
@@ -208,6 +206,7 @@ public class PedersenCommitmentFactory {
             log.debug("Commitment bit length: " + commitment.bitLength());
         }
         PedersenCommitment pedersenCommitment = new PedersenCommitment();
+        pedersenCommitment.setCommitment(commitment);
         return pedersenCommitment;
     }
 

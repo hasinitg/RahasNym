@@ -45,9 +45,8 @@ public class TestZKPPedersenCommitment {
             System.out.println("X: " + value);
             originalCommitment.setR(secret);
             System.out.println("R: " + secret);
-            System.out.println();
             System.out.println("C: " + originalCommitment.getCommitment());
-
+            System.out.println();
             //verifier, creates a challenge on its side (assume public params are sent to him)
             ZKPPedersenCommitment zkpPedersenServer = new ZKPPedersenCommitment(publicParams);
             BigInteger challenge = zkpPedersenServer.createInteractiveChallenge();

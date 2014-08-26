@@ -34,10 +34,14 @@ public class TestPedersenCommitment {
         } catch (CryptoAlgorithmException e) {
             Assert.fail(e.getMessage());
         }
+        if ((params.getP() == null) || (params.getQ() == null) || (params.getG() == null) || (params.getH() == null)) {
+            Assert.fail("Public parameters are not initialized properly.");
+        }
         System.out.println("P: " + params.getP());
         System.out.println("Q: " + params.getQ());
         System.out.println("G: " + params.getG());
         System.out.println("H: " + params.getH());
+        System.out.println();
     }
 
 
@@ -60,7 +64,8 @@ public class TestPedersenCommitment {
         //test for the commitment bit length
         Assert.assertTrue((commitmentString.bitLength() < params.getP().bitLength()) ||
                 (commitmentString.bitLength() == params.getP().bitLength()));
-        System.out.println("Commitment string: " + commitment);
+        System.out.println("Commitment from random values: " + commitmentString);
+        System.out.println();
 
     }
 
@@ -80,24 +85,21 @@ public class TestPedersenCommitment {
              * the value of email and we use password based key derivation to derive a secret to be used in
              * the pedersen commitment, based on the user-provided password.
              * The latter is specifically useful when we use the same password of the user to derive multiple keys.
-             * TODO: make this a polymorphic algo for preparing values for creating commitments so that users of the
-             * lib could also use it or implement their own algo.
              */
             byte[] emailHash = SHA.SHA256(email);
             //extract the first 160 bits.
             byte[] emailForCommitment = new byte[19];
             for (int i = 0; i < 19; i++) {
                 emailForCommitment[i] = emailHash[i];
-                System.out.println(emailForCommitment[i]);
             }
             //convert it to a big integer in order to create the commitment.
-            BigInteger emailBI = new BigInteger(emailForCommitment);
+            BigInteger emailBI = new BigInteger(1, emailForCommitment);
             System.out.println("Committable value from email: " + emailBI);
-            System.out.println("length of the emailBI:" + emailBI.bitLength());
+            System.out.println("Length of the committable value:" + emailBI.bitLength());
             byte[] salt = new byte[8];
             new SecureRandom().nextBytes(salt);
             byte[] derivedSecret = PBKDF.deriveKeyWithPBKDF5(password, salt, 1000, 159);
-            System.out.println("No. of bytes in the derived secret: " + derivedSecret.length);
+            System.out.println("Number of bytes in the derived secret: " + derivedSecret.length);
             //convert the derived secret into a big integer in order to create the commitment.
             BigInteger secretBI = new BigInteger(derivedSecret);
             //now create the commitment with the email and the secret C = g^xh^r
@@ -107,6 +109,7 @@ public class TestPedersenCommitment {
             BigInteger commitmentString = commitment.getCommitment();
             System.out.println("Email commitment: " + commitmentString);
             System.out.println("Length of the email commitment: " + commitmentString.bitLength());
+            System.out.println();
             Assert.assertEquals(true, pedersenCommitmentFactory.openCommitment(commitmentString, emailBI, secretBI));
 
         } catch (NoSuchAlgorithmException e) {
