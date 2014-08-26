@@ -1,7 +1,8 @@
 package org.crypto.lib.zero.knowledge.proof;
 
-import org.crypto.lib.commitments.PedersenCommitment;
-import org.crypto.lib.commitments.PedersenCommitmentProof;
+import org.crypto.lib.commitments.pedersen.PedersenCommitment;
+import org.crypto.lib.commitments.pedersen.PedersenCommitmentFactory;
+import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
 
 import java.math.BigInteger;
@@ -16,24 +17,24 @@ import java.util.List;
  */
 public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCommitment, BigInteger, PedersenCommitmentProof> {
 
-    PedersenCommitment.PublicParams publicParams = null;
-
-    public ZKPPedersenCommitment(PedersenCommitment.PublicParams publicParameters) {
+    PedersenPublicParams publicParams = null;
+    PedersenCommitmentFactory pedersenCommitmentFactory = new PedersenCommitmentFactory();
+    public ZKPPedersenCommitment(PedersenPublicParams publicParameters) throws CryptoAlgorithmException {
         this.publicParams = publicParameters;
+        pedersenCommitmentFactory.initialize(publicParams);
+
     }
 
     @Override
-    public PedersenCommitment createHelperProblem(PedersenCommitment originalProblem) throws CryptoAlgorithmException {
-        PedersenCommitment helperCommitment = new PedersenCommitment();
-        helperCommitment.initialize(publicParams);
+    public PedersenCommitment createHelperProblem(PedersenCommitment originalProblem) {
+
         //create two dummy values in Zq for the two secrets
         BigInteger x = new BigInteger(publicParams.getQ().bitLength() - 1, new SecureRandom());
         BigInteger r = new BigInteger(publicParams.getQ().bitLength() - 1, new SecureRandom());
-        BigInteger helperCommitmentValue = helperCommitment.createCommitment(x, r);
+        PedersenCommitment helperCommitment = pedersenCommitmentFactory.createCommitment(x, r);
         //set the two values in the commitment so that the proof creation can access them
         helperCommitment.setX(x);
         helperCommitment.setR(r);
-        helperCommitment.setCommitment(helperCommitmentValue);
         return helperCommitment;
     }
 
@@ -54,8 +55,8 @@ public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCo
     }
 
     @Override
-    public List<PedersenCommitmentProof> createNonInteractiveProof(PedersenCommitment OriginalProblem,
-                                                                   List<PedersenCommitment> HelperProblems,
+    public List<PedersenCommitmentProof> createNonInteractiveProof(PedersenCommitment originalProblem,
+                                                                   List<PedersenCommitment> helperProblems,
                                                                    List<BigInteger> challenges) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -86,12 +87,12 @@ public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCo
         BigInteger c = originalProblem.getCommitment();
         BigInteger d = helperProblem.getCommitment();
         BigInteger LHS = (d.multiply(c.modPow(challenge, publicParams.getP()))).mod(publicParams.getP());
-        BigInteger RHS = new PedersenCommitment().createCommitment(publicParams, proof.getU(), proof.getV());
-        return (LHS.compareTo(RHS) == 0);
+        PedersenCommitment RHS = pedersenCommitmentFactory.createCommitment(publicParams, proof.getU(), proof.getV());
+        return (LHS.compareTo(RHS.getCommitment()) == 0);
     }
 
     @Override
-    public boolean verifyNonInteractiveProof(PedersenCommitment originalProblem, List<PedersenCommitment> helperProblem,
+    public boolean verifyNonInteractiveProof(PedersenCommitment originalProblem, List<PedersenCommitment> helperProblems,
                                              List<BigInteger> challenges, List<PedersenCommitmentProof> proofs) {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }

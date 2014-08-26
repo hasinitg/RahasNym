@@ -19,7 +19,7 @@ public interface ZKP<X, Y, E, P> {
 
     public List<E> createNonInteractiveChallenge(byte[] hash);
 
-    public List<P> createNonInteractiveProof(X OriginalProblem, List<Y> HelperProblems, List<E> challenges);
+    public List<P> createNonInteractiveProof(X originalProblem, List<Y> helperProblems, List<E> challenges);
 
     public P createInteractiveProof(X originalProblem, Y helperProblem, E challenge);
 

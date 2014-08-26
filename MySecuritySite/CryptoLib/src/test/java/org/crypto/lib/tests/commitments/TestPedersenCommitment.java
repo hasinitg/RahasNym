@@ -3,8 +3,10 @@ package org.crypto.lib.tests.commitments;
 import junit.framework.Assert;
 import org.crypto.lib.Hash.SHA;
 import org.crypto.lib.PBKDF.PBKDF;
+import org.crypto.lib.commitments.pedersen.PedersenCommitment;
+import org.crypto.lib.commitments.pedersen.PedersenCommitmentFactory;
+import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
 import org.junit.Test;
-import org.crypto.lib.commitments.PedersenCommitment;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
 
 import java.math.BigInteger;
@@ -23,10 +25,10 @@ public class TestPedersenCommitment {
     @Test
     public void testInitialization() {
 
-        PedersenCommitment pedersenCommitment = new PedersenCommitment();
-        PedersenCommitment.PublicParams params = null;
+        PedersenCommitmentFactory pedersenCommitmentFactory = new PedersenCommitmentFactory();
+        PedersenPublicParams params = null;
         try {
-            params = pedersenCommitment.initialize();
+            params = pedersenCommitmentFactory.initialize();
         } catch (NoSuchAlgorithmException e) {
             Assert.fail(e.getMessage());
         } catch (CryptoAlgorithmException e) {
@@ -41,10 +43,10 @@ public class TestPedersenCommitment {
 
     @Test
     public void testCommitmentCreation() {
-        PedersenCommitment pedersenCommitment = new PedersenCommitment();
-        PedersenCommitment.PublicParams params = null;
+        PedersenCommitmentFactory pedersenCommitmentFactory = new PedersenCommitmentFactory();
+        PedersenPublicParams params = null;
         try {
-            params = pedersenCommitment.initialize();
+            params = pedersenCommitmentFactory.initialize();
         } catch (NoSuchAlgorithmException e) {
             Assert.fail(e.getMessage());
         } catch (CryptoAlgorithmException e) {
@@ -53,10 +55,11 @@ public class TestPedersenCommitment {
         //create dummy x and r for the commitment:
         BigInteger x = new BigInteger(params.getQ().bitLength() - 1, new SecureRandom());
         BigInteger r = new BigInteger(params.getQ().bitLength() - 1, new SecureRandom());
-        BigInteger commitment = pedersenCommitment.createCommitment(x, r);
+        PedersenCommitment commitment = pedersenCommitmentFactory.createCommitment(x, r);
+        BigInteger commitmentString = commitment.getCommitment();
         //test for the commitment bit length
-        Assert.assertTrue((commitment.bitLength() < params.getP().bitLength()) ||
-                (commitment.bitLength() == params.getP().bitLength()));
+        Assert.assertTrue((commitmentString.bitLength() < params.getP().bitLength()) ||
+                (commitmentString.bitLength() == params.getP().bitLength()));
         System.out.println("Commitment string: " + commitment);
 
     }
@@ -98,12 +101,13 @@ public class TestPedersenCommitment {
             //convert the derived secret into a big integer in order to create the commitment.
             BigInteger secretBI = new BigInteger(derivedSecret);
             //now create the commitment with the email and the secret C = g^xh^r
-            PedersenCommitment pedersenCommitment = new PedersenCommitment();
-            pedersenCommitment.initialize();
-            BigInteger commitment = pedersenCommitment.createCommitment(emailBI, secretBI);
-            System.out.println("Email commitment: " + commitment);
-            System.out.println("Length of the email commitment: " + commitment.bitLength());
-            Assert.assertEquals(true, pedersenCommitment.openCommitment(commitment, emailBI, secretBI));
+            PedersenCommitmentFactory pedersenCommitmentFactory = new PedersenCommitmentFactory();
+            pedersenCommitmentFactory.initialize();
+            PedersenCommitment commitment = pedersenCommitmentFactory.createCommitment(emailBI, secretBI);
+            BigInteger commitmentString = commitment.getCommitment();
+            System.out.println("Email commitment: " + commitmentString);
+            System.out.println("Length of the email commitment: " + commitmentString.bitLength());
+            Assert.assertEquals(true, pedersenCommitmentFactory.openCommitment(commitmentString, emailBI, secretBI));
 
         } catch (NoSuchAlgorithmException e) {
             Assert.fail("Hash algorithm not found.");

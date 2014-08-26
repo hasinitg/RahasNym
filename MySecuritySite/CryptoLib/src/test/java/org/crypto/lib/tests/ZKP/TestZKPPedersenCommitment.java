@@ -1,8 +1,10 @@
 package org.crypto.lib.tests.ZKP;
 
 import junit.framework.Assert;
-import org.crypto.lib.commitments.PedersenCommitment;
-import org.crypto.lib.commitments.PedersenCommitmentProof;
+import org.crypto.lib.commitments.pedersen.PedersenCommitment;
+import org.crypto.lib.commitments.pedersen.PedersenCommitmentFactory;
+import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
+import org.crypto.lib.zero.knowledge.proof.PedersenCommitmentProof;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
 import org.crypto.lib.util.CryptoUtil;
 import org.crypto.lib.zero.knowledge.proof.ZKPPedersenCommitment;
@@ -27,15 +29,15 @@ public class TestZKPPedersenCommitment {
     public void testVerifyInteractiveProof() {
         try {
             //client creates the real commitment (original problem) and a dummy commitment(helper problem)
-            PedersenCommitment originalCommitment = new PedersenCommitment();
-            PedersenCommitment.PublicParams publicParamsOrig = originalCommitment.initialize();
+            PedersenCommitmentFactory pedersenCommitmentFactory = new PedersenCommitmentFactory();
+            PedersenPublicParams publicParams = pedersenCommitmentFactory.initialize();
 
             BigInteger value = CryptoUtil.getCommittableThruHash("hasi7786@gmail.com",
-                    originalCommitment.getPublicParams().getQ().bitLength() - 1);
-            BigInteger secret = CryptoUtil.getCommittableThruPBKDF("321@$%^", 159, 1000);
-            BigInteger originalCommitmentValue = originalCommitment.createCommitment(value, secret);
+                    publicParams.getQ().bitLength() - 1);
+            BigInteger secret = CryptoUtil.getCommittableThruPBKDF("321@$%^", publicParams.getQ().bitLength() - 1, 1000);
+            PedersenCommitment originalCommitment = pedersenCommitmentFactory.createCommitment(value, secret);
 
-            ZKPPedersenCommitment zkpPedersenClient = new ZKPPedersenCommitment(publicParamsOrig);
+            ZKPPedersenCommitment zkpPedersenClient = new ZKPPedersenCommitment(publicParams);
             PedersenCommitment helperCommitment = zkpPedersenClient.createHelperProblem(null);
 
             //two secrets are stored in the commitment object because it will be used when creating proof.
@@ -43,12 +45,11 @@ public class TestZKPPedersenCommitment {
             System.out.println("X: " + value);
             originalCommitment.setR(secret);
             System.out.println("R: " + secret);
-            originalCommitment.setCommitment(originalCommitmentValue);
             System.out.println();
-            System.out.println("C: " + originalCommitmentValue);
+            System.out.println("C: " + originalCommitment.getCommitment());
 
             //verifier, creates a challenge on its side (assume public params are sent to him)
-            ZKPPedersenCommitment zkpPedersenServer = new ZKPPedersenCommitment(publicParamsOrig);
+            ZKPPedersenCommitment zkpPedersenServer = new ZKPPedersenCommitment(publicParams);
             BigInteger challenge = zkpPedersenServer.createInteractiveChallenge();
             System.out.println("Challenge: " + challenge);
 
