@@ -182,6 +182,7 @@ public class PedersenCommitmentFactory {
         }
         PedersenCommitment pedersenCommitment = new PedersenCommitment();
         pedersenCommitment.setCommitment(commitment);
+        /*return commitment without setting x and r for security precautions*/
         return pedersenCommitment;
 
     }
@@ -207,6 +208,7 @@ public class PedersenCommitmentFactory {
         }
         PedersenCommitment pedersenCommitment = new PedersenCommitment();
         pedersenCommitment.setCommitment(commitment);
+        /*return commitment without setting x and r for security precautions*/
         return pedersenCommitment;
     }
 
