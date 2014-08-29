@@ -28,13 +28,17 @@ public class CryptoUtil {
         return new BigInteger(1, valueForCommitment);
     }
 
-    public static BigInteger getCommittableThruPBKDF(String password, int bitLengthOfKey, int iterationCount)
+    public static BigInteger getCommittableThruPBKDF(String password, byte[] salt, int bitLengthOfKey, int iterationCount)
             throws InvalidKeySpecException, NoSuchAlgorithmException {
-        //create salt for password based key derivation
-        byte[] salt = new byte[8];
-        new SecureRandom().nextBytes(salt);
+
         byte[] derivedSecret = PBKDF.deriveKeyWithPBKDF5(password, salt, iterationCount, bitLengthOfKey);
         //convert the derived secret into a big integer in order to create the commitment.
         return new BigInteger(1, derivedSecret);
+    }
+
+    public static byte[] generateSalt(int byteLength) {
+        byte[] salt = new byte[byteLength];
+        new SecureRandom().nextBytes(salt);
+        return salt;
     }
 }

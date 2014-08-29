@@ -28,32 +28,38 @@ public class TestZKPPedersenCommitment {
     @Test
     public void testVerifyInteractiveProof() {
         try {
-            //client creates the real commitment (original problem) and a dummy commitment(helper problem)
+            /*Lets say we need to hide our email identity in pedersen commitment, of which we can prove the ownership
+            later in Zero Knowledge.*/
+            String email = "hasi7786@gmail.com";
+            String password = "321@$%^";
+
+            //client initializes the pedersen commitment factory in order to create commitments.
             PedersenCommitmentFactory pedersenCommitmentFactory = new PedersenCommitmentFactory();
             PedersenPublicParams publicParams = pedersenCommitmentFactory.initialize();
 
-            BigInteger value = CryptoUtil.getCommittableThruHash("hasi7786@gmail.com",
-                    publicParams.getQ().bitLength() - 1);
-            BigInteger secret = CryptoUtil.getCommittableThruPBKDF("321@$%^", publicParams.getQ().bitLength() - 1, 1000);
-            PedersenCommitment originalCommitment = pedersenCommitmentFactory.createCommitment(value, secret);
+            //convert the above string values into committable values in the Zq domain.
+            BigInteger value = CryptoUtil.getCommittableThruHash(email, publicParams.getQ().bitLength() - 1);
+            byte[] salt = CryptoUtil.generateSalt(8);
+            BigInteger secret = CryptoUtil.getCommittableThruPBKDF(password, salt, publicParams.getQ().bitLength() - 1, 1000);
 
+            //client creates the real commitment (original problem) and a dummy commitment(helper problem)
+            PedersenCommitment originalCommitment = pedersenCommitmentFactory.createCommitment(value, secret);
             ZKPPedersenCommitment zkpPedersenClient = new ZKPPedersenCommitment(publicParams);
             PedersenCommitment helperCommitment = zkpPedersenClient.createHelperProblem(null);
 
-            //two secrets are stored in the commitment object because it will be used when creating proof.
-            originalCommitment.setX(value);
-            System.out.println("X: " + value);
-            originalCommitment.setR(secret);
-            System.out.println("R: " + secret);
-            System.out.println("C: " + originalCommitment.getCommitment());
-            System.out.println();
             //verifier, creates a challenge on its side (assume public params are sent to him)
             ZKPPedersenCommitment zkpPedersenServer = new ZKPPedersenCommitment(publicParams);
             BigInteger challenge = zkpPedersenServer.createInteractiveChallenge();
-            System.out.println("Challenge: " + challenge);
 
-            //client creates the proof based on those two.
-            PedersenCommitmentProof proof = zkpPedersenClient.createInteractiveProof(originalCommitment,
+            /*client creates the proof based on the challenge. Usually during the proof creation, client has to re-derive
+            the committable values from the original strings because the ones derived at commitment creation time
+            are not stored anywhere due to security reasons.*/
+            BigInteger valueD = CryptoUtil.getCommittableThruHash(email, publicParams.getQ().bitLength() - 1);
+            BigInteger secretD = CryptoUtil.getCommittableThruPBKDF(password, salt, publicParams.getQ().bitLength() - 1, 1000);
+            PedersenCommitment dummyCommitment = new PedersenCommitment();
+            dummyCommitment.setX(valueD);
+            dummyCommitment.setR(secretD);
+            PedersenCommitmentProof proof = zkpPedersenClient.createInteractiveProof(dummyCommitment,
                     helperCommitment, challenge);
 
             //verifier verifies the proof

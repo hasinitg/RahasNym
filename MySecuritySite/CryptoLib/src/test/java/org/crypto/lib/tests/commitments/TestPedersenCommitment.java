@@ -99,9 +99,10 @@ public class TestPedersenCommitment {
             byte[] salt = new byte[8];
             new SecureRandom().nextBytes(salt);
             byte[] derivedSecret = PBKDF.deriveKeyWithPBKDF5(password, salt, 1000, 159);
-            System.out.println("Number of bytes in the derived secret: " + derivedSecret.length);
             //convert the derived secret into a big integer in order to create the commitment.
             BigInteger secretBI = new BigInteger(derivedSecret);
+            System.out.println("Committable value from derived secret: " + secretBI);
+            System.out.println("Length of the committable secret: " + derivedSecret.length);
             //now create the commitment with the email and the secret C = g^xh^r
             PedersenCommitmentFactory pedersenCommitmentFactory = new PedersenCommitmentFactory();
             pedersenCommitmentFactory.initialize();
