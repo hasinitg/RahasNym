@@ -128,7 +128,7 @@ public class ZKP_I {
         //create challenges to create proofs
         List<BigInteger> challenges = new ArrayList<BigInteger>();
         for (int l = 0; l < SIZE_OF_THE_DATASET; l++) {
-            BigInteger challenge = zkpServer.createInteractiveChallenge();
+            BigInteger challenge = zkpServer.createChallengeForInteractiveZKP();
             challenges.add(challenge);
         }
 
@@ -154,7 +154,7 @@ public class ZKP_I {
             PedersenCommitment originalCommitment = new PedersenCommitment();
             originalCommitment.setX(valueCommittable);
             originalCommitment.setR(secretCommittable);
-            PedersenCommitmentProof proof = zkpClient.createInteractiveProof(originalCommitment, helperCommitment, challenge);
+            PedersenCommitmentProof proof = zkpClient.createProofForInteractiveZKP(originalCommitment, helperCommitment, challenge);
             Long end = System.nanoTime();
 
             Long elapsedTime = end - start;
@@ -182,7 +182,7 @@ public class ZKP_I {
 
             //start
             Long start = System.nanoTime();
-            boolean success = zkpServer.verifyInteractiveProof(originalCommitment, helperCommitment, challenge, proof);
+            boolean success = zkpServer.verifyInteractiveZKP(originalCommitment, helperCommitment, challenge, proof);
             //end
             Long end = System.nanoTime();
 

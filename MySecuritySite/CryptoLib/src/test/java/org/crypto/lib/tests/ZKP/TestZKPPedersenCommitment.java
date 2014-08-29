@@ -49,7 +49,7 @@ public class TestZKPPedersenCommitment {
 
             //verifier, creates a challenge on its side (assume public params are sent to him)
             ZKPPedersenCommitment zkpPedersenServer = new ZKPPedersenCommitment(publicParams);
-            BigInteger challenge = zkpPedersenServer.createInteractiveChallenge();
+            BigInteger challenge = zkpPedersenServer.createChallengeForInteractiveZKP();
 
             /*client creates the proof based on the challenge. Usually during the proof creation, client has to re-derive
             the committable values from the original strings because the ones derived at commitment creation time
@@ -59,11 +59,11 @@ public class TestZKPPedersenCommitment {
             PedersenCommitment dummyCommitment = new PedersenCommitment();
             dummyCommitment.setX(valueD);
             dummyCommitment.setR(secretD);
-            PedersenCommitmentProof proof = zkpPedersenClient.createInteractiveProof(dummyCommitment,
+            PedersenCommitmentProof proof = zkpPedersenClient.createProofForInteractiveZKP(dummyCommitment,
                     helperCommitment, challenge);
 
             //verifier verifies the proof
-            boolean success = zkpPedersenServer.verifyInteractiveProof(originalCommitment, helperCommitment, challenge, proof);
+            boolean success = zkpPedersenServer.verifyInteractiveZKP(originalCommitment, helperCommitment, challenge, proof);
             Assert.assertEquals(true, success);
 
         } catch (NoSuchAlgorithmException e) {
@@ -73,5 +73,15 @@ public class TestZKPPedersenCommitment {
         } catch (InvalidKeySpecException e) {
             Assert.fail("Error in creating commitable value ");
         }
+    }
+
+    @Test
+    public void testVerifyNonInteractiveZKP(){
+        //while testing, print everything and see if the intermediate values make sense.
+    }
+
+    @Test
+    public void testVerifyNonInteractiveZKPWithSignature(){
+
     }
 }

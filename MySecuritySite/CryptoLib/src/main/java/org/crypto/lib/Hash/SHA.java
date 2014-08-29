@@ -21,5 +21,12 @@ public class SHA {
         byte[] messageBytes = message.getBytes();
         byte[] digest = sha256.digest(messageBytes);
         return digest;
+
+    }
+
+    public static byte[] SHA256(byte[] message) throws NoSuchAlgorithmException {
+        MessageDigest sha256 = MessageDigest.getInstance(Constants.SHA256);
+        byte[] digest = sha256.digest(message);
+        return digest;
     }
 }
