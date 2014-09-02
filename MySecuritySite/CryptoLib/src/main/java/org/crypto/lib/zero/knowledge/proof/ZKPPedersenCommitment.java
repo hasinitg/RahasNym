@@ -1,11 +1,12 @@
 package org.crypto.lib.zero.knowledge.proof;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.crypto.lib.Hash.SHA;
 import org.crypto.lib.commitments.pedersen.PedersenCommitment;
 import org.crypto.lib.commitments.pedersen.PedersenCommitmentFactory;
 import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
-import org.crypto.lib.util.CryptoUtil;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -21,14 +22,19 @@ import java.util.List;
  */
 public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCommitment, BigInteger, PedersenCommitmentProof> {
 
+    private static Log log = LogFactory.getLog(ZKPPedersenCommitment.class);
     PedersenPublicParams publicParams = null;
     PedersenCommitmentFactory pedersenCommitmentFactory = new PedersenCommitmentFactory();
     int bitLengthOfElementInZq;
+    int lengthOfChallengeInBytes;
+    int numberOfProofs = 3;
 
     public ZKPPedersenCommitment(PedersenPublicParams publicParameters) throws CryptoAlgorithmException {
         this.publicParams = publicParameters;
         pedersenCommitmentFactory.initialize(publicParams);
         bitLengthOfElementInZq = this.publicParams.getQ().bitLength() - 1;
+        lengthOfChallengeInBytes = bitLengthOfElementInZq / 8;
+
     }
 
     @Override
@@ -49,7 +55,7 @@ public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCo
         List<PedersenCommitment> helperProblems = new ArrayList<>();
         /*according to our algorithm, we restrict to three helper problems, because we think it is secure enough
         to prevent prover from cheating.*/
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < numberOfProofs; i++) {
 
             PedersenCommitment helperProblem = createHelperProblem(null);
             helperProblems.add(helperProblem);
@@ -66,58 +72,50 @@ public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCo
     @Override
     public List<BigInteger> createChallengeForNonInteractiveZKP(
             PedersenCommitment originalProblem, List<PedersenCommitment> helperProblems) throws NoSuchAlgorithmException {
-        /*according to our algorithm, we restrict to three challenges obtained from the hash of original problem and
-        three helper problems, because we think it is secure enough to prevent prover from cheating.*/
 
-        //convert original problem and three helper problems into byte, concatenate them and take the hash
-        byte[] originalCommitmentBytes = originalProblem.getCommitment().toByteArray();
+        /*according to our algorithm, we restrict to three challenges derived from the hash of the original problem and
+        three helper problems concatenated together; because we think it is secure enough to prevent prover from cheating.*/
 
-        int concatenatedCommitmentsByteLength = 0;
-        concatenatedCommitmentsByteLength += originalCommitmentBytes.length;
-
-        List<byte[]> helperCommitmentsBytes = new ArrayList<>();
-        for (PedersenCommitment helperProblem : helperProblems) {
-            byte[] helperCommitmentBytes = helperProblem.getCommitment().toByteArray();
-            helperCommitmentsBytes.add(helperCommitmentBytes);
-            concatenatedCommitmentsByteLength += helperCommitmentBytes.length;
-        }
-
-        byte[] concatenatedArray = new byte[concatenatedCommitmentsByteLength];
-        int destPos = 0;
-        System.arraycopy(originalCommitmentBytes, 0, concatenatedArray, destPos, originalCommitmentBytes.length);
-        destPos += originalCommitmentBytes.length;
-        for (byte[] helperCommitmentBytes : helperCommitmentsBytes) {
-            int length = helperCommitmentBytes.length;
-            System.arraycopy(helperCommitmentBytes, 0, concatenatedArray, destPos, length);
-            destPos += length;
-
-        }
+        //convert original problem and three helper problems into bytes, concatenate them and compute the hash.
+        byte[] concatenatedArray = obtainConcatenatedOriginalNHelperCommitments(originalProblem, helperProblems);
         byte[] hash = SHA.SHA256(concatenatedArray);
-
-        //now get the initial 160*3 bytes and create three challenges; such that each of them are in Zq.
-        List<BigInteger> challenges = new ArrayList<>();
-        int lengthOfChallengeInBytes = bitLengthOfElementInZq/8;
-        int challengeDestPos = 0;
-        byte[] challengeBytes = new byte[lengthOfChallengeInBytes];
-        for (int i = 0; i < 3; i++) {
-            System.arraycopy(hash, 0, challengeBytes, challengeDestPos, lengthOfChallengeInBytes);
-            BigInteger challengeBigInt = new BigInteger(challengeBytes);
-            challenges.add(challengeBigInt);
-            challengeDestPos += lengthOfChallengeInBytes;
-        }
-        return challenges;
+        //derive the challenges from the hash
+        return obtainChallengesFromHash(hash);
     }
 
     @Override
-    public List<BigInteger> createChallengeForNonInteractiveZKPWithSignature(PedersenCommitment originalProblem, List<PedersenCommitment> helperProblems, byte[] message) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public List<BigInteger> createChallengeForNonInteractiveZKPWithSignature(
+            PedersenCommitment originalProblem, List<PedersenCommitment> helperProblems, byte[] message) throws NoSuchAlgorithmException {
+
+        //convert original problem and three helper problems into bytes, concatenate them and compute the hash.
+        byte[] concatenatedArray = obtainConcatenatedOriginalNHelperCommitments(originalProblem, helperProblems);
+        byte[] hashOfConcatenatedArray = SHA.SHA256(concatenatedArray);
+
+        //compute the hash of the message and combine it with the above concatenated array.
+        byte[] hashOfMessage = SHA.SHA256(message);
+
+        int lengthOfCombinedHash = hashOfConcatenatedArray.length + hashOfMessage.length;
+        byte[] combinedHash = new byte[lengthOfCombinedHash];
+        System.arraycopy(hashOfConcatenatedArray, 0, combinedHash, 0, hashOfConcatenatedArray.length);
+        System.arraycopy(hashOfMessage, 0, combinedHash, hashOfConcatenatedArray.length, hashOfMessage.length);
+
+        //compute the hash of the final array.
+        byte[] finalHash = SHA.SHA256(combinedHash);
+        return obtainChallengesFromHash(finalHash);
     }
 
     @Override
     public List<PedersenCommitmentProof> createProofForNonInteractiveZKP(PedersenCommitment originalProblem,
                                                                          List<PedersenCommitment> helperProblems,
                                                                          List<BigInteger> challenges) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        List<PedersenCommitmentProof> proofs = new ArrayList<>();
+        for (int i = 0; i < numberOfProofs; i++) {
+            PedersenCommitment helperCommitment = helperProblems.get(i);
+            BigInteger challenge = challenges.get(i);
+            PedersenCommitmentProof proof = createProofForInteractiveZKP(originalProblem, helperCommitment, challenge);
+            proofs.add(proof);
+        }
+        return proofs;
     }
 
     @Override
@@ -152,12 +150,102 @@ public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCo
 
     @Override
     public boolean verifyNonInteractiveZKP(PedersenCommitment originalProblem, List<PedersenCommitment> helperProblems,
-                                           List<BigInteger> challenges, List<PedersenCommitmentProof> proofs) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+                                           List<BigInteger> challenges, List<PedersenCommitmentProof> proofs) throws NoSuchAlgorithmException {
+        boolean verificationResult = false;
+        //first, verify the challenges
+        List<BigInteger> derivedChallenges = this.createChallengeForNonInteractiveZKP(originalProblem, helperProblems);
+        for (int j = 0; j < numberOfProofs; j++) {
+            BigInteger derivedChallenge = derivedChallenges.get(j);
+            BigInteger originalChallenge = challenges.get(j);
+            if (originalChallenge.compareTo(derivedChallenge) != 0) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error in provided challenge: " + j + " for the non-interactive proof.");
+                }
+                return false;
+            }
+        }
+        //then verify the proofs
+        for (int k = 0; k < numberOfProofs; k++) {
+            verificationResult = verifyInteractiveZKP(originalProblem, helperProblems.get(k), challenges.get(k), proofs.get(k));
+            if (!verificationResult) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error in verifying proof: " + k + " in the non-interactive proof.");
+                }
+                return false;
+            }
+        }
+        return verificationResult;
     }
 
     @Override
-    public boolean verifyNonInteractiveZKPWithSignature(PedersenCommitment originalProblem, List<PedersenCommitment> helperProblem, byte[] message, List<BigInteger> challenges, List<PedersenCommitmentProof> proofs) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public boolean verifyNonInteractiveZKPWithSignature(PedersenCommitment originalProblem, List<PedersenCommitment> helperProblems,
+                                                        byte[] message, List<BigInteger> challenges,
+                                                        List<PedersenCommitmentProof> proofs) throws NoSuchAlgorithmException {
+        boolean verificationResult = false;
+        //first, verify the challenges
+        List<BigInteger> derivedChallenges = this.createChallengeForNonInteractiveZKPWithSignature(originalProblem, helperProblems, message);
+        for (int j = 0; j < numberOfProofs; j++) {
+            BigInteger derivedChallenge = derivedChallenges.get(j);
+            BigInteger originalChallenge = challenges.get(j);
+            if (originalChallenge.compareTo(derivedChallenge) != 0) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error in provided challenge: " + j + " for the non-interactive proof.");
+                }
+                return false;
+            }
+        }
+        //then verify the proofs
+        for (int k = 0; k < numberOfProofs; k++) {
+            verificationResult = verifyInteractiveZKP(originalProblem, helperProblems.get(k), challenges.get(k), proofs.get(k));
+            if (!verificationResult) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error in verifying proof: " + k + " in the non-interactive proof.");
+                }
+                return false;
+            }
+        }
+        return verificationResult;
+    }
+
+    private byte[] obtainConcatenatedOriginalNHelperCommitments(PedersenCommitment originalCommitment, List<PedersenCommitment> helperCommitments) {
+
+        //convert original problem and three helper problems into byte and concatenate them
+        byte[] originalCommitmentBytes = originalCommitment.getCommitment().toByteArray();
+
+        int concatenatedCommitmentsByteLength = 0;
+        concatenatedCommitmentsByteLength += originalCommitmentBytes.length;
+
+        List<byte[]> helperCommitmentsBytes = new ArrayList<>();
+        for (PedersenCommitment helperCommitment : helperCommitments) {
+            byte[] helperCommitmentBytes = helperCommitment.getCommitment().toByteArray();
+            helperCommitmentsBytes.add(helperCommitmentBytes);
+            concatenatedCommitmentsByteLength += helperCommitmentBytes.length;
+        }
+
+        byte[] concatenatedArray = new byte[concatenatedCommitmentsByteLength];
+        int destPos = 0;
+        System.arraycopy(originalCommitmentBytes, 0, concatenatedArray, destPos, originalCommitmentBytes.length);
+        destPos += originalCommitmentBytes.length;
+        for (byte[] helperCommitmentBytes : helperCommitmentsBytes) {
+            int length = helperCommitmentBytes.length;
+            System.arraycopy(helperCommitmentBytes, 0, concatenatedArray, destPos, length);
+            destPos += length;
+
+        }
+        return concatenatedArray;
+    }
+
+    private List<BigInteger> obtainChallengesFromHash(byte[] hash) {
+        //get the initial 160*3 bytes and create three challenges; such that each of them are in Zq.
+        List<BigInteger> challenges = new ArrayList<>();
+        int challengeDestPos = 0;
+        byte[] challengeBytes = new byte[lengthOfChallengeInBytes];
+        for (int i = 0; i < numberOfProofs; i++) {
+            System.arraycopy(hash, 0, challengeBytes, challengeDestPos, lengthOfChallengeInBytes);
+            BigInteger challengeBigInt = new BigInteger(challengeBytes);
+            challenges.add(challengeBigInt);
+            challengeDestPos += lengthOfChallengeInBytes;
+        }
+        return challenges;
     }
 }

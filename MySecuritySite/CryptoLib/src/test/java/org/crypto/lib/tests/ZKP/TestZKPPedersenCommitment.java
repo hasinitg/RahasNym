@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -76,12 +77,66 @@ public class TestZKPPedersenCommitment {
     }
 
     @Test
-    public void testVerifyNonInteractiveZKP(){
-        //while testing, print everything and see if the intermediate values make sense.
+    public void testVerifyNonInteractiveZKP() {
+        try {
+            //while testing, print everything and see if the intermediate values make sense.
+            //values to be committable:
+            String email = "hasi7786@gmail.com";
+            String password = "321@$%^";
+
+            /********************* Commitment creation phase ***************************/
+            //client initializes the pedersen commitment factory in order to create commitments.
+            PedersenCommitmentFactory pedersenCommitmentFactory = new PedersenCommitmentFactory();
+            PedersenPublicParams publicParams = null;
+
+            publicParams = pedersenCommitmentFactory.initialize();
+
+
+            //convert the above string values into committable values in the Zq domain.
+            BigInteger value = CryptoUtil.getCommittableThruHash(email, publicParams.getQ().bitLength() - 1);
+            byte[] salt = CryptoUtil.generateSalt(8);
+            BigInteger secret = CryptoUtil.getCommittableThruPBKDF(password, salt, publicParams.getQ().bitLength() - 1, 1000);
+
+            //client creates the real commitment (original problem)
+            PedersenCommitment originalCommitment = pedersenCommitmentFactory.createCommitment(value, secret);
+
+            /********************** Proof creation phase **********************************/
+            //first, create the helper problems.
+            ZKPPedersenCommitment zkpPedersenClient = new ZKPPedersenCommitment(publicParams);
+            List<PedersenCommitment> helperProblems = zkpPedersenClient.createHelperProblems(null);
+
+            //since it is non-interactive proof, client creates the challenges by itself.
+            List<BigInteger> challenges = zkpPedersenClient.createChallengeForNonInteractiveZKP(originalCommitment, helperProblems);
+
+            /*create the proofs based on the above derived challenges. Usually during the proof creation, client has to re-derive
+            the committable values from the original strings because the ones derived at commitment creation time
+            are not stored anywhere due to security reasons.*/
+            BigInteger valueD = CryptoUtil.getCommittableThruHash(email, publicParams.getQ().bitLength() - 1);
+            BigInteger secretD = CryptoUtil.getCommittableThruPBKDF(password, salt, publicParams.getQ().bitLength() - 1, 1000);
+            PedersenCommitment dummyCommitment = new PedersenCommitment();
+            dummyCommitment.setX(valueD);
+            dummyCommitment.setR(secretD);
+
+            List<PedersenCommitmentProof> proofs = zkpPedersenClient.createProofForNonInteractiveZKP(originalCommitment, helperProblems, challenges);
+
+            /********************** Proof verification phase ******************************/
+            //server verifies the proof.
+            ZKPPedersenCommitment zkpServer = new ZKPPedersenCommitment(publicParams);
+            boolean success = zkpServer.verifyNonInteractiveZKP(originalCommitment, helperProblems, challenges, proofs);
+            Assert.assertEquals(true, success);
+
+        } catch (NoSuchAlgorithmException e) {
+            Assert.fail("Error in creating/verifying non interactive zero knowledge proof.");
+        } catch (CryptoAlgorithmException e) {
+            Assert.fail("Error in creating/verifying non interactive zero knowledge proof.");
+        } catch (InvalidKeySpecException e) {
+            Assert.fail("Error in creating/verifying non interactive zero knowledge proof.");
+        }
+
     }
 
     @Test
-    public void testVerifyNonInteractiveZKPWithSignature(){
+    public void testVerifyNonInteractiveZKPWithSignature() {
 
     }
 }

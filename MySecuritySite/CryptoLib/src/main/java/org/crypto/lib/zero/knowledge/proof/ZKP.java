@@ -20,7 +20,7 @@ public interface ZKP<X, Y, E, P> {
 
     public List<E> createChallengeForNonInteractiveZKP(X originalProblem, List<Y> helperProblems) throws NoSuchAlgorithmException;
 
-    public List<E> createChallengeForNonInteractiveZKPWithSignature(X originalProblem, List<Y> helperProblems, byte[] message);
+    public List<E> createChallengeForNonInteractiveZKPWithSignature(X originalProblem, List<Y> helperProblems, byte[] message) throws NoSuchAlgorithmException;
 
     public List<P> createProofForNonInteractiveZKP(X originalProblem, List<Y> helperProblems, List<E> challenges);
 
@@ -28,8 +28,8 @@ public interface ZKP<X, Y, E, P> {
 
     public boolean verifyInteractiveZKP(X originalProblem, Y helperProblem, E challenge, P proof);
 
-    public boolean verifyNonInteractiveZKP(X originalProblem, List<Y> helperProblem, List<E> challenges, List<P> proofs);
+    public boolean verifyNonInteractiveZKP(X originalProblem, List<Y> helperProblem, List<E> challenges, List<P> proofs) throws NoSuchAlgorithmException;
 
-    public boolean verifyNonInteractiveZKPWithSignature(X originalProblem, List<Y> helperProblem, byte[] message, List<E> challenges, List<P> proofs);
+    public boolean verifyNonInteractiveZKPWithSignature(X originalProblem, List<Y> helperProblems, byte[] message, List<E> challenges, List<P> proofs) throws NoSuchAlgorithmException;
 
 }
