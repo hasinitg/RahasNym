@@ -113,11 +113,11 @@ public class TestZKPPedersenCommitment {
             are not stored anywhere due to security reasons.*/
             BigInteger valueD = CryptoUtil.getCommittableThruHash(email, publicParams.getQ().bitLength() - 1);
             BigInteger secretD = CryptoUtil.getCommittableThruPBKDF(password, salt, publicParams.getQ().bitLength() - 1, 1000);
-            PedersenCommitment dummyCommitment = new PedersenCommitment();
-            dummyCommitment.setX(valueD);
-            dummyCommitment.setR(secretD);
+            PedersenCommitment privateCommitment = new PedersenCommitment();
+            privateCommitment.setX(valueD);
+            privateCommitment.setR(secretD);
 
-            List<PedersenCommitmentProof> proofs = zkpPedersenClient.createProofForNonInteractiveZKP(originalCommitment, helperProblems, challenges);
+            List<PedersenCommitmentProof> proofs = zkpPedersenClient.createProofForNonInteractiveZKP(privateCommitment, helperProblems, challenges);
 
             /********************** Proof verification phase ******************************/
             //server verifies the proof.

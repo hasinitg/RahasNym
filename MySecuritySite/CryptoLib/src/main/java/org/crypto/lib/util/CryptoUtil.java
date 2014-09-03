@@ -24,7 +24,7 @@ public class CryptoUtil {
             valueForCommitment[i] = valueHash[i];
         }
         //convert it to a big integer in order to create the commitment.
-        //TODO:check if taking only the positive value, affects the collision-resistance of hash output
+        //TODO:check if taking only the positive value, affects the collision-resistancy of hash output
         return new BigInteger(1, valueForCommitment);
     }
 
@@ -33,6 +33,7 @@ public class CryptoUtil {
 
         byte[] derivedSecret = PBKDF.deriveKeyWithPBKDF5(password, salt, iterationCount, bitLengthOfKey);
         //convert the derived secret into a big integer in order to create the commitment.
+        //TODO:check if taking only the positive value, affects the collision-resistancy of hash output
         return new BigInteger(1, derivedSecret);
     }
 

@@ -78,7 +78,7 @@ public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCo
 
         //convert original problem and three helper problems into bytes, concatenate them and compute the hash.
         byte[] concatenatedArray = obtainConcatenatedOriginalNHelperCommitments(originalProblem, helperProblems);
-        byte[] hash = SHA.SHA256(concatenatedArray);
+        byte[] hash = SHA.SHA512(concatenatedArray);
         //derive the challenges from the hash
         return obtainChallengesFromHash(hash);
     }
@@ -89,18 +89,17 @@ public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCo
 
         //convert original problem and three helper problems into bytes, concatenate them and compute the hash.
         byte[] concatenatedArray = obtainConcatenatedOriginalNHelperCommitments(originalProblem, helperProblems);
-        byte[] hashOfConcatenatedArray = SHA.SHA256(concatenatedArray);
 
         //compute the hash of the message and combine it with the above concatenated array.
-        byte[] hashOfMessage = SHA.SHA256(message);
+        byte[] hashOfMessage = SHA.SHA512(message);
 
-        int lengthOfCombinedHash = hashOfConcatenatedArray.length + hashOfMessage.length;
-        byte[] combinedHash = new byte[lengthOfCombinedHash];
-        System.arraycopy(hashOfConcatenatedArray, 0, combinedHash, 0, hashOfConcatenatedArray.length);
-        System.arraycopy(hashOfMessage, 0, combinedHash, hashOfConcatenatedArray.length, hashOfMessage.length);
+        int lengthOfCombinedString = concatenatedArray.length + hashOfMessage.length;
+        byte[] combinedString = new byte[lengthOfCombinedString];
+        System.arraycopy(concatenatedArray, 0, combinedString, 0, concatenatedArray.length);
+        System.arraycopy(hashOfMessage, 0, combinedString, concatenatedArray.length, hashOfMessage.length);
 
-        //compute the hash of the final array.
-        byte[] finalHash = SHA.SHA256(combinedHash);
+        //compute the hash of the final array using SHA-512 (since it needs to be long enough to obtain three challenges.)
+        byte[] finalHash = SHA.SHA512(combinedString);
         return obtainChallengesFromHash(finalHash);
     }
 
@@ -238,13 +237,14 @@ public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCo
     private List<BigInteger> obtainChallengesFromHash(byte[] hash) {
         //get the initial 160*3 bytes and create three challenges; such that each of them are in Zq.
         List<BigInteger> challenges = new ArrayList<>();
-        int challengeDestPos = 0;
-        byte[] challengeBytes = new byte[lengthOfChallengeInBytes];
+        int hashDestPos = 0;
         for (int i = 0; i < numberOfProofs; i++) {
-            System.arraycopy(hash, 0, challengeBytes, challengeDestPos, lengthOfChallengeInBytes);
-            BigInteger challengeBigInt = new BigInteger(challengeBytes);
+            byte[] challengeBytes = new byte[lengthOfChallengeInBytes];
+            System.arraycopy(hash, hashDestPos, challengeBytes, 0, lengthOfChallengeInBytes);
+            //TODO:check if taking only the positive value, affects the collision-resistancy of hash output
+            BigInteger challengeBigInt = new BigInteger(1, challengeBytes);
             challenges.add(challengeBigInt);
-            challengeDestPos += lengthOfChallengeInBytes;
+            hashDestPos += lengthOfChallengeInBytes;
         }
         return challenges;
     }

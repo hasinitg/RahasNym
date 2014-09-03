@@ -29,4 +29,10 @@ public class SHA {
         byte[] digest = sha256.digest(message);
         return digest;
     }
+
+    public static byte[] SHA512(byte[] message) throws NoSuchAlgorithmException {
+        MessageDigest sha512 = MessageDigest.getInstance(Constants.SHA512);
+        byte[] digest = sha512.digest(message);
+        return digest;
+    }
 }
