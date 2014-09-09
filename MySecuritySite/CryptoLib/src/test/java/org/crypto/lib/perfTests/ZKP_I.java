@@ -42,7 +42,7 @@ public class ZKP_I {
         Map<String, byte[]> values = new LinkedHashMap<>();
         for (int i = 0; i < SIZE_OF_THE_DATASET; i++) {
             String trailer = String.format("%04d", i);
-            String email = "hasinitg" + trailer;
+            String email = "hasinitg" + trailer + "@gmail.com";
             String password = "3214!@#" + trailer;
             byte[] salt = CryptoUtil.generateSalt(8);
             String combinedValues = email + ":" + password;
@@ -127,11 +127,16 @@ public class ZKP_I {
 
         //create challenges to create proofs
         List<BigInteger> challenges = new ArrayList<BigInteger>();
+        List<Long> challengeCreationTimes = new ArrayList<>();
         for (int l = 0; l < SIZE_OF_THE_DATASET; l++) {
+            Long start = System.nanoTime();
             BigInteger challenge = zkpServer.createChallengeForInteractiveZKP();
+            Long end = System.nanoTime();
+            Long elapsed = end - start;
+            challengeCreationTimes.add(elapsed);
             challenges.add(challenge);
         }
-
+        reportTimes(challengeCreationTimes, "challenge creation");
         //now create the proofs, measuring the times taken
         List<PedersenCommitmentProof> proofs = new ArrayList<PedersenCommitmentProof>();
         List<Long> proofCreationTimes = new ArrayList<Long>();
@@ -200,5 +205,17 @@ public class ZKP_I {
         long averageProofVerificationTime = totalProofVerificationTime / SIZE_OF_THE_DATASET;
         //System.out.println("Average elapsed time for verifying proofs in nano seconds: " + averageProofVerificationTime);
         System.out.println("Average elapsed time for verifying proofs in milli seconds: " + (double) averageProofVerificationTime / MILLIS_IN_NANO);
+    }
+
+    private static void reportTimes(List<Long> elapsedTimes, String reportingString) {
+        Long totalTime = 0L;
+        for (Long elapsedTime : elapsedTimes) {
+            totalTime += elapsedTime;
+        }
+        Long averageTime = totalTime / SIZE_OF_THE_DATASET;
+        double avgTime = (double) averageTime / TestConstants.MILLIS_IN_NANO;
+        String timeString = "Average elapsed time for " + reportingString + " in milli seconds: " + avgTime;
+        System.out.println(timeString);
+        //printer.println(timeString);
     }
 }

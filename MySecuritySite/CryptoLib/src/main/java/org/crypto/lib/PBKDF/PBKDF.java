@@ -9,7 +9,7 @@ package org.crypto.lib.PBKDF;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.crypto.lib.Constants;
+import org.crypto.lib.CryptoLibConstants;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -30,22 +30,23 @@ public class PBKDF {
     /**
      * This method returns the derived key in bytes, based on the given password.
      *
+     *
      * @param password - based on which the key should be derived.
      * @param salt - used to avoid dictionary attacks. (recommended length: 64 bits
      *               as per http://www.ietf.org/rfc/rfc2898.txt)
+     * @param keyLength - length of the key to be derived, in number of bytes.
      * @param iterationCount - indicates how many times to iterate the underlying function by
                                which the key is derived. minimum of 1000 is recommended as per:
                                http://www.ietf.org/rfc/rfc2898.txt. This will increase the cost of
                                exhaustive search for passwords significantly, without a noticeable
                                impact in the cost of deriving individual keys
-     * @param keyLength - length of the key to be derived, in number of bytes.
      * @return - the derived key in the form of a byte array.
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeySpecException
      */
-    public static byte[] deriveKeyWithPBKDF5(String password, byte[] salt, int iterationCount, int keyLength)
+    public static byte[] deriveKeyWithPBKDF5(String password, byte[] salt, int keyLength, int iterationCount)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
-        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(Constants.PBKDF5);
+        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(CryptoLibConstants.PBKDF5);
         char[] pass = password.toCharArray();
         PBEKeySpec keySpec = new PBEKeySpec(pass, salt, iterationCount, keyLength);
         Key key = secretKeyFactory.generateSecret(keySpec);

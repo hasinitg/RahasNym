@@ -31,7 +31,7 @@ public class CryptoUtil {
     public static BigInteger getCommittableThruPBKDF(String password, byte[] salt, int bitLengthOfKey, int iterationCount)
             throws InvalidKeySpecException, NoSuchAlgorithmException {
 
-        byte[] derivedSecret = PBKDF.deriveKeyWithPBKDF5(password, salt, iterationCount, bitLengthOfKey);
+        byte[] derivedSecret = PBKDF.deriveKeyWithPBKDF5(password, salt, bitLengthOfKey, iterationCount);
         //convert the derived secret into a big integer in order to create the commitment.
         //TODO:check if taking only the positive value, affects the collision-resistancy of hash output
         return new BigInteger(1, derivedSecret);
