@@ -188,18 +188,21 @@ public class TestZKPPedersenCommitment {
             privateCommitment.setR(secretD);
 
             //proof creation is same for both non-interactive-zk and non-interactive-zk-signature.
-            List<PedersenCommitmentProof> proofs = zkpPedersenClient.createProofForNonInteractiveZKP(privateCommitment, helperCommitments, challenges);
+            List<PedersenCommitmentProof> proofs = zkpPedersenClient.createProofForNonInteractiveZKP(privateCommitment,
+                    helperCommitments, challenges);
 
             /********************** Proof verification phase ******************************/
             //server verifies the proof.
             ZKPPedersenCommitment zkpServer = new ZKPPedersenCommitment(publicParams);
             //test with original message bytes.
-            boolean success = zkpServer.verifyNonInteractiveZKPWithSignature(originalCommitment, helperCommitments, randomReceiptBytes, challenges, proofs);
+            boolean success = zkpServer.verifyNonInteractiveZKPWithSignature(originalCommitment, helperCommitments,
+                    randomReceiptBytes, challenges, proofs);
             Assert.assertEquals(true, success);
             //test with false message bytes.
             byte[] falseReceiptBytes = new byte[1024 * 10];
             new Random().nextBytes(falseReceiptBytes);
-            boolean falseSuccess = zkpServer.verifyNonInteractiveZKPWithSignature(originalCommitment, helperCommitments, falseReceiptBytes, challenges, proofs);
+            boolean falseSuccess = zkpServer.verifyNonInteractiveZKPWithSignature(originalCommitment, helperCommitments,
+                    falseReceiptBytes, challenges, proofs);
             Assert.assertEquals(false, falseSuccess);
 
         } catch (NoSuchAlgorithmException e) {
