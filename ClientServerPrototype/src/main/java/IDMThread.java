@@ -1,4 +1,3 @@
-import com.sun.deploy.util.BufferUtil;
 import org.crypto.lib.CryptoLibConstants;
 import org.crypto.lib.commitments.pedersen.PedersenCommitment;
 import org.crypto.lib.commitments.pedersen.PedersenCommitmentFactory;
@@ -8,7 +7,10 @@ import org.crypto.lib.util.CryptoUtil;
 import org.crypto.lib.zero.knowledge.proof.PedersenCommitmentProof;
 import org.crypto.lib.zero.knowledge.proof.ZKPPedersenCommitment;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
