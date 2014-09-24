@@ -1,0 +1,4 @@
+Permissions: sandbox
+Codebase: http://localhost:8080/amazingshop
+Application-Name: AmazingShop
+

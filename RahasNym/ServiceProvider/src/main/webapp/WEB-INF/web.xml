@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app id="SPPortal" version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+         http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <!--<display-name>PurdueSPPortal</display-name>-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/cxf-servlet.xml</param-value>
+    </context-param>
+    <servlet>
+        <servlet-name>CXFServlet</servlet-name>
+        <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+        <!--<init-param>
+            <param-name>config-location</param-name>
+            <param-value>/WEB-INF/cxf-servlet.xml</param-value>
+        </init-param>-->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CXFServlet</servlet-name>
+        <url-pattern>/service/*</url-pattern>
+    </servlet-mapping>
+
+    <session-config>
+        <session-timeout>60</session-timeout>
+    </session-config>
+
+    <!--<security-constraint>
+        <web-resource-collection>
+            <web-resource-name>secured services</web-resource-name>
+            <url-pattern>/registrar/*</url-pattern>
+        </web-resource-collection>
+        &lt;!&ndash;we take default name for everyone role.If it is changed in user-mgt.xml,this needs to be changed as well.&ndash;&gt;
+        &lt;!&ndash;<auth-constraint>
+            <role-name>Internal/everyone</role-name>
+        </auth-constraint>&ndash;&gt;
+        <user-data-constraint>
+            &lt;!&ndash; transport-guarantee can be CONFIDENTIAL, INTEGRAL, or NONE &ndash;&gt;
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>-->
+
+    <!--<listener>-->
+    <!--<listener-class>org.wso2.carbon.identity.scim.provider.impl.ApplicationInitializer</listener-class>-->
+    <!--</listener>-->
+
+    <!--login-config>
+        <auth-method>BASIC</auth-method>
+    </login-config>
+    <context-param>
+        <param-name>carbon.enable.saas</param-name>
+        <param-value>*</param-value>
+    </context-param-->
+    <welcome-file-list>
+        <welcome-file>welcomepage.html</welcome-file>
+    </welcome-file-list>
+
+</web-app>
+
