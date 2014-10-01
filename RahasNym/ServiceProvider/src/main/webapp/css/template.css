@@ -1,5 +1,129 @@
 /* Move down content because we have a fixed navbar that is 50px tall */
 body {
-  padding-top: 50px;
-  padding-bottom: 20px;
+    padding-top: 50px;
+    padding-bottom: 20px;
+    font-family: Arial, Helvetica, sans-serif
+}
+
+.navbar-brand{
+    /*background-color: #84c754;*/
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.40em;
+}
+
+.navbar-header{
+    /*background-color: #84c754;*/
+
+}
+
+.sname{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 2.0em;
+    color: white;
+    vertical-align: middle;
+    font-weight:bold;
+}
+
+.jumbotron{
+    padding-top: 25px;
+    padding-right: 40px;
+    padding-bottom: 25px;
+    padding-left: 40px;
+    background-color:#ADAD99
+}
+
+.containerx{
+    padding-top: 5px;
+    padding-right: 10px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    background-color: #E0F0FF;
+    text-align: left;
+    border-radius: 8px;
+}
+
+.wallx{
+    text-align:center;
+}
+
+ul{
+    padding-top: 10px;
+    list-style-type: none;
+    padding-left:0px;
+}
+
+li{
+    display:inline;
+    float:center;
+}
+
+.btn-primary, .btn-lg{
+    margin-left:0px;
+    width:200px;
+}
+
+.btn-success{
+    font-weight:bold;
+}
+
+.middlew{
+    text-transform: uppercase;
+    font-weight:bold;
+    display:inline-block;
+    padding-right:5px;
+    padding-left:5px;
+}
+
+.books-div{
+    margin-right:15px;
+    background-color: #B5FF91;
+}
+
+.books-btn{
+    font-weight:bold;
+    background-color: #19D175;
+}
+
+.e-div{
+    margin-right:15px;
+    background-color: #FFD6AD;
+}
+
+.e-btn{
+    font-weight:bold;
+    background-color: #D17519;
+}
+
+.hl-div{
+
+    background-color: #E2BDD0;
+    margin-right:0px;
+
+}
+
+.hl-btn{
+    font-weight:bold;
+    background-color: #C57BA0;
+
+}
+
+.books-div, .e-div, .hl-div{
+    border-radius: 8px;
+    display:inline;
+    padding-right:0px;
+    width:390px;
+}
+
+.row{
+    margin-left:0px;
+    margin-right:0px;
+    padding-left:0px;
+    padding-right:0px;
+}
+
+.containerv{
+    margin-left:0px;
+    margin-right:0px;
+    padding-left:40px;
+    padding-right:40px;
 }

@@ -31,9 +31,15 @@
 <body>
 
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
+    <div class="container" style="color:#CC6699">
         <div class="navbar-header">
-            <p class="sname">Amazing Shop</p>
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">AmazingShop</a>
         </div>
         <div class="navbar-collapse collapse">
             <form class="navbar-form navbar-right" role="form">
@@ -45,50 +51,29 @@
                 </div>
                 <button type="submit" class="btn btn-success">Sign in</button>
             </form>
-        </div><!--/.navbar-collapse -->
+        </div>
+        <!--/.navbar-collapse -->
     </div>
 </div>
 
-<!-- Main jumbotron for a primary marketing message or call to action -->
-<div class="jumbotron">
-    <div class="containerx">
-        <h3><b>Hello, all!</b></h3>
-        <p><span style="font-weight:bold;font-style:italic">Amazing Shop</span> is the online one-stop-shop for everything you need.</p>
-        <p>You can do online shopping in a <span style="font-weight:bold">secure and privacy preserving manner without disclosing your identity</span>, as we have adapted <span style="font-weight:bold;font-style:italic">RahasNym</span> technology.</p>
-        <ul>
-            <li><a class="btn btn-primary btn-lg" href="signup.html" role="button">Sign up »</a></li>
-            <li><span class="middlew"> or </span></li>
-            <li><a class="btn btn-primary btn-lg" href="shopping.html" role="button">Continue as guest »</a></li>
-        </ul>
-    </div>
+<div class="wallx">
+    <h3>Please register here.</h3>
+    <!--<script src="js/deployjava.js"></script>
+    <script>
+        var attributes = { code:'org.rahasnym.spclient.SPSignUpApplet.class', archive:'SPClient-1.0-SNAPSHOT.jar', width:710, height:540 };
+        var parameters = { jnlp_href: 'signup.jnlp' };
+        deployJava.runApplet(attributes, parameters, '1.6');
+    </script>-->
+    <!--include the applet here.-->
+    <applet code = 'org.rahasnym.spclient.SPSignUpApplet.class',
+    archive = 'SPClient-1.0-SNAPSHOT.jar, CryptoLib-1.0-SNAPSHOT.jar, commons-logging-1.1.1.jar, commons-httpclient-3.1.jar, commons-codec-1.2.jar',
+    width = 300
+    height = 300>
+    <param name="permissions" value="sandbox"/>
+    </applet>
+
 </div>
 
-<div class="containerv">
-    <!-- Example row of columns -->
-    <div class="row">
-        <div class="col-md-4 books-div">
-            <h2><b>Books...</b></h2>
-            <p> In this department you can find  variety of books for your reading interests.</p>
-            <p><a class="btn btn-default books-btn" href="#" role="button">View details »</a></p>
-        </div>
-        <div class="col-md-4 e-div">
-            <h2><b>Electronic Equipment...</b></h2>
-            <p>Buy electronic equipment with safe delivery, minimum 6-months warranty and flexible return policy...</p>
-            <p><a class="btn btn-default e-btn" href="#" role="button">View details »</a></p>
-        </div>
-        <div class="col-md-4 hl-div">
-            <h2><b>Home Living...</b></h2>
-            <p>Find everything you need to make your dream home here in this department...</p>
-            <p><a class="btn btn-default hl-btn" href="#" role="button">View details »</a></p>
-        </div>
-    </div>
-
-    <hr>
-
-    <footer>
-        <p>© AmazingShop 2014</p>
-    </footer>
-</div> <!-- /container -->
 
 
 <!-- Bootstrap core JavaScript
@@ -100,4 +85,5 @@
 <script src="js/ie10-viewport-bug-workaround.js"></script>
 
 
-</body></html>
+</body>
+</html>
