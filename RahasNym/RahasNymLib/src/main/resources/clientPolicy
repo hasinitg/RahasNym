@@ -1,0 +1,17 @@
+{
+    "policy": {
+        "specifierName": "HTG",
+        "rule": [{
+            "id": "client_rule",
+            "target":
+            { "serviceProviders": ["any"],
+              "overridingAlgorithm":["sp-overrides"]
+            },
+            "conditionSet": [{
+                "appliesTo": ["email"],
+                "disclosure": ["I-ZKP"],
+                "pseudonymCardinality": ["MULTIPLE"]
+            }]
+        }]
+    }
+}

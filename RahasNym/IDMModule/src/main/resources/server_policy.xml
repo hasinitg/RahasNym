@@ -1,28 +1,30 @@
-< Policy specifier_name="amazon . com " specifier_id="c225b4e0 - eb57 -11 e3 - ac10-0800200 c9a66 ">
-    < Rule id="rule -1 ">
-        < target>
-            < Operations>purchase_as_guest
+<Policy specifierName="amazon.com" specifierId="c225b4e0-eb57-11e3-ac10-0800200c9a66">
+    <Rule id="rule-1">
+        <target>
+            <Operations>purchase_as_guest
             </Operations>
-        </ target>
-        < ConditionsSet appliesto="email ,shipping_address ">
-            < Disclosure>NI - ZK</ Disclosure>
-            < Pseudonym_Cardinality>Multiple ,Single</ Pseudonym_Cardinality>
-        </ ConditionsSet>
-        < ConditionsSet appliesto="CCN " mandatory="yes ">
-            < Disclosure>NI - ZK -S</ Disclosure>
-            < Subject_Verification>Biometric -Bound , Hidden - Pseudonym - Bound
+        </target>
+        <ConditionSet appliesTo="email,shipping_address">
+            <Disclosure>NI-ZK</Disclosure>
+            <Pseudonym_Cardinality>Multiple,Single</Pseudonym_Cardinality>
+        </ConditionSet>
+        <ConditionSet appliesTo="CCN " mandatory="yes">
+            <Disclosure>NI-ZK-S</Disclosure>
+            <Subject_Verification>Biometric-Bound,Hidden-Pseudonym-Bound
             </Subject_Verification>
-            < Pseudonym_Cardinality>Multiple ,Single</ Pseudonym_Cardinality>
-        </ ConditionsSet>
-    </ Rule>
-    < Rule id="rule -2 ">
-        < target>
-            < Operations>sign_up , login
+            <Pseudonym_Cardinality>Multiple,Single</Pseudonym_Cardinality>
+        </ConditionSet>
+    </Rule>
+    <Rule id="rule-2">
+        <target>
+            <Operations>sign_up,login
             </Operations>
-        </ target>
-        < ConditionsSet appliesto="email ">
-            < Disclosure>NI - ZK</ Disclosure>
-            < Pseudonym_Cardinality>Single</Pseudonym_Cardinality>
-        </ ConditionsSet>
-    </ Rule>
-</ Policy>
+        </target>
+        <ConditionsSet appliesTo="email">
+            <Disclosure>NI-ZK</Disclosure>
+            <Pseudonym_Cardinality>Single</Pseudonym_Cardinality>
+        </ConditionsSet>
+    </Rule>
+</Policy>
+
+{}

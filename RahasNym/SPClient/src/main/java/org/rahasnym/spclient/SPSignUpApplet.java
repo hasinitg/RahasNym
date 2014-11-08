@@ -30,7 +30,7 @@ public class SPSignUpApplet extends JApplet {
     }
 
     private void createUI() {
-        System.out.println("create UI called.");
+        //System.out.println("create UI called.");
         SignUpPanel signUpPanel = new SignUpPanel();
         signUpPanel.setOpaque(true);
         setContentPane(signUpPanel);

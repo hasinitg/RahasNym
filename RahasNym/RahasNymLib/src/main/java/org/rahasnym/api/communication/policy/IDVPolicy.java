@@ -1,4 +1,4 @@
-package org.rahasnym.idm;
+package org.rahasnym.api.communication.policy;
 
 /**
  * Created with IntelliJ IDEA.

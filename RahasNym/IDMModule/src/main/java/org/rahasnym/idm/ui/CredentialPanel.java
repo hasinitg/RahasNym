@@ -8,4 +8,5 @@ package org.rahasnym.idm.ui;
  */
 
 public class CredentialPanel {
+
 }

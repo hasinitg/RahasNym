@@ -1,14 +1,12 @@
-< Policy clientname="HTG ">
-    < Rule id="client_rule ">
-        < target>
-            < ServiceProviders>any</ ServiceProviders>
-        </ target>
-        < ConditionsSets>
-            < ConditionsSet appliesto=" all ">
-                < Disclosure>I - ZKP</ Disclosure>
-                < Pseudonym_Cardinality>MULTIPLE
+<Policy specifierName="HTG">
+    <Rule id="client_rule">
+        <target>
+            <ServiceProviders>any</ServiceProviders>
+        </target>
+            <ConditionSet appliesto="all">
+                <Disclosure>I-ZKP</Disclosure>
+                <Pseudonym_Cardinality>MULTIPLE
                 </Pseudonym_Cardinality>
-            </ ConditionsSet>
-        </ConditionsSets>
-    </ Rule>
-</ Policy>
+            </ConditionSet>
+    </Rule>
+</Policy>

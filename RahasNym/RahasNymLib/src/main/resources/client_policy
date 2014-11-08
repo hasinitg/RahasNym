@@ -1,0 +1,17 @@
+{
+        "Policy": {
+        "-specifierName": "HTG",
+        "Rule": {
+        "-id": "client_rule",
+        "target": { "ServiceProviders": "any" },
+        "ConditionSet": {
+        "-appliesto": "all",
+        "Disclosure": "I-ZKP",
+        "Pseudonym_Cardinality": "MULTIPLE
+        "
+        }
+        }
+        }
+        }
+
+
