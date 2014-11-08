@@ -59,7 +59,6 @@ public class PolicyCombiner {
 
         //get the client's rule applies to the particular verifier or to all verifiers in general.
         IDVPolicy.Rule matchingClientRule = null;
-        //List<IDVPolicy.Rule> candidateClientRules = new ArrayList<IDVPolicy.Rule>();
         List<IDVPolicy.Rule> allClientRules = clientPolicy.getRules();
         for (IDVPolicy.Rule clientRule : allClientRules) {
             List<String> verifiers = clientRule.getTarget().getServiceProviders();
@@ -73,19 +72,22 @@ public class PolicyCombiner {
         Map<String, IDVPolicy.ConditionSet> verifierAttributesConditionsMap = new HashMap<>();
         /*get verifier required attributes and corresponding conditions set in order to match
         the conditions in client's rule(s).*/
+        List<String> attributesToBeMatched = new ArrayList<>();
         List<IDVPolicy.ConditionSet> verifierConditionSets = matchingVerifierRule.getConditionSets();
         for (IDVPolicy.ConditionSet verifierConditionSet : verifierConditionSets) {
             List<String> attributeNames = verifierConditionSet.getAppliesTo();
             for (String attributeName : attributeNames) {
+                attributesToBeMatched.add(attributeName);
                 verifierAttributesConditionsMap.put(attributeName, verifierConditionSet);
             }
         }
-        Set<String> attributesToBeMatched = verifierAttributesConditionsMap.keySet();
+
         Map<String, IDVPolicy.ConditionSet> clientAttributesConditionsMap = new HashMap<>();
 
         //if no matching rule, show error and prompt the user to create a rule
         if (matchingClientRule == null) {
             //todo:show error dialogue
+            throw new IDMException("No IDV rule defined for this Service Provider.");
             //todo:in all the prompts to add a new rule, show verifier rule and client's rule/policy side by side.
             //if the client adds a non-matching thing, warn then and there, so that user will not get multiple prompts.
             //also, ask to add overriding algo, for later usage.
@@ -106,31 +108,13 @@ public class PolicyCombiner {
             }
             //todo: if matching conditions were not found for all the required attributes, show error.
             if (attributesToBeMatched.size() != 0) {
+                for (String nonMatchedAttribute : attributesToBeMatched) {
+                    System.out.println(nonMatchedAttribute);
+                }
+                throw new IDMException("Preferences for Identity Verification not defined for above attributes");
                 //todo: show error and prompt to add *conditions* for attributes to be matched n this rule.
                 //todo: if the client adds conditions, populate the above two maps and the set.
             }
-
-            //}
-            /*else {
-                //look in the rules specified in general.
-                for (IDVPolicy.Rule candidateClientRule : candidateClientRules) {
-                    List<IDVPolicy.ConditionSet> clientConditionSets = matchingClientRule.getConditionSets();
-                    for (IDVPolicy.ConditionSet clientConditionSet : clientConditionSets) {
-                        List<String> clientAttributes = clientConditionSet.getAppliesTo();
-                        for (String clientAttribute : clientAttributes) {
-                            if (attributesToBeMatched.contains(clientAttribute)) {
-                                clientAttributesConditionsMap.put(clientAttribute, clientConditionSet);
-                                attributesToBeMatched.remove(clientAttribute);
-                            }
-                        }
-                    }
-                }
-                if (attributesToBeMatched.size() != 0) {
-                    //todo: show error and prompt to add a new rule for this verifier, with existing matching conditions
-                    //and new conditions for the missing attributes.
-                    //todo: if the client adds a rule, populate the above two maps and the set.
-                }
-            }*/
         }
         /*if code reaches this point, we should have attributes-conditions maps of both verifier and client for the
         attributes required by the verifier. Now it is time to match the conditions for each attribute and create the
@@ -161,7 +145,12 @@ public class PolicyCombiner {
             String matchingPolicyVal = null;
             List<String> verifierPolicyValues = verifierConditions.getDisclosure();
             List<String> clientPolicyValues = clientConditions.getDisclosure();
-            //TODO: if any or both are not specified, assign the default value
+            if (verifierPolicyValues.size() == 0) {
+                verifierPolicyValues.add(Constants.DEFAULT_DISCLOSURE_VALUE);
+            }
+            if (clientPolicyValues.size() == 0) {
+                clientPolicyValues.add(Constants.DEFAULT_DISCLOSURE_VALUE);
+            }
             for (String verifierDisclosureValue : verifierPolicyValues) {
                 verifierEnumVals.add(DisclosureValues.valueOf(verifierDisclosureValue));
                 Collections.sort(verifierEnumVals, new PolicyValuesComparator());
@@ -179,8 +168,6 @@ public class PolicyCombiner {
                     break;
                 }
             }
-            //if matching**Val is still null and overridingAlgo is not SP_OVERRIDES, no matching value found.
-            // TODO: show error and prompt to change.
             if (matchingPolicyVal == null) {
                 if (Constants.SP_OVERRIDES.equals(overridingAlgorithm)) {
                     matchingPolicyVal = verifierEnumVals.get(0).toString();
@@ -196,7 +183,12 @@ public class PolicyCombiner {
             matchingPolicyVal = null;
             verifierPolicyValues = verifierConditions.getSubjectVerification();
             clientPolicyValues = clientConditions.getSubjectVerification();
-            //TODO:if not specified, assign default
+            if (verifierPolicyValues.size() == 0) {
+                verifierPolicyValues.add(Constants.DEFAULT_SUBJECT_VERIFICATION_VALUE);
+            }
+            if (clientPolicyValues.size() == 0) {
+                clientPolicyValues.add(Constants.DEFAULT_SUBJECT_VERIFICATION_VALUE);
+            }
             for (String verifierPolicyValue : verifierPolicyValues) {
                 verifierEnumVals.add(SubjectVerificationValues.valueOf(verifierPolicyValue));
                 Collections.sort(verifierEnumVals, new PolicyValuesComparator());
@@ -214,7 +206,6 @@ public class PolicyCombiner {
                     break;
                 }
             }
-            //if matching**Val is still null, no matching value found. TODO: show error and prompt to change.
             if (matchingPolicyVal == null) {
                 if (Constants.SP_OVERRIDES.equals(overridingAlgorithm)) {
                     matchingPolicyVal = verifierEnumVals.get(0).toString();
@@ -230,7 +221,12 @@ public class PolicyCombiner {
             matchingPolicyVal = null;
             verifierPolicyValues = verifierConditions.getPseudonymCardinality();
             clientPolicyValues = clientConditions.getPseudonymCardinality();
-            //TODO: if not specified, use default
+            if (verifierPolicyValues.size() == 0) {
+                verifierPolicyValues.add(Constants.DEFAULT_CARDINALITY_VALUE);
+            }
+            if (clientPolicyValues.size() == 0) {
+                clientPolicyValues.add(Constants.DEFAULT_CARDINALITY_VALUE);
+            }
             for (String verifierPolicyValue : verifierPolicyValues) {
                 verifierEnumVals.add(PseudonymCardinalityValues.valueOf(verifierPolicyValue));
                 Collections.sort(verifierEnumVals, new PolicyValuesComparator());
@@ -248,7 +244,6 @@ public class PolicyCombiner {
                     break;
                 }
             }
-            //if matching**Val is still null, no matching value found. TODO: show error and prompt to change.
             if (matchingPolicyVal == null) {
                 if (Constants.SP_OVERRIDES.equals(overridingAlgorithm)) {
                     matchingPolicyVal = verifierEnumVals.get(0).toString();
@@ -261,6 +256,9 @@ public class PolicyCombiner {
                 //add the condition set to the matched condition set.
                 matchedConditionSets.add(attributeConditionSet);
             } else {
+                for (String conflictingPolicyValue : conflictingPolicyValues) {
+                    System.out.println(conflictingPolicyValue);
+                }
                 //add the attribute and conflicting policy element names to the map
                 conflictingAttributePolicyValuesMap.put(verifierReqAttribute, conflictingPolicyValues);
             }
@@ -268,6 +266,10 @@ public class PolicyCombiner {
         if (conflictingAttributePolicyValuesMap.size() == 0) {
             combinedRule.setConditionSets(matchedConditionSets);
         } else {
+            for (String attribute : conflictingAttributePolicyValuesMap.keySet()) {
+                System.out.println(attribute);
+            }
+            throw new IDMException("There are policy elements with conflicting values for certain attributes.");
             //TODO:prompt the user to resolve conflicts or abort the operation.
         }
         combinedPolicy.addRule(combinedRule);

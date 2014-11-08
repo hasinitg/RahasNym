@@ -2,6 +2,7 @@ package org.rahasnym.api.communication.encdecoder;
 
 import org.json.*;
 import org.rahasnym.api.Constants;
+import org.rahasnym.api.IDMException;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 
 import java.io.BufferedReader;
@@ -20,20 +21,25 @@ import java.io.IOException;
  */
 public class JSONPolicyDecoder {
 
-    public IDVPolicy decodePolicy(String policyString) throws IOException, JSONException {
+    public IDVPolicy decodePolicy(String policyString) throws IOException, JSONException, IDMException {
         //TODO: need to validate if the policy adheres to the expected schema.
         JSONObject decodedJsonObj = new JSONObject(new JSONTokener(policyString));
         //extract policy object
         JSONObject policyObj = (JSONObject) decodedJsonObj.opt(Constants.POLICY);
 
         IDVPolicy idvPolicy = new IDVPolicy();
-        idvPolicy.setSpecifierID(policyObj.optString(Constants.SPECIFIER_ID));
-        idvPolicy.setSpecifierName(policyObj.optString(Constants.SPECIFIER_NAME));
+        String specifierID = policyObj.optString(Constants.SPECIFIER_ID);
+        String specifierName = policyObj.optString(Constants.SPECIFIER_NAME);
+        if(specifierName == null){
+            throw new IDMException("Error in server policy. Specifier Name is not mentioned.");
+        }
+        idvPolicy.setSpecifierID(specifierID);
+        idvPolicy.setSpecifierName(specifierName);
         //extract rules array
         JSONArray jsonRules = policyObj.optJSONArray(Constants.RULE);
-        IDVPolicy.Rule rule = idvPolicy.new Rule();
-        if (rule != null) {
+        if (jsonRules != null) {
             for (int i = 0; i < jsonRules.length(); i++) {
+                IDVPolicy.Rule rule = idvPolicy.new Rule();
                 JSONObject jsonRule = jsonRules.getJSONObject(i);
                 rule.setId(jsonRule.optString(Constants.RULE_ID));
                 //extract target of a rule
@@ -48,7 +54,7 @@ public class JSONPolicyDecoder {
                 JSONArray jsonSPs = jsonTarget.optJSONArray(Constants.SERVICE_PROVIDERS);
                 if (jsonSPs != null) {
                     for (int s = 0; s < jsonSPs.length(); s++) {
-                        target.addOperation(jsonSPs.getString(s));
+                        target.addServiceProvider(jsonSPs.getString(s));
                     }
                 }
                 String overridingAlgo = jsonTarget.optString(Constants.OVERRIDING_ALGORITHM);
@@ -56,8 +62,8 @@ public class JSONPolicyDecoder {
                 rule.setTarget(target);
                 //extract condition set array in a particular rule
                 JSONArray jsonConditionSetArray = jsonRule.optJSONArray(Constants.CONDITION_SET);
-                IDVPolicy.ConditionSet conditionSet = idvPolicy.new ConditionSet();
                 for (int j = 0; j < jsonConditionSetArray.length(); j++) {
+                    IDVPolicy.ConditionSet conditionSet = idvPolicy.new ConditionSet();
                     JSONObject jsonConditionSet = jsonConditionSetArray.getJSONObject(j);
                     //extract values for different conditions in a condition set
                     JSONArray jsonAppliesToArray = jsonConditionSet.optJSONArray(Constants.APPLIES_TO);
@@ -86,6 +92,7 @@ public class JSONPolicyDecoder {
                     }
                     rule.addConditionSet(conditionSet);
                 }
+                idvPolicy.addRule(rule);
             }
         }
         return idvPolicy;
@@ -100,7 +107,7 @@ public class JSONPolicyDecoder {
         return policy;
     }
 
-    public IDVPolicy readPolicy(String policyPath) throws IOException, JSONException {
+    public IDVPolicy readPolicy(String policyPath) throws IOException, JSONException, IDMException {
         String policy = readPolicyAsString(policyPath);
         return decodePolicy(policy);
     }
