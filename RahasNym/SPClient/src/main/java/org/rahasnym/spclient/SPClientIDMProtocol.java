@@ -6,6 +6,8 @@ import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
 import org.crypto.lib.zero.knowledge.proof.PedersenCommitmentProof;
 import org.crypto.lib.zero.knowledge.proof.ZKPPedersenCommitment;
+import org.rahasnym.api.clientapi.ClientAPI;
+import org.rahasnym.api.verifierapi.VerifierAPI;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -98,15 +100,18 @@ public class SPClientIDMProtocol {
     }
 
     public void connectToRemoteHost(){
-        try{
+        //try{
+            ClientAPI clientAPI = new ClientAPI();
+            clientAPI.requestPolicy("http://localhost:8080/amazingshop/service/shop");
 
-            HTTPClientRequest getR = new HTTPClientRequest();
+            /*HTTPClientRequest getR = new HTTPClientRequest();
             getR.setRequestType(Constants.RequestType.GET);
             getR.setRequestURI("http://localhost:8080/amazingshop/service/shop");
-            getR.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            getR.execute();*/
+
+        //} catch (IOException e) {
+        //    e.printStackTrace();
+        //}
     }
 
     public void openPolicyFile(){

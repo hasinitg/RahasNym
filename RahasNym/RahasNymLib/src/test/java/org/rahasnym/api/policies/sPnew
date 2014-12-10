@@ -1,0 +1,39 @@
+{
+    "policySpec": {
+        "specifierName": "amazon.com",
+        "specifierId": "c225b4e0-eb57-11e3-ac10-0800200c9a66",
+        "rule": [
+            {
+                "id": "rule-1",
+                "target": {
+                    "operations": ["purchase_as_guest"]
+                },
+                "policySet": [
+                    {
+                        "appliesTo": ["email","shipping_address"],
+                        "subjectVerification": ["PSEUDONYM_BOUND_&_SP_BOUND"],
+                        "proofOfIdentity": ["ZKP_NI"],
+                        "pseudonymCardinality": ["MULTIPLE"]
+                    },
+                    {
+                        "appliesTo": ["CCN"],
+                        "proofOfIdentity": ["ZKP_NI_S"],
+                        "subjectVerification": ["HIDDEN_PSEUDONYM_BOUND_&_BIOMETRIC_BOUND"],
+                        "pseudonymCardinality": ["MULTIPLE","SINGLE"]
+                    }
+                ]
+            },
+            {
+                "id": "rule-2",
+                "target": {
+                    "operations": ["sign_up","login"]
+                },
+                "policySet": [{
+                    "appliesTo": ["email"],
+                    "proofOfIdentity": ["ZKP_NI"],
+                    "pseudonymCardinality": ["SINGLE"]
+                }]
+            }
+        ]
+    }
+}

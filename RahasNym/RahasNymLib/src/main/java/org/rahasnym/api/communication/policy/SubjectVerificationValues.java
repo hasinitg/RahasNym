@@ -10,7 +10,7 @@ public enum SubjectVerificationValues implements PolicyValues {
     BIOMETRIC_BOUND(10), SP_BOUND(5), HIDDEN_PSEUDONYM_BOUND(2), PSEUDONYM_BOUND(1), BIOMETRIC_BOUND_N_PSEUDONYM_BOUND(11),
     BIOMETRIC_BOUND_N_HIDDEN_PSEUDONYM_BOUND(12), PSEUDONYM_BOUND_N_SP_BOUND(6), HIDDEN_PSEUDONYM_BOUND_N_SP_BOUND(7),
     BIOMETRIC_BOUND_N_PSEUDONYM_BOUND_N_SP_BOUND(16), BIOMETRIC_BOUND_N_HIDDEN_PSEUDONYM_BOUND_N_SP_BOUND(17);
-
+    //there should be an option as hidden sp bound as well.
     private int priority;
 
     private SubjectVerificationValues(int priorityValue) {

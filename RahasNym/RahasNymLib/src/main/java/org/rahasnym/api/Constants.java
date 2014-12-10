@@ -63,8 +63,10 @@ public class Constants {
 
     public static final String CONTENT_TYPE = "application/json";
     public static final String CHAR_SET = "UTF-8";
-    public static final int HTTP_ERROR_CODE = 500;
 
+    //http response codes
+    public static final int HTTP_ERROR_CODE = 500;
+    public static final int CODE_OK = 200;
     /**
      * HTTP Request Methods used in RESTful communication
      */

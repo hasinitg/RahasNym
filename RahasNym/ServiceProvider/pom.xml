@@ -36,6 +36,12 @@
             <artifactId>spring-web</artifactId>
             <version>3.0.7.RELEASE</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.rahasnym</groupId>
+            <artifactId>RahasNymLib</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
