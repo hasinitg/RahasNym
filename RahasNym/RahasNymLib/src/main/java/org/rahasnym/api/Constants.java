@@ -72,4 +72,28 @@ public class Constants {
      */
     public enum RequestType{CREATE, UPDATE, REVOKE, GET};
 
+    /*Client request constants.*/
+    public static final String OPERATION = "operation";
+    public static final String VERIFIER_POLICY = "verifierPolicy";
+    public static final String REQUEST_TYPE = "reqType";
+    public static final String IDT_REQUEST = "IDTRequest";
+    public static final String CHALLENGE_MESSAGE = "challengeMessage";
+    public static final String ACK_MESSAGE = "ackMessage";
+    public static final String CHALLENGE = "challenge";
+
+    /*Constants in reply from IDP for IDT request.*/
+    public static final String IDT = "identityToken";
+    public static final String PEDERSEN_PARAMS = "perdersenParams";
+    public static final String P_PARAM = "P";
+    public static final String Q_PARAM = "Q";
+    public static final String G_PARAM = "G";
+    public static final String H_PARAM = "H";
+
+    /*Constants in reply from IDMM to client in proof creation.*/
+    public static final String U_VALUE = "U";
+    public static final String V_VALUE = "V";
+    public static final String HELPER_COMMITMENT = "helper";
+
+    /*Error Messages*/
+    public static final String REQUEST_ERROR = "Unidentified Request Type.";
 }

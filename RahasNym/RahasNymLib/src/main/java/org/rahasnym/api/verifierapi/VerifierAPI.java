@@ -16,6 +16,8 @@ import java.io.IOException;
 public class VerifierAPI {
 
     public String getIDVPolicy(String policyPath) throws IOException {
-        return JSONPolicyDecoder.readPolicyAsString(policyPath);
+        return new JSONPolicyDecoder().readPolicyAsString(policyPath);
     }
+
+
 }

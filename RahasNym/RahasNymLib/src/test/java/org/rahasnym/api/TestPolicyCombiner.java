@@ -4,7 +4,6 @@ import junit.framework.Assert;
 import org.json.JSONException;
 import org.junit.Test;
 import org.rahasnym.api.communication.encdecoder.JSONPolicyDecoder;
-import org.rahasnym.api.communication.policy.DisclosureValues;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 import org.rahasnym.api.communication.policy.PolicyCombiner;
 
@@ -19,7 +18,7 @@ import java.util.*;
  */
 public class TestPolicyCombiner {
     @Test
-    public void testPolicyCombiningAlgorithm() throws IOException, JSONException, IDMException {
+    public void testPolicyCombiningAlgorithm() throws IOException, JSONException, RahasNymException {
         String clientPolicyPath = "src/test/java/org/rahasnym/api/policies/clientPolicy";
         String serverPolicyPath = "src/test/java/org/rahasnym/api/policies/serverPolicy";
 

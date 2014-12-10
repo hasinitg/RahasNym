@@ -2,7 +2,7 @@ package org.rahasnym.api.communication.encdecoder;
 
 import org.json.*;
 import org.rahasnym.api.Constants;
-import org.rahasnym.api.IDMException;
+import org.rahasnym.api.RahasNymException;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 
 import java.io.BufferedReader;
@@ -21,7 +21,7 @@ import java.io.IOException;
  */
 public class JSONPolicyDecoder {
 
-    public IDVPolicy decodePolicy(String policyString) throws IOException, JSONException, IDMException {
+    public IDVPolicy decodePolicy(String policyString) throws IOException, JSONException, RahasNymException {
         //TODO: need to validate if the policy adheres to the expected schema.
         JSONObject decodedJsonObj = new JSONObject(new JSONTokener(policyString));
         //extract policy object
@@ -31,7 +31,7 @@ public class JSONPolicyDecoder {
         String specifierID = policyObj.optString(Constants.SPECIFIER_ID);
         String specifierName = policyObj.optString(Constants.SPECIFIER_NAME);
         if(specifierName == null){
-            throw new IDMException("Error in server policy. Specifier Name is not mentioned.");
+            throw new RahasNymException("Error in server policy. Specifier Name is not mentioned.");
         }
         idvPolicy.setSpecifierID(specifierID);
         idvPolicy.setSpecifierName(specifierName);
@@ -98,7 +98,7 @@ public class JSONPolicyDecoder {
         return idvPolicy;
     }
 
-    public static String readPolicyAsString(String policyPath) throws IOException {
+    public String readPolicyAsString(String policyPath) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(policyPath));
         String policy = "", line;
         while ((line = reader.readLine()) != null) {
@@ -107,7 +107,7 @@ public class JSONPolicyDecoder {
         return policy;
     }
 
-    public IDVPolicy readPolicy(String policyPath) throws IOException, JSONException, IDMException {
+    public IDVPolicy readPolicy(String policyPath) throws IOException, JSONException, RahasNymException {
         String policy = readPolicyAsString(policyPath);
         return decodePolicy(policy);
     }

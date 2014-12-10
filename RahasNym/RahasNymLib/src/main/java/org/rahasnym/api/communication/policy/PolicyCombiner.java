@@ -8,7 +8,7 @@ package org.rahasnym.api.communication.policy;
  */
 
 import org.rahasnym.api.Constants;
-import org.rahasnym.api.IDMException;
+import org.rahasnym.api.RahasNymException;
 
 import java.util.*;
 
@@ -37,7 +37,7 @@ public class PolicyCombiner {
      * @return
      */
     public IDVPolicy getCombinedPolicy(IDVPolicy verifierPolicy, IDVPolicy clientPolicy, String currentOperation)
-            throws IDMException {
+            throws RahasNymException {
         IDVPolicy combinedPolicy = new IDVPolicy();
 
         String verifierName = verifierPolicy.getSpecifierName();
@@ -54,7 +54,7 @@ public class PolicyCombiner {
         }
         if (matchingVerifierRule == null) {
             String error = "Error in verifier policy. No matching rule found.";
-            throw new IDMException(error);
+            throw new RahasNymException(error);
         }
 
         //get the client's rule applies to the particular verifier or to all verifiers in general.
@@ -87,7 +87,7 @@ public class PolicyCombiner {
         //if no matching rule, show error and prompt the user to create a rule
         if (matchingClientRule == null) {
             //todo:show error dialogue
-            throw new IDMException("No IDV rule defined for this Service Provider.");
+            throw new RahasNymException("No IDV rule defined for this Service Provider.");
             //todo:in all the prompts to add a new rule, show verifier rule and client's rule/policy side by side.
             //if the client adds a non-matching thing, warn then and there, so that user will not get multiple prompts.
             //also, ask to add overriding algo, for later usage.
@@ -111,7 +111,7 @@ public class PolicyCombiner {
                 for (String nonMatchedAttribute : attributesToBeMatched) {
                     System.out.println(nonMatchedAttribute);
                 }
-                throw new IDMException("Preferences for Identity Verification not defined for above attributes");
+                throw new RahasNymException("Preferences for Identity Verification not defined for above attributes");
                 //todo: show error and prompt to add *conditions* for attributes to be matched n this rule.
                 //todo: if the client adds conditions, populate the above two maps and the set.
             }
@@ -269,7 +269,7 @@ public class PolicyCombiner {
             for (String attribute : conflictingAttributePolicyValuesMap.keySet()) {
                 System.out.println(attribute);
             }
-            throw new IDMException("There are policy elements with conflicting values for certain attributes.");
+            throw new RahasNymException("There are policy elements with conflicting values for certain attributes.");
             //TODO:prompt the user to resolve conflicts or abort the operation.
         }
         combinedPolicy.addRule(combinedRule);

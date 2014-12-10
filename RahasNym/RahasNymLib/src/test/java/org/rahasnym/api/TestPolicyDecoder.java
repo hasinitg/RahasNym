@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.rahasnym.api.communication.encdecoder.JSONPolicyDecoder;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -71,7 +70,7 @@ public class TestPolicyDecoder {
             Assert.fail("I/O Exception in reading the policy.");
         } catch (JSONException e) {
             Assert.fail("JSON parsing error in reading the policy.");
-        } catch (IDMException e) {
+        } catch (RahasNymException e) {
             Assert.fail("Error in reading policy." + e.getMessage());
         }
     }
@@ -103,7 +102,7 @@ public class TestPolicyDecoder {
             Assert.fail("I/O Exception in reading the policy.");
         } catch (JSONException e) {
             Assert.fail("JSON parsing error in reading the policy.");
-        } catch (IDMException e) {
+        } catch (RahasNymException e) {
             Assert.fail("Error in reading policy." + e.getMessage());
         }
     }
