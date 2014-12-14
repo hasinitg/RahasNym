@@ -21,7 +21,7 @@ public class IDMMAPI {
         //listens to clients and handle them until the programme is closed
         boolean listening = true;
         try (
-                ServerSocket serverSocket = new ServerSocket(IDMMConfig.getIDMMPort());
+                ServerSocket serverSocket = new ServerSocket(IDMMConfig.getInstance().getIDMMPort());
 
         ) {
             while (listening) {
@@ -30,7 +30,7 @@ public class IDMMAPI {
             }
         } catch (IOException e) {
             //todo:log the error
-            System.out.println("Error in listening on the socket: " + IDMMConfig.getIDMMPort());
+            System.out.println("Error in listening on the socket: " + IDMMConfig.getInstance().getIDMMPort());
             throw new RahasNymException(e.getMessage());
         }
 

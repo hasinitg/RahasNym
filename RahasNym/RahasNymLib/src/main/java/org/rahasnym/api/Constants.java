@@ -80,6 +80,7 @@ public class Constants {
     public static final String CHALLENGE_MESSAGE = "challengeMessage";
     public static final String ACK_MESSAGE = "ackMessage";
     public static final String CHALLENGE = "challenge";
+    public static final String TRANSACTION_RECEIPT = "transactionReceipt";
 
     /*Constants in reply from IDP for IDT request.*/
     public static final String IDT = "identityToken";

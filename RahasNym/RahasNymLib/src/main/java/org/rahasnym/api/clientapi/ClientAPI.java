@@ -16,6 +16,7 @@ import org.crypto.lib.zero.knowledge.proof.ZKPPedersenCommitment;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rahasnym.api.Constants;
+import org.rahasnym.api.RahasNymException;
 import org.rahasnym.api.communication.HTTPClientRequest;
 
 import java.io.BufferedReader;
@@ -29,6 +30,7 @@ import java.net.Socket;
  * This is the API provided for the developers of verifier client - i.e: SPClient.
  */
 public class ClientAPI {
+
     /*Request the identity verification policy from the SP*/
     public String requestPolicy(String url) {
         try {
@@ -45,9 +47,24 @@ public class ClientAPI {
         return null;
     }
 
-    public String requestToken(int IDMMPort, String spPolicy, String operation) {
+    /**
+     * Client application calls this to perform identity verification with SP according to the agreed policy
+     * by both parties, in order to perform the intended operation.
+     * This function returns to the client application, if there is an authenticated session given by SP upon successful
+     * verification of the identity.
+     * @param spPolicy
+     * @param operation
+     * @param spURL
+     * @param receipt
+     * @return
+     */
+    public String authenticate(String spPolicy, String operation, String spURL, String receipt) throws RahasNymException {
         //gets the policy from SP
-        try (   //connects to IDMModule
+        //TODO: should initialize the port from the configuration of the client device
+        int IDMMPort =  Constants.IDM_MODULE_PORT;
+        try (
+                //todo: read this from configuration
+                //connects to IDMModule
                 Socket clientSocket = new Socket(Constants.LOCAL_HOST, IDMMPort);
                 //obtain output stream
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -59,6 +76,7 @@ public class ClientAPI {
             request.append(Constants.REQUEST_TYPE, Constants.IDT_REQUEST);
             request.append(Constants.OPERATION, operation);
             request.append(Constants.VERIFIER_POLICY, spPolicy);
+            request.append(Constants.TRANSACTION_RECEIPT, receipt);
             //send the policy
             out.println(request.toString());
             //read the token
@@ -119,7 +137,7 @@ public class ClientAPI {
                     }
                 }
             }
-            return null;
+            throw new RahasNymException("Response from IDMM is null.");
         } catch (IOException e) {
             //TODO: handle the exception properly
             e.printStackTrace();

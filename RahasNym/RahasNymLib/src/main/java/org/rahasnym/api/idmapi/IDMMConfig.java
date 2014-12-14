@@ -13,6 +13,8 @@ import org.rahasnym.api.communication.encdecoder.JSONPolicyDecoder;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This represents the configuration file of IDMM which includes the config. info required for
@@ -23,20 +25,37 @@ public class IDMMConfig {
 
     private static int IDMMPort;
     private static IDVPolicy userIDVPolicy;
+    private static IDMMConfig idmmConfig;
+    private static Map<String, IDPAccessInfo> IDPUrls = new HashMap<>();
 
-    public static IDVPolicy getUserIDVPolicy() {
+    public static IDMMConfig getInstance() {
+        if (idmmConfig == null) {
+            idmmConfig = new IDMMConfig();
+        }
+        return idmmConfig;
+    }
+
+    public IDVPolicy getUserIDVPolicy() {
         return userIDVPolicy;
     }
 
-    public static void setUserIDVPolicy(String clientPolicyPath) throws JSONException, RahasNymException, IOException {
+    public void setUserIDVPolicy(String clientPolicyPath) throws JSONException, RahasNymException, IOException {
         userIDVPolicy = new JSONPolicyDecoder().readPolicy(clientPolicyPath);
     }
 
-    public static int getIDMMPort() {
+    public int getIDMMPort() {
         return IDMMPort;
     }
 
-    public static void setIDMMPort(int IDMMPort) {
+    public void setIDMMPort(int IDMMPort) {
         IDMMConfig.IDMMPort = IDMMPort;
+    }
+
+    public void addIDP(String attributeName, IDPAccessInfo idpAccessInfo){
+        IDPUrls.put(attributeName, idpAccessInfo);
+    }
+
+    public IDPAccessInfo getIDPAccessInfo(String attributeName){
+        return IDPUrls.get(attributeName);
     }
 }

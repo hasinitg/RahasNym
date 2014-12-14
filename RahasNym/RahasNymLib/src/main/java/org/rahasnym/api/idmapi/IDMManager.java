@@ -53,12 +53,12 @@ public class IDMManager {
         String operation = jsonRequest.getString(Constants.OPERATION);
         //get the verifier policy
         String spPolicy = jsonRequest.getString(Constants.VERIFIER_POLICY);
-        System.out.println(spPolicy);
+        //System.out.println(spPolicy);
         //decode sp policy
         IDVPolicy spIDVPolicy = new JSONPolicyDecoder().decodePolicy(spPolicy);
         //combine policy
         PolicyCombiner policyCombiner = new PolicyCombiner();
-        combinedPolicy = policyCombiner.getCombinedPolicy(spIDVPolicy, IDMMConfig.getUserIDVPolicy(), operation);
+        combinedPolicy = policyCombiner.getCombinedPolicy(spIDVPolicy, IDMMConfig.getInstance().getUserIDVPolicy(), operation);
         //TODO:obtain identity and user-password and create committable values out of them.
         String email = "hasinitg@gmail.com";
         emailBIG = CryptoUtil.getCommittableThruHash(email, CryptoLibConstants.SECRET_BIT_LENGTH);
