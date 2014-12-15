@@ -1,6 +1,7 @@
 package org.rahasnym.api;
 
 import org.json.JSONException;
+import org.rahasnym.api.clientapi.AuthInfo;
 import org.rahasnym.api.clientapi.ClientAPI;
 import org.rahasnym.api.idmapi.IDMMAPI;
 import org.rahasnym.api.idmapi.IDMMConfig;
@@ -30,7 +31,13 @@ public class UserDevice {
         //record start time
         ClientAPI client = new ClientAPI();
         String policy = client.requestPolicy("http://localhost:8080/amazingshop/service/shop");
-        String sessionId = client.authenticate(policy, "sign_up", "http://localhost:8080/amazingshop/service/shop", null);
+
+        //create the AuthInfo object to pass into the client API.
+        AuthInfo authInfo = new AuthInfo();
+        authInfo.setOperation("sign_up");
+        authInfo.setPolicy(policy);
+        authInfo.setSpURL("http://localhost:8080/amazingshop/service/shop");
+        String sessionId = client.authenticate(authInfo);
         //record end time
 
         //calculate average

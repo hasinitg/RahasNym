@@ -19,6 +19,15 @@ public class VerifierAPI {
         return new JSONPolicyDecoder().readPolicyAsString(policyPath);
     }
 
+    public String handleIDVReqMessage(String IDVReqMessage){
+        //identify the request type
 
+        //decode IDT and Proof
+
+        //call identity verification handler which validates the token and verify the identity proof
+
+        //return the response given by the Identity Verification Handler.
+        return null;
+    }
 
 }

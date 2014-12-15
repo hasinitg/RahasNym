@@ -10,6 +10,7 @@ package org.rahasnym.api.idpapi;
 import org.crypto.lib.commitments.pedersen.PedersenCommitmentFactory;
 import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
+import org.rahasnym.api.Constants;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -23,11 +24,13 @@ public class IDPConfig {
     private static PedersenPublicParams pedersenPublicParams;
     private static String RSAPrivateKey;
     private static String RSAPublicKey;
+    private static long IDTTimeToLive;
 
     private static volatile IDPConfig idpConfig = null;
 
     private IDPConfig() throws CryptoAlgorithmException, NoSuchAlgorithmException {
         pedersenPublicParams = new PedersenCommitmentFactory().initialize();
+        IDTTimeToLive = Constants.DEFAULT_IDT_TTL;
         //initialize other configs as well.
     }
 
@@ -52,5 +55,13 @@ public class IDPConfig {
 
     public String getRSAPublicKey() {
         return RSAPublicKey;
+    }
+
+    public long getIDTTimeToLive() {
+        return IDTTimeToLive;
+    }
+
+    public void setIDTTimeToLive(long IDTTimeToLive) {
+        IDPConfig.IDTTimeToLive = IDTTimeToLive;
     }
 }

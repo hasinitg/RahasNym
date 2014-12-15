@@ -53,7 +53,9 @@ public class IDMManager {
         String operation = jsonRequest.getString(Constants.OPERATION);
         //get the verifier policy
         String spPolicy = jsonRequest.getString(Constants.VERIFIER_POLICY);
-        //System.out.println(spPolicy);
+        //read the pseudonym used with the SP
+        String pseudonymWithSP = jsonRequest.getString(Constants.PSEUDONYM_WITH_SP);
+
         //decode sp policy
         IDVPolicy spIDVPolicy = new JSONPolicyDecoder().decodePolicy(spPolicy);
         //combine policy
@@ -71,7 +73,7 @@ public class IDMManager {
 
         //request IDT
         IDTRequestSender IDTRequester = new IDTRequestSender();
-        String IDTResponse = IDTRequester.requestIDT(combinedPolicy, secretBIG);
+        String IDTResponse = IDTRequester.requestIDT(combinedPolicy, secretBIG, pseudonymWithSP);
 
         //create proof adhering to policy
         proofCreator = new IDVProofCreator();

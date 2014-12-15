@@ -52,16 +52,13 @@ public class ClientAPI {
      * by both parties, in order to perform the intended operation.
      * This function returns to the client application, if there is an authenticated session given by SP upon successful
      * verification of the identity.
-     * @param spPolicy
-     * @param operation
-     * @param spURL
-     * @param receipt
-     * @return
+     *
+     * @param authInfo@return
      */
-    public String authenticate(String spPolicy, String operation, String spURL, String receipt) throws RahasNymException {
+    public String authenticate(AuthInfo authInfo) throws RahasNymException {
         //gets the policy from SP
         //TODO: should initialize the port from the configuration of the client device
-        int IDMMPort =  Constants.IDM_MODULE_PORT;
+        int IDMMPort = Constants.IDM_MODULE_PORT;
         try (
                 //todo: read this from configuration
                 //connects to IDMModule
@@ -71,12 +68,20 @@ public class ClientAPI {
                 //obtain input stream
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ) {
+            String spURL = authInfo.getSpURL();
+            String sessionID;
+            if (authInfo.getSessionID() != null) {
+                sessionID = authInfo.getSessionID();
+            }
             //create the request:
             JSONObject request = new JSONObject();
             request.append(Constants.REQUEST_TYPE, Constants.IDT_REQUEST);
-            request.append(Constants.OPERATION, operation);
-            request.append(Constants.VERIFIER_POLICY, spPolicy);
-            request.append(Constants.TRANSACTION_RECEIPT, receipt);
+            request.append(Constants.OPERATION, authInfo.getOperation());
+            request.append(Constants.VERIFIER_POLICY, authInfo.getPolicy());
+            request.append(Constants.PSEUDONYM_WITH_SP, authInfo.getPseudonym());
+            if (authInfo.getReceipt() != null) {
+                request.append(Constants.TRANSACTION_RECEIPT, authInfo.getReceipt());
+            }
             //send the policy
             out.println(request.toString());
             //read the token

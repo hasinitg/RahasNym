@@ -9,6 +9,9 @@ package org.rahasnym.api.idenity;
 
 import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
 
+import java.math.BigInteger;
+import java.sql.Timestamp;
+
 /**
  * This represents the identity token object.
  */
@@ -16,18 +19,52 @@ public class IdentityToken {
     private String pseudoNym;
     private String spID;
     private String attributeName;
-    private String identityCommitment;
-    private String expirationTimeStamp;
-    private String creationTimestamp;
+    private BigInteger identityCommitment;
+    private String biometricIdentity;
+    private String isSinglePseudonym;
+    private Timestamp expirationTimeStamp;
+    private Timestamp creationTimestamp;
     private PedersenPublicParams pedersenParams;
     private String signature;
     private String publicCert;
 
-    public String getIdentityCommitment() {
+    public String getBiometricIdentity() {
+        return biometricIdentity;
+    }
+
+    public void setBiometricIdentity(String biometricIdentity) {
+        this.biometricIdentity = biometricIdentity;
+    }
+
+    public String getSinglePseudonym() {
+        return isSinglePseudonym;
+    }
+
+    public void setSinglePseudonym(String singlePseudonym) {
+        isSinglePseudonym = singlePseudonym;
+    }
+
+    public PedersenPublicParams getPedersenParams() {
+        return pedersenParams;
+    }
+
+    public void setPedersenParams(PedersenPublicParams pedersenParams) {
+        this.pedersenParams = pedersenParams;
+    }
+
+    public String getPublicCert() {
+        return publicCert;
+    }
+
+    public void setPublicCert(String publicCert) {
+        this.publicCert = publicCert;
+    }
+
+    public BigInteger getIdentityCommitment() {
         return identityCommitment;
     }
 
-    public void setIdentityCommitment(String identityCommitment) {
+    public void setIdentityCommitment(BigInteger identityCommitment) {
         this.identityCommitment = identityCommitment;
     }
 
@@ -55,19 +92,19 @@ public class IdentityToken {
         this.attributeName = attributeName;
     }
 
-    public String getExpirationTimeStamp() {
+    public Timestamp getExpirationTimeStamp() {
         return expirationTimeStamp;
     }
 
-    public void setExpirationTimeStamp(String expirationTimeStamp) {
+    public void setExpirationTimeStamp(Timestamp expirationTimeStamp) {
         this.expirationTimeStamp = expirationTimeStamp;
     }
 
-    public String getCreationTimestamp() {
+    public Timestamp getCreationTimestamp() {
         return creationTimestamp;
     }
 
-    public void setCreationTimestamp(String creationTimestamp) {
+    public void setCreationTimestamp(Timestamp creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
     }
 

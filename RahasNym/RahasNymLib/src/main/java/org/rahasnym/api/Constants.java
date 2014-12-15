@@ -59,6 +59,9 @@ public class Constants {
     public static int IDM_MODULE_PORT = 4444;
     public static String LOCAL_HOST = "localhost";
 
+    //default IDT Time-to-live is 20 mins.
+    public static final long DEFAULT_IDT_TTL = 1200000;
+
     public static final String USER_ID = "UserId";
 
     public static final String CONTENT_TYPE = "application/json";
@@ -72,9 +75,10 @@ public class Constants {
      */
     public enum RequestType{CREATE, UPDATE, REVOKE, GET};
 
-    /*Client request constants.*/
+    /*Client-To-IDMM request constants.*/
     public static final String OPERATION = "operation";
     public static final String VERIFIER_POLICY = "verifierPolicy";
+    public static final String PSEUDONYM_WITH_SP = "pseudonymWithSP";
     public static final String REQUEST_TYPE = "reqType";
     public static final String IDT_REQUEST = "IDTRequest";
     public static final String CHALLENGE_MESSAGE = "challengeMessage";
@@ -82,13 +86,29 @@ public class Constants {
     public static final String CHALLENGE = "challenge";
     public static final String TRANSACTION_RECEIPT = "transactionReceipt";
 
+    /*Constants in IDT request from Client to IDP.*/
+    public static final String SECRET = "secret";
+    public static final String SP_IDENTITY = "spIdentity";
+    public static final String SINGLE_PSEUDONYM_REQUIRED = "isSinglePseudonym";
+    public static final String BIO_ID_REQUIRED = "isBioIDRequired";
+
     /*Constants in reply from IDP for IDT request.*/
     public static final String IDT = "identityToken";
+    public static final String FROM = "from:";
+    public static final String TO = "to:";
+    public static final String ATTRIBUTE_NAME = "attributeName";
+    public static final String IDENTITY_COMMITMENT = "identityCommitment";
+    public static final String EXPIRATION_TIMESTAMP = "expirationTimestamp";
+    public static final String CURRENT_TIMESTAMP = "currentTimestamp";
+    public static final String BIOMETRIC_IDENTITY = "biometricIdentity";
+    public static final String SINGLE_PSEUDONYM_CERTIFIED = "singlePseudonymCertified";
     public static final String PEDERSEN_PARAMS = "perdersenParams";
     public static final String P_PARAM = "P";
     public static final String Q_PARAM = "Q";
     public static final String G_PARAM = "G";
     public static final String H_PARAM = "H";
+    public static final String SIGNATURE = "signature";
+    public static final String PUBLIC_CERT = "publicCert";
 
     /*Constants in reply from IDMM to client in proof creation.*/
     public static final String U_VALUE = "U";
