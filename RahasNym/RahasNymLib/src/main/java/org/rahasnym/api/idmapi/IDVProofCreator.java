@@ -1,15 +1,12 @@
 package org.rahasnym.api.idmapi;
 
-import org.crypto.lib.commitments.pedersen.PedersenCommitment;
 import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
-import org.crypto.lib.zero.knowledge.proof.PedersenCommitmentProof;
-import org.crypto.lib.zero.knowledge.proof.ZKPPedersenCommitment;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.rahasnym.api.Constants;
-import org.rahasnym.api.Util;
 import org.rahasnym.api.communication.policy.IDVPolicy;
+import org.rahasnym.api.idenity.IdentityProof;
+import org.rahasnym.api.idenity.IdentityToken;
 
 import java.math.BigInteger;
 
@@ -21,24 +18,33 @@ import java.math.BigInteger;
  */
 public class IDVProofCreator {
 
-    public String createProof(String IDTResponse, IDVPolicy combinedPolicy, BigInteger identityBIG, BigInteger secretBIG)
-            throws JSONException {
+    /*Need to maintain state in the case of ZKP_I*/
+    private BigInteger yValue;
+    private BigInteger sValue;
+    private PedersenPublicParams pedersenPublicParams;
+
+    public IdentityProof createProof(IdentityToken identityToken, IDVPolicy combinedPolicy, BigInteger identityBIG, BigInteger secretBIG)
+            throws JSONException, CryptoAlgorithmException {
         //look at the policy and create the appropriate proof
         IDVPolicy.Rule rule = combinedPolicy.getRules().get(0);
         IDVPolicy.ConditionSet conditionSet = rule.getConditionSets().get(0);
         String disclosure = conditionSet.getDisclosure().get(0);
         if (disclosure.equals(Constants.ZKP_I)) {
-            return IDTResponse;
+            return createInitialProofForZKPI(identityToken, null, null);
+
+        }
+        if (disclosure.equals(Constants.ZKP_NI)) {
 
         }
         //PedersenPublicParams params = new Util().extractPedersenParamsFromIDT(IDTResponse);
         return null;
     }
 
-    public String createProofForZKPI(JSONObject IDTRequest, BigInteger identityBIG, BigInteger secretBIG) throws JSONException, CryptoAlgorithmException {
+    public IdentityProof createInitialProofForZKPI(IdentityToken identityToken, BigInteger identityBIG, BigInteger secretBIG) throws JSONException, CryptoAlgorithmException {
 
-        String challenge = IDTRequest.optString(Constants.CHALLENGE);
-        PedersenPublicParams params = new Util().extractPedersenParamsFromIDT(IDTRequest);
+        /*JSONObject root =  new JSONObject(new JSONTokener(IDTRequest));
+        String challenge = root.optString(Constants.CHALLENGE);
+        PedersenPublicParams params = new Util().extractPedersenParamsFromIDT(root);
         ZKPPedersenCommitment zkpIDM = new ZKPPedersenCommitment(params);
         PedersenCommitment helperCommitment = zkpIDM.createHelperProblem(null);
         BigInteger challengeBIG = new BigInteger(challenge, 10);
@@ -52,7 +58,12 @@ public class IDVProofCreator {
         jsonProof.append(Constants.V_VALUE, proof.getV());
         jsonProof.append(Constants.HELPER_COMMITMENT, helperCommitment);
 
-        return jsonProof.toString();
+        return jsonProof.toString();*/
+        return null;
+    }
+
+    public IdentityProof createProofForZKPI(BigInteger challenge, BigInteger secretBIG, BigInteger emailBIG){
+        return null;
     }
 
     public String createProofForZKPNI() {

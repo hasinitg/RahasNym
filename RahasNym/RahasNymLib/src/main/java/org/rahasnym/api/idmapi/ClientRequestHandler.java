@@ -25,6 +25,7 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -98,6 +99,9 @@ public class ClientRequestHandler extends Thread {
         } catch (RahasNymException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (JSONException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ParseException e) {
+            System.out.println("Error in parsing the JSON request.");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }

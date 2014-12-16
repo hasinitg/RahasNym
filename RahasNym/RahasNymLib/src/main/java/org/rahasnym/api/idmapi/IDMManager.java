@@ -18,11 +18,15 @@ import org.rahasnym.api.RahasNymException;
 import org.rahasnym.api.communication.encdecoder.JSONPolicyDecoder;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 import org.rahasnym.api.communication.policy.PolicyCombiner;
+import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
+import org.rahasnym.api.idenity.IdentityProof;
+import org.rahasnym.api.idenity.IdentityToken;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
 
 /**
  * This is responsible for processing the messages sent by client and delegate to the appropriate handler.
@@ -33,22 +37,30 @@ public class IDMManager {
     private BigInteger secretBIG;
     private BigInteger emailBIG;
     private IDVProofCreator proofCreator;
+    private IdentityMessagesEncoderDecoder encoderDecoder;
 
-    public String processClientMessage(String clientMessage) throws JSONException, IOException, RahasNymException, InvalidKeySpecException, NoSuchAlgorithmException, CryptoAlgorithmException {
+    public IDMManager() {
+        proofCreator = new IDVProofCreator();
+        encoderDecoder = new IdentityMessagesEncoderDecoder();
+    }
+
+    public String processClientMessage(String clientMessage) throws JSONException, IOException, RahasNymException,
+            InvalidKeySpecException, NoSuchAlgorithmException, CryptoAlgorithmException, ParseException {
         JSONObject jsonRequest = new JSONObject(new JSONTokener(clientMessage));
         String reqType = jsonRequest.optString(Constants.REQUEST_TYPE);
         if (reqType.equals(Constants.IDT_REQUEST)) {
             return processIDTRequestMessage(jsonRequest);
-        } else if(reqType.equals(Constants.CHALLENGE_MESSAGE)){
+        } else if (reqType.equals(Constants.CHALLENGE_MESSAGE)) {
             //todo:check if challenge is expected according to IDV policy
             return processChallengeMessage(jsonRequest);
-        } else if(reqType.equals(Constants.ACK_MESSAGE)){
+        } else if (reqType.equals(Constants.ACK_MESSAGE)) {
             return processAckMessage(jsonRequest);
         }
         return Constants.REQUEST_ERROR;
     }
 
-    private String processIDTRequestMessage(JSONObject jsonRequest) throws JSONException, IOException, RahasNymException, InvalidKeySpecException, NoSuchAlgorithmException, CryptoAlgorithmException {
+    private String processIDTRequestMessage(JSONObject jsonRequest) throws JSONException, IOException, RahasNymException,
+            InvalidKeySpecException, NoSuchAlgorithmException, CryptoAlgorithmException, ParseException {
         //read the operation name
         String operation = jsonRequest.getString(Constants.OPERATION);
         //get the verifier policy
@@ -74,17 +86,19 @@ public class IDMManager {
         //request IDT
         IDTRequestSender IDTRequester = new IDTRequestSender();
         String IDTResponse = IDTRequester.requestIDT(combinedPolicy, secretBIG, pseudonymWithSP);
-
+        IdentityToken idt = encoderDecoder.decodeIdentityToken(IDTResponse);
         //create proof adhering to policy
-        proofCreator = new IDVProofCreator();
-        IDTResponse = proofCreator.createProof(IDTResponse, combinedPolicy, emailBIG, secretBIG);
+        //proofCreator = new IDVProofCreator();
+        IdentityProof proof = proofCreator.createProof(null, combinedPolicy, emailBIG, secretBIG);
+        //todo: create the response message here
 
         return IDTResponse;
     }
 
-    private String processChallengeMessage(JSONObject jsonRequest) throws JSONException, CryptoAlgorithmException {
-        String proofResponse = proofCreator.createProofForZKPI(jsonRequest, emailBIG, secretBIG);
-        return proofResponse;
+    private String processChallengeMessage(JSONObject challengeMessage) throws JSONException, CryptoAlgorithmException {
+        IdentityProof proofResponse = proofCreator.createProofForZKPI(null, emailBIG, secretBIG);
+        //todo: encode the proof
+        return proofResponse.toString();
     }
 
     private String processAckMessage(JSONObject jsonRequest) {

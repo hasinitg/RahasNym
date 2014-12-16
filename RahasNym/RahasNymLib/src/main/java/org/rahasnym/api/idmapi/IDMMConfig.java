@@ -25,12 +25,18 @@ public class IDMMConfig {
 
     private static int IDMMPort;
     private static IDVPolicy userIDVPolicy;
-    private static IDMMConfig idmmConfig;
+    private static volatile IDMMConfig idmmConfig;
     private static Map<String, IDPAccessInfo> IDPUrls = new HashMap<>();
+    private static ProofStore<String, ProofInfo> proofStore = new ProofStore<String, ProofInfo>();
 
     public static IDMMConfig getInstance() {
         if (idmmConfig == null) {
-            idmmConfig = new IDMMConfig();
+            synchronized (IDMMConfig.class) {
+                if (idmmConfig == null) {
+                    idmmConfig = new IDMMConfig();
+                    return idmmConfig;
+                }
+            }
         }
         return idmmConfig;
     }
@@ -51,11 +57,19 @@ public class IDMMConfig {
         IDMMConfig.IDMMPort = IDMMPort;
     }
 
-    public void addIDP(String attributeName, IDPAccessInfo idpAccessInfo){
+    public void addIDP(String attributeName, IDPAccessInfo idpAccessInfo) {
         IDPUrls.put(attributeName, idpAccessInfo);
     }
 
-    public IDPAccessInfo getIDPAccessInfo(String attributeName){
+    public IDPAccessInfo getIDPAccessInfo(String attributeName) {
         return IDPUrls.get(attributeName);
+    }
+
+    public static ProofStore<String, ProofInfo> getProofStore() {
+        return proofStore;
+    }
+
+    public static void setProofStore(ProofStore<String, ProofInfo> proofStore) {
+        IDMMConfig.proofStore = proofStore;
     }
 }

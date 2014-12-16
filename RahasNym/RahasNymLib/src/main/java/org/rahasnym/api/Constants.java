@@ -58,6 +58,7 @@ public class Constants {
     //the port number that the IDMModule listens on
     public static int IDM_MODULE_PORT = 4444;
     public static String LOCAL_HOST = "localhost";
+    public static int MAX_SIZE_PROOF_MAP_IN_MEMORY = 100;
 
     //default IDT Time-to-live is 20 mins.
     public static final long DEFAULT_IDT_TTL = 1200000;
