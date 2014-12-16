@@ -29,7 +29,7 @@
                 },
                 "conditionSet": [{
                     "appliesTo": ["email"],
-                    "disclosure": ["ZKP_NI"],
+                    "disclosure": ["ZKP_I"],
                     "pseudonymCardinality": ["SINGLE"]
                 }]
             }

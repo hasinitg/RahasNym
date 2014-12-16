@@ -7,11 +7,14 @@ package org.rahasnym.api.idenity;
  * Time: 12:58 PM
  */
 
+import org.crypto.lib.commitments.pedersen.PedersenCommitment;
 import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
+import org.crypto.lib.zero.knowledge.proof.PedersenCommitmentProof;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.rahasnym.api.Constants;
+import org.rahasnym.api.verifierapi.ProofInfo;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -27,6 +30,13 @@ import java.util.Date;
 public class IdentityMessagesEncoderDecoder {
 
     public String encodeIdentityToken(IdentityToken IDT) throws JSONException {
+        JSONObject IDTContent = createIdentityTokenContent(IDT);
+        JSONObject JSONIDT = new JSONObject();
+        JSONIDT.put(Constants.IDT, IDTContent);
+        return JSONIDT.toString();
+    }
+
+    private JSONObject createIdentityTokenContent(IdentityToken IDT) throws JSONException {
         JSONObject IDTContent = new JSONObject();
         IDTContent.put(Constants.FROM, IDT.getPseudoNym());
         IDTContent.put(Constants.TO, IDT.getSpID());
@@ -36,41 +46,42 @@ public class IdentityMessagesEncoderDecoder {
         IDTContent.put(Constants.EXPIRATION_TIMESTAMP, IDT.getExpirationTimeStamp().toString());
 
         //todo: encode biometric identity and single pseudonym certification if they are available in the IDT.
-
+        //todo: attach the signature and the public cert
         //include the pedersen params
         JSONObject pedersenParams = new JSONObject();
-        pedersenParams.put(Constants.P_PARAM, IDT.getPedersenParams().getP());
-        pedersenParams.put(Constants.Q_PARAM, IDT.getPedersenParams().getQ());
-        pedersenParams.put(Constants.G_PARAM, IDT.getPedersenParams().getG());
-        pedersenParams.put(Constants.H_PARAM, IDT.getPedersenParams().getH());
-
+        pedersenParams.put(Constants.P_PARAM, IDT.getPedersenParams().getP().toString());
+        pedersenParams.put(Constants.Q_PARAM, IDT.getPedersenParams().getQ().toString());
+        pedersenParams.put(Constants.G_PARAM, IDT.getPedersenParams().getG().toString());
+        pedersenParams.put(Constants.H_PARAM, IDT.getPedersenParams().getH().toString());
         IDTContent.put(Constants.PEDERSEN_PARAMS, pedersenParams);
-        //todo: attach the signature and the public cert
-
-        JSONObject JSONIDT = new JSONObject();
-        JSONIDT.put(Constants.IDT, JSONIDT);
-        return JSONIDT.toString();
+        return IDTContent;
     }
 
     public IdentityToken decodeIdentityToken(String encodedIDT) throws JSONException, ParseException {
-        IdentityToken identityToken = new IdentityToken();
         JSONObject root = new JSONObject(new JSONTokener(encodedIDT));
         JSONObject IDTJSON = root.optJSONObject(Constants.IDT);
-        identityToken.setPseudoNym(IDTJSON.optString(Constants.FROM));
-        identityToken.setSpID(IDTJSON.optString(Constants.TO));
-        identityToken.setAttributeName(IDTJSON.optString(Constants.ATTRIBUTE_NAME));
-        identityToken.setIdentityCommitment(new BigInteger(IDTJSON.optString(Constants.IDENTITY_COMMITMENT)));
+
+        return decodeIdentityTokenContent(IDTJSON);
+    }
+
+    public IdentityToken decodeIdentityTokenContent(JSONObject IDTContent) throws ParseException {
+        IdentityToken identityToken = new IdentityToken();
+
+        identityToken.setPseudoNym(IDTContent.optString(Constants.FROM));
+        identityToken.setSpID(IDTContent.optString(Constants.TO));
+        identityToken.setAttributeName(IDTContent.optString(Constants.ATTRIBUTE_NAME));
+        identityToken.setIdentityCommitment(new BigInteger(IDTContent.optString(Constants.IDENTITY_COMMITMENT)));
         //read and set timestamp
-        String currentTimestamp = IDTJSON.optString(Constants.CURRENT_TIMESTAMP);
+        String currentTimestamp = IDTContent.optString(Constants.CURRENT_TIMESTAMP);
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
         Date creationTime = df.parse(currentTimestamp);
         identityToken.setCreationTimestamp(new Timestamp(creationTime.getTime()));
 
-        String expirationTimestamp = IDTJSON.optString(Constants.EXPIRATION_TIMESTAMP);
+        String expirationTimestamp = IDTContent.optString(Constants.EXPIRATION_TIMESTAMP);
         Date expTime = df.parse(expirationTimestamp);
         identityToken.setExpirationTimeStamp(new Timestamp(expTime.getTime()));
 
-        JSONObject paramsObj = IDTJSON.optJSONObject(Constants.PEDERSEN_PARAMS);
+        JSONObject paramsObj = IDTContent.optJSONObject(Constants.PEDERSEN_PARAMS);
         PedersenPublicParams params = new PedersenPublicParams();
         params.setP(new BigInteger(paramsObj.optString(Constants.P_PARAM)));
         params.setQ(new BigInteger(paramsObj.optString(Constants.Q_PARAM)));
@@ -84,7 +95,7 @@ public class IdentityMessagesEncoderDecoder {
 
     public PedersenPublicParams decodePedersenParams(String IDTString) throws JSONException {
         PedersenPublicParams params = new PedersenPublicParams();
-        JSONObject root =  new JSONObject(new JSONTokener(IDTString));
+        JSONObject root = new JSONObject(new JSONTokener(IDTString));
         JSONObject IDTJSON = root.optJSONObject(Constants.IDT);
         JSONObject paramsObj = IDTJSON.optJSONObject(Constants.PEDERSEN_PARAMS);
         params.setP(new BigInteger(paramsObj.optString(Constants.P_PARAM)));
@@ -92,14 +103,6 @@ public class IdentityMessagesEncoderDecoder {
         params.setG(new BigInteger(paramsObj.optString(Constants.G_PARAM)));
         params.setH(new BigInteger(paramsObj.optString(Constants.H_PARAM)));
         return params;
-    }
-
-    public String encodeIdentityProof() {
-        return null;
-    }
-
-    public IdentityProof decodeIdentityProof(String encodedIDTProof) {
-        return null;
     }
 
     public String encodeIDTRequest(IDTRequestMessage reqMsg) throws JSONException {
@@ -111,7 +114,7 @@ public class IdentityMessagesEncoderDecoder {
         //todo: put single pseudonym req and bio id req
 
         JSONObject IDTReq = new JSONObject();
-        IDTReq.put(Constants.IDT_REQUEST, IDTReq);
+        IDTReq.put(Constants.IDT_REQUEST, IDTReqContent);
         return IDTReq.toString();
     }
 
@@ -127,4 +130,108 @@ public class IdentityMessagesEncoderDecoder {
 
         return IDTReqMsg;
     }
+
+
+    public JSONObject encodeIdentityProofContent(IdentityProof proof) throws JSONException {
+        JSONObject proofContent = new JSONObject();
+        proofContent.put(Constants.PROOF_TYPE, proof.getProofType());
+
+        if (proof.getHelperCommitment() != null) {
+            proofContent.put(Constants.HELPER_COMMITMENT, proof.getHelperCommitment().toString());
+        }
+        if (proof.getProof() != null) {
+            proofContent.put(Constants.U_VALUE, proof.getProof().getU().toString());
+            proofContent.put(Constants.V_VALUE, proof.getProof().getV().toString());
+        }
+        return proofContent;
+    }
+
+    public IdentityProof decodeIdentityProofContent(JSONObject proofContent) {
+        IdentityProof proof = new IdentityProof();
+        String helperCommitmentString = proofContent.optString(Constants.HELPER_COMMITMENT);
+        if (helperCommitmentString != null) {
+            BigInteger helperCommitment = new BigInteger(helperCommitmentString);
+            proof.addHelperCommitment(helperCommitment);
+        }
+        return proof;
+    }
+
+    public String encodeIdentityProof() {
+        return null;
+    }
+
+    public IdentityProof decodeIdentityProof(String encodedIDTProof) {
+        return null;
+    }
+
+    public String createIDTResponseByIDMM(String identityToken, IdentityProof identityProof) throws JSONException {
+        JSONObject responseJSON = new JSONObject(identityToken);
+        JSONObject proofJSON = encodeIdentityProofContent(identityProof);
+        responseJSON.put(Constants.PROOF, proofJSON);
+        if (Constants.ZKP_I.equals(identityProof.getProofType())) {
+            responseJSON.put(Constants.REQUEST_TYPE, Constants.REQ_ZKP_I);
+        } else if (Constants.ZKP_NI.equals(identityProof.getProofType())) {
+            responseJSON.put(Constants.REQUEST_TYPE, Constants.REQ_ZKP_NI);
+        } else if (Constants.ZKP_NI_S.equals(identityProof.getProofType())) {
+            responseJSON.put(Constants.REQUEST_TYPE, Constants.REQ_ZKP_NI_S);
+        }
+        return responseJSON.toString();
+    }
+
+    public String createChallengeResponseByIDMM(String sessionID, IdentityProof proof) throws JSONException {
+        JSONObject proofContent = encodeIdentityProofContent(proof);
+        JSONObject challengeResponseMessage = new JSONObject(proofContent.toString());
+        challengeResponseMessage.put(Constants.REQUEST_TYPE, Constants.AUTH_CHALLENGE_RESPONSE);
+        challengeResponseMessage.put(Constants.SESSION_ID, sessionID);
+        //challengeResponseMessage.put(Constants.U_VALUE, proof.getProof().getU().toString());
+        //challengeResponseMessage.put(Constants.V_VALUE, proof.getProof().getV().toString());
+        return challengeResponseMessage.toString();
+    }
+
+    public IdentityProof decodeChallengeResponse(JSONObject challengeResponse) {
+        IdentityProof proof = new IdentityProof();
+        PedersenCommitmentProof pedersenCommitmentProof = new PedersenCommitmentProof();
+        pedersenCommitmentProof.setU(new BigInteger(challengeResponse.optString(Constants.U_VALUE)));
+        pedersenCommitmentProof.setV(new BigInteger(challengeResponse.optString(Constants.V_VALUE)));
+        proof.addProof(pedersenCommitmentProof);
+        return proof;
+    }
+
+    public String encodeChallengeMessage(ProofInfo proofInfo) throws JSONException {
+        JSONObject challengeContent = new JSONObject();
+        challengeContent.put(Constants.REQUEST_TYPE, Constants.AUTH_CHALLENGE);
+        challengeContent.put(Constants.SESSION_ID, proofInfo.getSessionID());
+        challengeContent.put(Constants.CHALLENGE, proofInfo.getChallengeValue().toString());
+        return challengeContent.toString();
+    }
+
+    public ProofInfo decodeChallengeMessage(JSONObject challengeMessage) {
+        String challenge = challengeMessage.optString(Constants.CHALLENGE);
+        ProofInfo proofInfo = new ProofInfo();
+        proofInfo.setChallengeValue(new BigInteger(challenge));
+        String sessionId = challengeMessage.optString(Constants.SESSION_ID);
+        proofInfo.setSessionID(sessionId);
+        return proofInfo;
+    }
+
+    public String createAuthResultMessage(boolean authResult) throws JSONException {
+        JSONObject authResponse = new JSONObject();
+        authResponse.put(Constants.REQUEST_TYPE, Constants.AUTH_RESULT);
+        if (authResult) {
+            authResponse.put(Constants.VERIFICATION_RESULT, Constants.AUTH_SUCCESS);
+        } else {
+            authResponse.put(Constants.VERIFICATION_RESULT, Constants.AUTH_FAILURE);
+        }
+        return authResponse.toString();
+    }
+
+    public String decodeAuthResult(String authResult) throws JSONException {
+        JSONObject result = new JSONObject(new JSONTokener(authResult));
+        return decodeAuthResultContent(result);
+    }
+
+    public String decodeAuthResultContent(JSONObject authResult) {
+        return authResult.optString(Constants.VERIFICATION_RESULT);
+    }
+
 }

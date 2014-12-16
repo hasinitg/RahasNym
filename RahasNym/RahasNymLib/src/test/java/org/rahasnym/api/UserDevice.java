@@ -19,25 +19,35 @@ public class UserDevice {
     public static void main(String[] args) throws RahasNymException, IOException, JSONException {
         //initialize IDMM Config
         IDMMConfig idmmConfig = IDMMConfig.getInstance();
-        idmmConfig.setUserIDVPolicy("src/test/java/org/rahasnym/api/policies/clientPolicy");
+        idmmConfig.setUserIDVPolicy("/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/policies/clientPolicy");
         idmmConfig.setIDMMPort(Constants.IDM_MODULE_PORT);
         //TODO: configure IDP urls
 
         //initialize IDMM
-        IDMMAPI idmmAPI = new IDMMAPI();
-        idmmAPI.handleIDTRequests();
-
+        System.out.println("IDMM starting.");
+        IDMMThread idmmThread = new IDMMThread();
+        idmmThread.start();
+        System.out.println("IDMM started.");
         //run over 1000 times.
-        //record start time
-        ClientAPI client = new ClientAPI();
-        String policy = client.requestPolicy("http://localhost:8080/amazingshop/service/shop");
 
-        //create the AuthInfo object to pass into the client API.
-        AuthInfo authInfo = new AuthInfo();
-        authInfo.setOperation("sign_up");
-        authInfo.setPolicy(policy);
-        authInfo.setSpURL("http://localhost:8080/amazingshop/service/shop");
-        String sessionId = client.authenticate(authInfo);
+        //record start time
+        Long start = System.nanoTime();
+        for(int i = 0; i<1000; i++){
+            ClientAPI client = new ClientAPI();
+            String policy = client.requestPolicy("http://localhost:8080/amazingshop/service/shop");
+            System.out.println("SP policy: " + policy);
+            //create the AuthInfo object to pass into the client API.
+            AuthInfo authInfo = new AuthInfo();
+            authInfo.setOperation("sign_up");
+            authInfo.setPolicy(policy);
+            authInfo.setSpURL("http://localhost:8080/amazingshop/service/shop");
+            authInfo.setPseudonym("hasi");
+            String sessionId = client.authenticate(authInfo);
+        }
+        Long end = System.nanoTime();
+        Long time = end - start;
+        Long av = time/1000;
+        System.out.println(av);
         //record end time
 
         //calculate average

@@ -15,9 +15,12 @@ import org.crypto.lib.zero.knowledge.proof.PedersenCommitmentProof;
 import org.crypto.lib.zero.knowledge.proof.ZKPPedersenCommitment;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.rahasnym.api.Constants;
 import org.rahasnym.api.RahasNymException;
 import org.rahasnym.api.communication.HTTPClientRequest;
+import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
+import org.rahasnym.api.verifierapi.VerifierAPI;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.Socket;
+import java.text.ParseException;
 
 /**
  * This is the API provided for the developers of verifier client - i.e: SPClient.
@@ -32,8 +36,8 @@ import java.net.Socket;
 public class ClientAPI {
 
     /*Request the identity verification policy from the SP*/
-    public String requestPolicy(String url) {
-        try {
+    public String requestPolicy(String url) throws IOException {
+        /*try {
             HTTPClientRequest getR = new HTTPClientRequest();
             getR.setRequestType(Constants.RequestType.GET);
             getR.setRequestURI(url);
@@ -43,8 +47,11 @@ public class ClientAPI {
             return responseString;
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        return null;
+        }*/
+        VerifierAPI verifier = new VerifierAPI();
+        String policy = verifier.getIDVPolicy(
+                "/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/policies/serverPolicy");
+        return policy;
     }
 
     /**
@@ -75,72 +82,45 @@ public class ClientAPI {
             }
             //create the request:
             JSONObject request = new JSONObject();
-            request.append(Constants.REQUEST_TYPE, Constants.IDT_REQUEST);
-            request.append(Constants.OPERATION, authInfo.getOperation());
-            request.append(Constants.VERIFIER_POLICY, authInfo.getPolicy());
-            request.append(Constants.PSEUDONYM_WITH_SP, authInfo.getPseudonym());
+            request.put(Constants.REQUEST_TYPE, Constants.IDT_REQUEST);
+            request.put(Constants.OPERATION, authInfo.getOperation());
+            request.put(Constants.VERIFIER_POLICY, authInfo.getPolicy());
+            request.put(Constants.PSEUDONYM_WITH_SP, authInfo.getPseudonym());
             if (authInfo.getReceipt() != null) {
-                request.append(Constants.TRANSACTION_RECEIPT, authInfo.getReceipt());
+                request.put(Constants.TRANSACTION_RECEIPT, authInfo.getReceipt());
             }
             //send the policy
             out.println(request.toString());
-            //read the token
+            //read the response
             String response = in.readLine();
             if (response != null) {
                 System.out.println("Client: heard from IDM: " + response);
-                //decode the response
-                //decodes the first word from the array of strings separated by comma which should indicate which protocol to use.
-                String[] responseArray = response.split(",");
-                if (responseArray[0].equals(Constants.ZKP_I)) {
-                    //obtain the commitment & public params from the response, send it to the server and obtain the challenge
-                    String commitmentString = responseArray[1];
-                    //*****TODO: replace challenge creation with obtaining challenge from SP
-                    BigInteger commitment = new BigInteger(commitmentString);
-                    PedersenCommitment originalCommitment = new PedersenCommitment();
-                    originalCommitment.setCommitment(commitment);
-                    PedersenPublicParams params = new PedersenPublicParams();
-                    params.setP(new BigInteger(responseArray[2]));
-                    params.setQ(new BigInteger(responseArray[3]));
-                    params.setG(new BigInteger(responseArray[4]));
-                    params.setH(new BigInteger(responseArray[5]));
-                    PedersenCommitmentFactory factory = new PedersenCommitmentFactory();
-                    factory.initialize(params);
-                    ZKPPedersenCommitment clientZKP = new ZKPPedersenCommitment(params);
-                    BigInteger challenge = clientZKP.createChallengeForInteractiveZKP();
-                    //*****TODO:close
-                    //send the challenge (should send something indicating the session as well.)
-                    out.println(challenge.toString());
-                    //listen for the proofs:
-                    String proofString = in.readLine();
-                    if (proofString != null) {
-                        System.out.println("Client: proof string: " + proofString);
-                        //****TODO: send proof to the SP.
-                        String[] proofs = proofString.split(",");
-                        //decode everything
-                        String u = proofs[0];
-                        String v = proofs[1];
-                        BigInteger uBIG = new BigInteger(u);
-                        BigInteger vBIG = new BigInteger(v);
-                        BigInteger helper = new BigInteger(proofs[2]);
-                        PedersenCommitment helperCommitment = new PedersenCommitment();
-                        helperCommitment.setCommitment(helper);
-                        PedersenCommitmentProof proof = new PedersenCommitmentProof();
-                        proof.setU(uBIG);
-                        proof.setV(vBIG);
-                        boolean success = clientZKP.verifyInteractiveZKP(originalCommitment, helperCommitment, challenge, proof);
-                        //****TODO: close
-                        //send thanks to server
-                        if (success) {
-                            System.out.println("Protocol success.");
-                            out.println("Thanks.");
-                        } else {
-                            System.out.println("Error.");
-                            out.println("Error.");
-                        }
-                    } else {
-                        out.println("Error.");
-                    }
+                //forward the response to Verifier
+                VerifierAPI verifierAPI = new VerifierAPI();
+                String verifierResponse1 = verifierAPI.handleIDVReqMessage(response);
+                System.out.println("Client: heard from Verifier: " + verifierResponse1);
+                //identify the response type:
+                JSONObject verifierResponse1JSON = new JSONObject(new JSONTokener(verifierResponse1));
+                boolean respSentToIDMM = false;
+                if (Constants.AUTH_CHALLENGE.equals(verifierResponse1JSON.optString(Constants.REQUEST_TYPE))) {
+                    //hand over to IDMM and expect response
+                    out.println(verifierResponse1);
+                    String challengeResponse = in.readLine();
+                    System.out.println("Client heard from IDMM: " + challengeResponse);
+                    String verifierResponse2 = verifierAPI.handleIDVReqMessage(challengeResponse);
+                    System.out.println("Client heard from verifier: " + verifierResponse2);
+                    out.println(verifierResponse2);
+                    respSentToIDMM = true;
+                    verifierResponse1 = verifierResponse2;
                 }
+                //decode auth result
+                IdentityMessagesEncoderDecoder encoderDecoder = new IdentityMessagesEncoderDecoder();
+                String result = encoderDecoder.decodeAuthResult(verifierResponse1);
+                if (!respSentToIDMM) {
+                    out.println(verifierResponse1);
+                }
+                return result;
+
             }
             throw new RahasNymException("Response from IDMM is null.");
         } catch (IOException e) {
@@ -152,6 +132,8 @@ public class ClientAPI {
         } catch (JSONException e) {
             System.out.println("Error in creating the IDT request.");
             e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         return null;
     }

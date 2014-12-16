@@ -1,7 +1,7 @@
 package org.rahasnym.api.policies;
 
-import org.rahasnym.api.idmapi.ProofInfo;
-import org.rahasnym.api.idmapi.ProofStore;
+import org.rahasnym.api.verifierapi.ProofInfo;
+import org.rahasnym.api.verifierapi.ProofStore;
 
 /**
  * Created with IntelliJ IDEA.

@@ -58,7 +58,7 @@ public class Constants {
     //the port number that the IDMModule listens on
     public static int IDM_MODULE_PORT = 4444;
     public static String LOCAL_HOST = "localhost";
-    public static int MAX_SIZE_PROOF_MAP_IN_MEMORY = 100;
+    public static int MAX_SIZE_PROOF_MAP_IN_MEMORY = 1000;
 
     //default IDT Time-to-live is 20 mins.
     public static final long DEFAULT_IDT_TTL = 1200000;
@@ -71,10 +71,16 @@ public class Constants {
     //http response codes
     public static final int HTTP_ERROR_CODE = 500;
     public static final int CODE_OK = 200;
+
+
+    public enum RequestType{CREATE, UPDATE, REVOKE, GET;};
     /**
      * HTTP Request Methods used in RESTful communication
      */
-    public enum RequestType{CREATE, UPDATE, REVOKE, GET};
+
+    /*Constants from SP to Client*/
+    public static final String CHALLENGE = "challenge";
+    public static final String SESSION_ID = "sessionId";
 
     /*Client-To-IDMM request constants.*/
     public static final String OPERATION = "operation";
@@ -84,7 +90,6 @@ public class Constants {
     public static final String IDT_REQUEST = "IDTRequest";
     public static final String CHALLENGE_MESSAGE = "challengeMessage";
     public static final String ACK_MESSAGE = "ackMessage";
-    public static final String CHALLENGE = "challenge";
     public static final String TRANSACTION_RECEIPT = "transactionReceipt";
 
     /*Constants in IDT request from Client to IDP.*/
@@ -112,10 +117,32 @@ public class Constants {
     public static final String PUBLIC_CERT = "publicCert";
 
     /*Constants in reply from IDMM to client in proof creation.*/
+    public static final String PROOF = "proof";
+    public static final String PROOF_TYPE = "proofType";
     public static final String U_VALUE = "U";
+    public static final String U_VALUES = "U_VALUES";
     public static final String V_VALUE = "V";
+    public static final String V_VALUES = "V_VALUES";
     public static final String HELPER_COMMITMENT = "helper";
+    public static final String HELPER_COMMITMENTS = "helpers";
+    public static final String HASH = "hash";
+    public static final String TIMESTAMP_AT_PROOF_CREATION = "timestampAtProofCreation";
+    public static final String ENCRYPTED_PSEUDONYM_AT_IDP = "encryptedPseudonymAtIDP";
+    public static final String CHALLENGE_RESPONSE = "challengeResponse";
+
 
     /*Error Messages*/
     public static final String REQUEST_ERROR = "Unidentified Request Type.";
+
+    /*Different Request Types that can be exchanged.*/
+    public static final String REQ_ZKP_I = "IDV_REQ_ZKP_I";
+    public static final String AUTH_CHALLENGE = "Auth_Challenge";
+    public static final String AUTH_CHALLENGE_RESPONSE = "Auth_Challenge_Response";
+    public static final String AUTH_RESULT = "Auth_Result";
+    public static final String VERIFICATION_RESULT = "VerificationResult";
+    public static final String AUTH_SUCCESS = "Auth_Success";
+    public static final String AUTH_FAILURE = "Auth_Failure";
+    public static final String REQ_ZKP_NI = "IDV_REQ_ZKP_NI";
+    public static final String REQ_ZKP_NI_S = "IDV_REQ_ZKP_NI_S";
+
 }

@@ -1,7 +1,10 @@
 package org.rahasnym.api.idmapi;
 
+import org.crypto.lib.commitments.pedersen.PedersenCommitment;
 import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
+import org.crypto.lib.zero.knowledge.proof.PedersenCommitmentProof;
+import org.crypto.lib.zero.knowledge.proof.ZKPPedersenCommitment;
 import org.json.JSONException;
 import org.rahasnym.api.Constants;
 import org.rahasnym.api.communication.policy.IDVPolicy;
@@ -22,6 +25,8 @@ public class IDVProofCreator {
     private BigInteger yValue;
     private BigInteger sValue;
     private PedersenPublicParams pedersenPublicParams;
+    private ZKPPedersenCommitment ZKPK;
+    private PedersenCommitment helperCommitment;
 
     public IdentityProof createProof(IdentityToken identityToken, IDVPolicy combinedPolicy, BigInteger identityBIG, BigInteger secretBIG)
             throws JSONException, CryptoAlgorithmException {
@@ -30,7 +35,7 @@ public class IDVProofCreator {
         IDVPolicy.ConditionSet conditionSet = rule.getConditionSets().get(0);
         String disclosure = conditionSet.getDisclosure().get(0);
         if (disclosure.equals(Constants.ZKP_I)) {
-            return createInitialProofForZKPI(identityToken, null, null);
+            return createInitialProofForZKPI(identityToken, identityBIG, secretBIG);
 
         }
         if (disclosure.equals(Constants.ZKP_NI)) {
@@ -41,36 +46,35 @@ public class IDVProofCreator {
     }
 
     public IdentityProof createInitialProofForZKPI(IdentityToken identityToken, BigInteger identityBIG, BigInteger secretBIG) throws JSONException, CryptoAlgorithmException {
+        IdentityProof proof = new IdentityProof();
+        proof.setProofType(Constants.ZKP_I);
+        pedersenPublicParams = identityToken.getPedersenParams();
+        ZKPK = new ZKPPedersenCommitment(pedersenPublicParams);
+        helperCommitment = ZKPK.createHelperProblem(null);
+        proof.addHelperCommitment(helperCommitment.getCommitment());
+        return proof;
+    }
 
-        /*JSONObject root =  new JSONObject(new JSONTokener(IDTRequest));
-        String challenge = root.optString(Constants.CHALLENGE);
-        PedersenPublicParams params = new Util().extractPedersenParamsFromIDT(root);
-        ZKPPedersenCommitment zkpIDM = new ZKPPedersenCommitment(params);
-        PedersenCommitment helperCommitment = zkpIDM.createHelperProblem(null);
-        BigInteger challengeBIG = new BigInteger(challenge, 10);
-        PedersenCommitment commitment = new PedersenCommitment();
-        commitment.setX(identityBIG);
-        commitment.setR(secretBIG);
-        PedersenCommitmentProof proof = zkpIDM.createProofForInteractiveZKP(commitment, helperCommitment, challengeBIG);
+    public IdentityProof createProofForZKPI(BigInteger challenge, BigInteger secretBIG, BigInteger emailBIG) {
+        PedersenCommitment pedersenCommitment = new PedersenCommitment();
+        pedersenCommitment.setX(emailBIG);
+        pedersenCommitment.setR(secretBIG);
+        IdentityProof proof = new IdentityProof();
+        proof.setProofType(Constants.ZKP_I);
+        PedersenCommitmentProof commitmentProof = ZKPK.createProofForInteractiveZKP(pedersenCommitment, helperCommitment, challenge);
+        proof.addProof(commitmentProof);
+        return proof;
+    }
 
-        JSONObject jsonProof = new JSONObject();
-        jsonProof.append(Constants.U_VALUE, proof.getU());
-        jsonProof.append(Constants.V_VALUE, proof.getV());
-        jsonProof.append(Constants.HELPER_COMMITMENT, helperCommitment);
-
-        return jsonProof.toString();*/
+    public IdentityProof createProofForZKPNI() {
+        IdentityProof proof = new IdentityProof();
+        proof.setProofType(Constants.ZKP_NI);
         return null;
     }
 
-    public IdentityProof createProofForZKPI(BigInteger challenge, BigInteger secretBIG, BigInteger emailBIG){
-        return null;
-    }
-
-    public String createProofForZKPNI() {
-        return null;
-    }
-
-    public String createProofForZKPNIS() {
+    public IdentityProof createProofForZKPNIS() {
+        IdentityProof proof = new IdentityProof();
+        proof.setProofType(Constants.ZKP_NI_S);
         return null;
     }
 }

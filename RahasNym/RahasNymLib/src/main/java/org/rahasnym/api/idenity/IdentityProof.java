@@ -20,12 +20,12 @@ import java.util.List;
 public class IdentityProof {
     private String proofType;
     List<BigInteger> helperCommitments = new ArrayList<>();
-    private String secretPseudonym;
-    private String secretSPID;
+    private String secretForPseudonym;
+    private String secretForSPID;
     private List<PedersenCommitmentProof> proofs = new ArrayList<>();
     private String hash;
     private Timestamp timestampAtProofCreation;
-    private String encryptedPseydonymAtIDP;
+    private String encryptedPseudonymAtIDP;
 
     public String getProofType() {
         return proofType;
@@ -43,28 +43,32 @@ public class IdentityProof {
         this.helperCommitments = helperCommitments;
     }
 
-    public void addHelperCommitment(BigInteger helperCommitment){
+    public void addHelperCommitment(BigInteger helperCommitment) {
         this.helperCommitments.add(helperCommitment);
     }
 
-    public BigInteger getHelperCommitment(){
-        return this.helperCommitments.get(0);
+    public BigInteger getHelperCommitment() {
+        if (helperCommitments != null && helperCommitments.size() != 0) {
+            return this.helperCommitments.get(0);
+        } else {
+            return null;
+        }
     }
 
-    public String getSecretPseudonym() {
-        return secretPseudonym;
+    public String getSecretForPseudonym() {
+        return secretForPseudonym;
     }
 
-    public void setSecretPseudonym(String secretPseudonym) {
-        this.secretPseudonym = secretPseudonym;
+    public void setSecretForPseudonym(String secretForPseudonym) {
+        this.secretForPseudonym = secretForPseudonym;
     }
 
-    public String getSecretSPID() {
-        return secretSPID;
+    public String getSecretForSPID() {
+        return secretForSPID;
     }
 
-    public void setSecretSPID(String secretSPID) {
-        this.secretSPID = secretSPID;
+    public void setSecretForSPID(String secretForSPID) {
+        this.secretForSPID = secretForSPID;
     }
 
     public List<PedersenCommitmentProof> getProofs() {
@@ -75,12 +79,16 @@ public class IdentityProof {
         this.proofs = proofs;
     }
 
-    public void addProof(PedersenCommitmentProof proof){
+    public void addProof(PedersenCommitmentProof proof) {
         proofs.add(proof);
     }
 
-    public PedersenCommitmentProof getProof(){
-        return proofs.get(0);
+    public PedersenCommitmentProof getProof() {
+        if (proofs != null && proofs.size() != 0) {
+            return proofs.get(0);
+        } else {
+            return null;
+        }
     }
 
     public String getHash() {
@@ -99,11 +107,11 @@ public class IdentityProof {
         this.timestampAtProofCreation = timestampAtProofCreation;
     }
 
-    public String getEncryptedPseydonymAtIDP() {
-        return encryptedPseydonymAtIDP;
+    public String getEncryptedPseudonymAtIDP() {
+        return encryptedPseudonymAtIDP;
     }
 
-    public void setEncryptedPseydonymAtIDP(String encryptedPseydonymAtIDP) {
-        this.encryptedPseydonymAtIDP = encryptedPseydonymAtIDP;
+    public void setEncryptedPseudonymAtIDP(String encryptedPseudonymAtIDP) {
+        this.encryptedPseudonymAtIDP = encryptedPseudonymAtIDP;
     }
 }

@@ -3,6 +3,8 @@ package org.rahasnym.api.policies;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.UUID;
+
 /**
  * Created with IntelliJ IDEA.
  * User: hasini
@@ -14,6 +16,14 @@ public class SmallTest {
         JSONObject request = new JSONObject();
         request.append("operation", "login");
         request.append("policy", "spPolicy");
-        System.out.println(request.toString());
+        JSONObject root = new JSONObject();
+        root.put("IDT", request);
+        String r = root.toString();
+        JSONObject cover = new JSONObject(r);
+        cover.put("x", "y");
+        System.out.println(cover.toString());
+
+        String UUID = java.util.UUID.randomUUID().toString();
+        System.out.println(UUID);
     }
 }

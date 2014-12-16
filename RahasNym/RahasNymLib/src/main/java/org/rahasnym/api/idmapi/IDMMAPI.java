@@ -17,7 +17,7 @@ import java.net.ServerSocket;
  */
 public class IDMMAPI {
 
-    public void handleIDTRequests() throws RahasNymException {
+    public void handleIDTRequests() {
         //listens to clients and handle them until the programme is closed
         boolean listening = true;
         try (
@@ -31,7 +31,7 @@ public class IDMMAPI {
         } catch (IOException e) {
             //todo:log the error
             System.out.println("Error in listening on the socket: " + IDMMConfig.getInstance().getIDMMPort());
-            throw new RahasNymException(e.getMessage());
+            //throw new RahasNymException(e.getMessage());
         }
 
     }

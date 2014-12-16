@@ -11,6 +11,8 @@ import org.json.JSONException;
 import org.rahasnym.api.RahasNymException;
 import org.rahasnym.api.communication.encdecoder.JSONPolicyDecoder;
 import org.rahasnym.api.communication.policy.IDVPolicy;
+import org.rahasnym.api.verifierapi.ProofInfo;
+import org.rahasnym.api.verifierapi.ProofStore;
 
 import java.io.IOException;
 import java.util.HashMap;

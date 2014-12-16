@@ -67,7 +67,7 @@ public class ClientRequestHandler extends Thread {
                     System.out.println("IDM: client response : " + clientResponse);
 
                     String response2 = IDMManager.processClientMessage(clientResponse);
-                    System.out.println(response2);
+                    //System.out.println(response2);
 
                     //this is the case in non-interactive proof protocols.
                     if(response2.equals(null)){
