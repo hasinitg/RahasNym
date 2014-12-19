@@ -23,7 +23,7 @@ public class IdentityProof {
     private String secretForPseudonym;
     private String secretForSPID;
     private List<PedersenCommitmentProof> proofs = new ArrayList<>();
-    private String hash;
+    //private String hash;
     private Timestamp timestampAtProofCreation;
     private String encryptedPseudonymAtIDP;
 
@@ -91,13 +91,13 @@ public class IdentityProof {
         }
     }
 
-    public String getHash() {
+    /*public String getHash() {
         return hash;
     }
 
     public void setHash(String hash) {
         this.hash = hash;
-    }
+    }*/
 
     public Timestamp getTimestampAtProofCreation() {
         return timestampAtProofCreation;

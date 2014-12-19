@@ -9,11 +9,13 @@ import org.crypto.lib.util.CryptoUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rahasnym.api.Constants;
+import org.rahasnym.api.communication.HTTPClientRequest;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 import org.rahasnym.api.idenity.IDTRequestMessage;
 import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
 import org.rahasnym.api.idpapi.RequestHandler;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -31,11 +33,12 @@ import java.security.spec.InvalidKeySpecException;
  */
 public class IDTRequestSender {
 
-    public String requestIDT(IDVPolicy combinedPolicy, BigInteger secretBIG, String pseudoNymWithSP) throws CryptoAlgorithmException, NoSuchAlgorithmException, InvalidKeySpecException, JSONException {
+    public String requestIDT(IDVPolicy combinedPolicy, BigInteger secretBIG, String pseudoNymWithSP)
+            throws CryptoAlgorithmException, NoSuchAlgorithmException, InvalidKeySpecException, JSONException, IOException {
         //todo: identify the attribute, corresponding IDP and access information about it, and send the IDT request.
-
+        String identityAttributeName = Constants.EMAIL_ATTRIBUTE;
         IDTRequestMessage reqMsg = new IDTRequestMessage();
-        reqMsg.setAttributeName("email");
+        reqMsg.setAttributeName(identityAttributeName);
         reqMsg.setBiometricIdentityRequired(false);
         //todo: encrypt this with IDP's public key.
         reqMsg.setEncryptedSecret(secretBIG.toString());
@@ -50,9 +53,15 @@ public class IDTRequestSender {
         String encodedIDTReq = encoderDecoder.encodeIDTRequest(reqMsg);
 
         //for the moment, do a in-JVM call to IDP.
-        RequestHandler IDP = new RequestHandler();
-        String response = IDP.handleIDTRequest(encodedIDTReq, "hasini");
-
-        return response;
+        //RequestHandler IDP = new RequestHandler();
+        //String response = IDP.handleIDTRequest(encodedIDTReq, "hasini");
+        HTTPClientRequest postR = new HTTPClientRequest();
+        postR.setRequestType(Constants.RequestType.CREATE);
+        IDPAccessInfo idpAccessInfo = IDMMConfig.getInstance().getIDPAccessInfo(identityAttributeName);
+        postR.setRequestURI(idpAccessInfo.getUrl());
+        postR.setRequestHeader(Constants.USER_NAME, idpAccessInfo.getUsername());
+        postR.setPayLoad(encodedIDTReq);
+        int status = postR.execute();
+        return postR.getResponseString();
     }
 }

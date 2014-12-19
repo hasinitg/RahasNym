@@ -36,8 +36,8 @@ import java.text.ParseException;
 public class ClientAPI {
 
     /*Request the identity verification policy from the SP*/
-    public String requestPolicy(String url) throws IOException {
-        /*try {
+    public String requestPolicy(String url) throws RahasNymException {
+        try {
             HTTPClientRequest getR = new HTTPClientRequest();
             getR.setRequestType(Constants.RequestType.GET);
             getR.setRequestURI(url);
@@ -46,12 +46,12 @@ public class ClientAPI {
             String responseString = getR.getResponseString();
             return responseString;
         } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-        VerifierAPI verifier = new VerifierAPI();
-        String policy = verifier.getIDVPolicy(
-                "/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/policies/serverPolicy");
-        return policy;
+            throw new RahasNymException(e.getMessage());
+        }
+        //VerifierAPI verifier = new VerifierAPI();
+        //String policy = verifier.getIDVPolicy(
+        //"/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/policies/serverPolicy");
+        //return policy;
     }
 
     /**
@@ -94,11 +94,12 @@ public class ClientAPI {
             //read the response
             String response = in.readLine();
             if (response != null) {
-                System.out.println("Client: heard from IDM: " + response);
+                //System.out.println("Client: heard from IDM: " + response);
                 //forward the response to Verifier
-                VerifierAPI verifierAPI = new VerifierAPI();
-                String verifierResponse1 = verifierAPI.handleIDVReqMessage(response);
-                System.out.println("Client: heard from Verifier: " + verifierResponse1);
+                //VerifierAPI verifierAPI = new VerifierAPI();
+                //String verifierResponse1 = verifierAPI.handleIDVReqMessage(response);
+                String verifierResponse1 = sendIDVRequestToVerifier(response, spURL);
+                //System.out.println("Client: heard from Verifier: " + verifierResponse1);
                 //identify the response type:
                 JSONObject verifierResponse1JSON = new JSONObject(new JSONTokener(verifierResponse1));
                 boolean respSentToIDMM = false;
@@ -106,9 +107,12 @@ public class ClientAPI {
                     //hand over to IDMM and expect response
                     out.println(verifierResponse1);
                     String challengeResponse = in.readLine();
-                    System.out.println("Client heard from IDMM: " + challengeResponse);
-                    String verifierResponse2 = verifierAPI.handleIDVReqMessage(challengeResponse);
-                    System.out.println("Client heard from verifier: " + verifierResponse2);
+                    //System.out.println("Client heard from IDMM: " + challengeResponse);
+
+                    String verifierResponse2 = sendIDVRequestToVerifier(challengeResponse, spURL);
+                    //String verifierResponse2 = verifierAPI.handleIDVReqMessage(challengeResponse);
+                    //System.out.println("Client heard from verifier: " + verifierResponse2);
+
                     out.println(verifierResponse2);
                     respSentToIDMM = true;
                     verifierResponse1 = verifierResponse2;
@@ -126,20 +130,21 @@ public class ClientAPI {
         } catch (IOException e) {
             //TODO: handle the exception properly
             e.printStackTrace();
-        } catch (CryptoAlgorithmException e) {
-            System.out.println("Error in creating pedersen commitment.");
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (JSONException e) {
             System.out.println("Error in creating the IDT request.");
             e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         return null;
     }
 
-    public String submitToken() {
-        return null;
+    private String sendIDVRequestToVerifier(String IDVRequest, String verifierURL) throws IOException {
+        HTTPClientRequest postR = new HTTPClientRequest();
+        postR.setRequestType(Constants.RequestType.CREATE);
+        postR.setRequestURI(verifierURL);
+        postR.setPayLoad(IDVRequest);
+        int status = postR.execute();
+        String response = postR.getResponseString();
+        return response;
     }
 
 }

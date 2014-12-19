@@ -5,9 +5,7 @@ import org.rahasnym.api.Constants;
 import org.rahasnym.api.RahasNymException;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,7 +28,7 @@ public class JSONPolicyDecoder {
         IDVPolicy idvPolicy = new IDVPolicy();
         String specifierID = policyObj.optString(Constants.SPECIFIER_ID);
         String specifierName = policyObj.optString(Constants.SPECIFIER_NAME);
-        if(specifierName == null){
+        if (specifierName == null) {
             throw new RahasNymException("Error in server policy. Specifier Name is not mentioned.");
         }
         idvPolicy.setSpecifierID(specifierID);
@@ -100,6 +98,16 @@ public class JSONPolicyDecoder {
 
     public String readPolicyAsString(String policyPath) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(policyPath));
+        String policy = "", line;
+        while ((line = reader.readLine()) != null) {
+            policy += line;
+        }
+        return policy;
+    }
+
+    public String readPolicyAsStringFromClassLoader(String filePath) throws IOException {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String policy = "", line;
         while ((line = reader.readLine()) != null) {
             policy += line;

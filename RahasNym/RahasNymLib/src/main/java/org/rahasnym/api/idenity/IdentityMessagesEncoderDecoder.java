@@ -10,6 +10,7 @@ package org.rahasnym.api.idenity;
 import org.crypto.lib.commitments.pedersen.PedersenCommitment;
 import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
 import org.crypto.lib.zero.knowledge.proof.PedersenCommitmentProof;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -21,6 +22,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * This encodes/decodes major messages exchanged between different parties in the identity management system.
@@ -136,22 +138,57 @@ public class IdentityMessagesEncoderDecoder {
         JSONObject proofContent = new JSONObject();
         proofContent.put(Constants.PROOF_TYPE, proof.getProofType());
 
-        if (proof.getHelperCommitment() != null) {
-            proofContent.put(Constants.HELPER_COMMITMENT, proof.getHelperCommitment().toString());
-        }
-        if (proof.getProof() != null) {
-            proofContent.put(Constants.U_VALUE, proof.getProof().getU().toString());
-            proofContent.put(Constants.V_VALUE, proof.getProof().getV().toString());
+        if (Constants.ZKP_I.equals(proof.getProofType())) {
+
+            if (proof.getHelperCommitment() != null) {
+                proofContent.put(Constants.HELPER_COMMITMENT, proof.getHelperCommitment().toString());
+            }
+            if (proof.getProof() != null) {
+                proofContent.put(Constants.U_VALUE, proof.getProof().getU().toString());
+                proofContent.put(Constants.V_VALUE, proof.getProof().getV().toString());
+            }
+        } else if (Constants.ZKP_NI.equals(proof.getProofType())) {
+
+            if (proof.getHelperCommitments() != null && proof.getHelperCommitments().size() != 0) {
+                JSONArray helperCommitmentsArray = new JSONArray();
+                List<BigInteger> helperCommitments = proof.getHelperCommitments();
+                helperCommitmentsArray.put(helperCommitments.get(0).toString());
+                proofContent.put(Constants.HELPER_COMMITMENTS, helperCommitmentsArray);
+                List<PedersenCommitmentProof> proofs = proof.getProofs();
+                JSONArray uValues = new JSONArray();
+                JSONArray vValues = new JSONArray();
+                for (PedersenCommitmentProof pedersenCommitmentProof : proofs) {
+                    uValues.put(pedersenCommitmentProof.getU().toString());
+                    vValues.put(pedersenCommitmentProof.getV().toString());
+                }
+                proofContent.put(Constants.U_VALUES, uValues);
+                proofContent.put(Constants.V_VALUES, vValues);
+                proofContent.put(Constants.TIMESTAMP_AT_PROOF_CREATION, proof.getTimestampAtProofCreation());
+
+            }
         }
         return proofContent;
     }
 
-    public IdentityProof decodeIdentityProofContent(JSONObject proofContent) {
+    public IdentityProof decodeIdentityProofContent(JSONObject proofContent) throws JSONException {
         IdentityProof proof = new IdentityProof();
         String helperCommitmentString = proofContent.optString(Constants.HELPER_COMMITMENT);
         if (helperCommitmentString != null) {
             BigInteger helperCommitment = new BigInteger(helperCommitmentString);
             proof.addHelperCommitment(helperCommitment);
+        }
+        JSONArray helperCommitmentsString = proofContent.optJSONArray(Constants.HELPER_COMMITMENTS);
+        if (helperCommitmentsString != null) {
+            JSONArray uValuesString = proofContent.optJSONArray(Constants.U_VALUES);
+            JSONArray vValuesString = proofContent.optJSONArray(Constants.V_VALUES);
+            for (int i = 0; i < 3; i++) {
+                proof.addHelperCommitment(new BigInteger(helperCommitmentsString.getString(i)));
+                PedersenCommitmentProof idProof = new PedersenCommitmentProof();
+                idProof.setU(new BigInteger(uValuesString.getString(i)));
+                idProof.setV(new BigInteger(vValuesString.getString(i)));
+                proof.addProof(idProof);
+            }
+
         }
         return proof;
     }

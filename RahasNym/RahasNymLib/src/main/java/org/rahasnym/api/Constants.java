@@ -145,4 +145,10 @@ public class Constants {
     public static final String REQ_ZKP_NI = "IDV_REQ_ZKP_NI";
     public static final String REQ_ZKP_NI_S = "IDV_REQ_ZKP_NI_S";
 
+    //attribute names:
+    public static final String EMAIL_ATTRIBUTE = "email";
+
+    //header parameter names
+    public static final String USER_NAME = "userName";
+
 }

@@ -35,7 +35,7 @@ public class IDTTokenFactory {
         //TODO: get the user's attribute value from the AttributeFinder given the user name and the attribute name
         String email = "hasinitg@gmail.com";
         BigInteger emailBIG = CryptoUtil.getCommittableThruHash(email, CryptoLibConstants.SECRET_BIT_LENGTH);
-        System.out.println("emailBIG at IDP: " + emailBIG);
+        //System.out.println("emailBIG at IDP: " + emailBIG);
         PedersenCommitment commitment = pedersenCommitmentFactory.createCommitment(emailBIG, secretBIG);
         BigInteger commitmentBIG = commitment.getCommitment();
 

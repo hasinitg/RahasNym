@@ -26,9 +26,13 @@ public class VerifierAPI {
         return new JSONPolicyDecoder().readPolicyAsString(policyPath);
     }
 
+    public String getIDVPolicyFromClassLoader(String policyPath) throws IOException {
+        return new JSONPolicyDecoder().readPolicyAsStringFromClassLoader(policyPath);
+    }
+
     public String handleIDVReqMessage(String IDVReqMessage) throws JSONException, ParseException, CryptoAlgorithmException {
         //identify the request type
-        System.out.println("verifier heard from client: " + IDVReqMessage);
+        //System.out.println("verifier heard from client: " + IDVReqMessage);
         JSONObject IDVResponse = new JSONObject(new JSONTokener(IDVReqMessage));
         String requestType = IDVResponse.optString(Constants.REQUEST_TYPE);
         IdentityVerificationHandler verificationHandler = new IdentityVerificationHandler();

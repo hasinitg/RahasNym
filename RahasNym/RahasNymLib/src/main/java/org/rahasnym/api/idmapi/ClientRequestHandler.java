@@ -52,7 +52,7 @@ public class ClientRequestHandler extends Thread {
         ) {
             //read the policy from client
             String clientRequest = in.readLine();
-            System.out.println("IDM: heard from client: " + clientRequest);
+            //System.out.println("IDM: heard from client: " + clientRequest);
             //get the policy sent by client
             if (clientRequest != null) {
 
@@ -64,7 +64,7 @@ public class ClientRequestHandler extends Thread {
                 //wait for the client's response.
                 String clientResponse = in.readLine();
                 if (clientResponse != null) {
-                    System.out.println("IDM: client response : " + clientResponse);
+                    //System.out.println("IDM: client response : " + clientResponse);
 
                     String response2 = IDMManager.processClientMessage(clientResponse);
                     //System.out.println(response2);

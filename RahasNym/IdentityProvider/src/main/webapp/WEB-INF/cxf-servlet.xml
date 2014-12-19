@@ -1,0 +1,42 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+         http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
+
+    <jaxrs:server id="idp" address="/idp">
+        <jaxrs:serviceBeans>
+            <ref bean="idpBean"/>
+        </jaxrs:serviceBeans>
+
+        <!--<jaxrs:providers>
+            <ref bean="authenticationFilter"/>
+        </jaxrs:providers>-->
+
+    </jaxrs:server>
+
+    <!--<jaxrs:server id="dining" address="/dining">
+        <jaxrs:serviceBeans>
+            <ref bean="diningBean"/>
+        </jaxrs:serviceBeans>
+
+        &lt;!&ndash;<jaxrs:providers>
+            <ref bean="authenticationFilter"/>
+        </jaxrs:providers>&ndash;&gt;
+
+    </jaxrs:server>
+
+    <jaxrs:server id="healthcenter" address="/healthcenter">
+        <jaxrs:serviceBeans>
+            <ref bean="healthcenterBean"/>
+        </jaxrs:serviceBeans>
+
+        &lt;!&ndash;<jaxrs:providers>
+            <ref bean="authenticationFilter"/>
+        </jaxrs:providers>&ndash;&gt;
+
+    </jaxrs:server>-->
+
+    <bean id="idpBean" class="org.rahasnym.identity.provider.IdentityProvider"/>
+</beans>

@@ -39,7 +39,7 @@ public class TestPolicyCombiner {
                 Assert.assertEquals("email",attributes.get(0));
 
                 List<String> disclosure = conditionSet.getDisclosure();
-                Assert.assertEquals(Constants.ZKP_NI, disclosure.get(0));
+                Assert.assertEquals(Constants.ZKP_I, disclosure.get(0));
 
                 List<String> subjVerification = conditionSet.getSubjectVerification();
                 Assert.assertEquals(Constants.DEFAULT_SUBJECT_VERIFICATION_VALUE, subjVerification.get(0));

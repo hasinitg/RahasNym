@@ -76,7 +76,7 @@ public class IDMManager {
         //TODO:obtain identity and user-password and create committable values out of them.
         String email = "hasinitg@gmail.com";
         emailBIG = CryptoUtil.getCommittableThruHash(email, CryptoLibConstants.SECRET_BIT_LENGTH);
-        System.out.println("emailBIG at IDMM: " + emailBIG);
+        //System.out.println("emailBIG at IDMM: " + emailBIG);
         //create committable secret from user-provided password.
         String password = "543&*^";
         byte[] salt = CryptoUtil.generateSalt(CryptoLibConstants.DEFAULT_LENGTH_OF_SALT);
@@ -98,7 +98,7 @@ public class IDMManager {
     private String processChallengeMessage(JSONObject challengeMessage) throws JSONException, CryptoAlgorithmException {
         //decode the challenge
         ProofInfo proofInfo = encoderDecoder.decodeChallengeMessage(challengeMessage);
-        System.out.println("emailBIG at IDMM before challenge-response creation: " + emailBIG);
+        //System.out.println("emailBIG at IDMM before challenge-response creation: " + emailBIG);
         IdentityProof proofResponse = proofCreator.createProofForZKPI(proofInfo.getChallengeValue(), emailBIG, secretBIG);
         String challengeResponse = encoderDecoder.createChallengeResponseByIDMM(proofInfo.getSessionID(), proofResponse);
         return challengeResponse;
