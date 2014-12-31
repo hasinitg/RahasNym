@@ -1,8 +1,5 @@
 package org.rahasnym.api;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -61,7 +58,7 @@ public class CryptoTest {
             System.out.println("" + cipherText.length);
 
             //convert cipher text in to string by encoding it.
-            String cipherTextString = Base64.encode(cipherText);
+            String cipherTextString = Base64.encodeBytes(cipherText);
 
             //print cipher text as string and its encoded length.
             System.out.println("" + cipherTextString.length());
@@ -124,11 +121,11 @@ public class CryptoTest {
             String error = "Error in encrypting.";
             System.out.println(error);
             e.printStackTrace();
-        } catch (Base64DecodingException e) {
+        } /*catch (Base64DecodingException e) {
             String error = "Error in decoding the cipher text encoded string.";
             System.out.println(error);
             e.printStackTrace();
-        } catch (UnrecoverableKeyException e) {
+        }*/ catch (UnrecoverableKeyException e) {
             String error = "Error in reading the private key.";
             System.out.println(error);
             e.printStackTrace();
