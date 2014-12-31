@@ -53,8 +53,8 @@ public class IDTRequestSender {
         String encodedIDTReq = encoderDecoder.encodeIDTRequest(reqMsg);
 
         //for the moment, do a in-JVM call to IDP.
-        //RequestHandler IDP = new RequestHandler();
-        //String response = IDP.handleIDTRequest(encodedIDTReq, "hasini");
+        /*RequestHandler IDP = new RequestHandler();
+        String response = IDP.handleIDTRequest(encodedIDTReq, "hasini");*/
         HTTPClientRequest postR = new HTTPClientRequest();
         postR.setRequestType(Constants.RequestType.CREATE);
         IDPAccessInfo idpAccessInfo = IDMMConfig.getInstance().getIDPAccessInfo(identityAttributeName);
@@ -63,5 +63,6 @@ public class IDTRequestSender {
         postR.setPayLoad(encodedIDTReq);
         int status = postR.execute();
         return postR.getResponseString();
+        //return response;
     }
 }

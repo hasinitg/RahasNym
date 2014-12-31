@@ -33,7 +33,8 @@ public class IDVProofCreator {
     private ZKPPedersenCommitment ZKPK;
     private PedersenCommitment helperCommitment;
 
-    public IdentityProof createProof(IdentityToken identityToken, IDVPolicy combinedPolicy, BigInteger identityBIG, BigInteger secretBIG)
+    public IdentityProof createProof(IdentityToken identityToken, IDVPolicy combinedPolicy, BigInteger identityBIG,
+                                     BigInteger secretBIG, String receipt)
             throws JSONException, CryptoAlgorithmException, NoSuchAlgorithmException {
         //look at the policy and create the appropriate proof
         IDVPolicy.Rule rule = combinedPolicy.getRules().get(0);
@@ -42,9 +43,10 @@ public class IDVProofCreator {
         if (disclosure.equals(Constants.ZKP_I)) {
             return createInitialProofForZKPI(identityToken, identityBIG, secretBIG);
 
-        }
-        else if (disclosure.equals(Constants.ZKP_NI)) {
-           return createProofForZKPNI(identityToken, identityBIG, secretBIG);
+        } else if (disclosure.equals(Constants.ZKP_NI)) {
+            return createProofForZKPNI(identityToken, secretBIG, identityBIG);
+        } else if (disclosure.equals(Constants.ZKP_NI_S)) {
+            return createProofForZKPNIS(identityToken, identityBIG, secretBIG, receipt);
         }
         //PedersenPublicParams params = new Util().extractPedersenParamsFromIDT(IDTResponse);
         return null;
@@ -74,23 +76,28 @@ public class IDVProofCreator {
     public IdentityProof createProofForZKPNI(IdentityToken identityToken, BigInteger secretBIG, BigInteger emailBIG) throws CryptoAlgorithmException, NoSuchAlgorithmException {
         IdentityProof proof = new IdentityProof();
         proof.setProofType(Constants.ZKP_NI);
+
         pedersenPublicParams = identityToken.getPedersenParams();
         ZKPK = new ZKPPedersenCommitment(pedersenPublicParams);
         List<PedersenCommitment> helperProblems = ZKPK.createHelperProblems(null);
         PedersenCommitment originalCommitmentInfo = new PedersenCommitment();
         originalCommitmentInfo.setCommitment(identityToken.getIdentityCommitment());
         List<BigInteger> challenges = ZKPK.createChallengeForNonInteractiveZKP(originalCommitmentInfo, helperProblems);
+
         originalCommitmentInfo.setX(emailBIG);
         originalCommitmentInfo.setR(secretBIG);
-        List<PedersenCommitmentProof> proofs = ZKPK.createProofForNonInteractiveZKP(originalCommitmentInfo, helperProblems, challenges);
 
+        List<PedersenCommitmentProof> zkProofs = ZKPK.createProofForNonInteractiveZKP(
+                originalCommitmentInfo, helperProblems, challenges);
+
+        proof.setChallenges(challenges);
         //set the proof info in the identity proof obj
         //todo: from the name of the attribute in the identity token, identify the corresponding IDP access info and
         // get the username to be encrypted and included in the proof info.
         for (PedersenCommitment helperProblem : helperProblems) {
             proof.addHelperCommitment(helperProblem.getCommitment());
         }
-        for (PedersenCommitmentProof pedersenCommitmentProof : proofs) {
+        for (PedersenCommitmentProof pedersenCommitmentProof : zkProofs) {
             proof.addProof(pedersenCommitmentProof);
         }
         Date date = new Date();
@@ -99,9 +106,41 @@ public class IDVProofCreator {
         return proof;
     }
 
-    public IdentityProof createProofForZKPNIS() {
+    public IdentityProof createProofForZKPNIS(IdentityToken identityToken, BigInteger secretBIG, BigInteger emailBIG,
+                                              String receipt) throws CryptoAlgorithmException, NoSuchAlgorithmException {
         IdentityProof proof = new IdentityProof();
         proof.setProofType(Constants.ZKP_NI_S);
-        return null;
+
+        pedersenPublicParams = identityToken.getPedersenParams();
+        ZKPK = new ZKPPedersenCommitment(pedersenPublicParams);
+
+        List<PedersenCommitment> helperProblems = ZKPK.createHelperProblems(null);
+
+        PedersenCommitment originalCommitmentInfo = new PedersenCommitment();
+        originalCommitmentInfo.setCommitment(identityToken.getIdentityCommitment());
+
+        List<BigInteger> challenges = ZKPK.createChallengeForNonInteractiveZKPWithSignature(originalCommitmentInfo,
+                helperProblems, receipt.getBytes());
+
+        originalCommitmentInfo.setX(emailBIG);
+        originalCommitmentInfo.setR(secretBIG);
+
+        List<PedersenCommitmentProof> zkProofs = ZKPK.createProofForNonInteractiveZKP(originalCommitmentInfo,
+                helperProblems, challenges);
+
+        proof.setChallenges(challenges);
+        //set the proof info in the identity proof obj
+        //todo: from the name of the attribute in the identity token, identify the corresponding IDP access info and
+        // get the username to be encrypted and included in the proof info.
+        for (PedersenCommitment helperProblem : helperProblems) {
+            proof.addHelperCommitment(helperProblem.getCommitment());
+        }
+        for (PedersenCommitmentProof pedersenCommitmentProof : zkProofs) {
+            proof.addProof(pedersenCommitmentProof);
+        }
+        Date date = new Date();
+        Timestamp timestamp = new Timestamp(date.getTime());
+        proof.setTimestampAtProofCreation(timestamp);
+        return proof;
     }
 }

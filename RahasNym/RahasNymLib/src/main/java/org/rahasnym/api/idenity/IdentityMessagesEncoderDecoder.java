@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -147,12 +148,22 @@ public class IdentityMessagesEncoderDecoder {
                 proofContent.put(Constants.U_VALUE, proof.getProof().getU().toString());
                 proofContent.put(Constants.V_VALUE, proof.getProof().getV().toString());
             }
-        } else if (Constants.ZKP_NI.equals(proof.getProofType())) {
-
+        } else if ((Constants.ZKP_NI.equals(proof.getProofType())) || (Constants.ZKP_NI_S.equals(proof.getProofType()))) {
+            if (proof.getChallenges() != null) {
+                JSONArray challenges = new JSONArray();
+                List<BigInteger> proofChallenges = proof.getChallenges();
+                for (BigInteger proofChallenge : proofChallenges) {
+                    challenges.put(proofChallenge.toString());
+                }
+                proofContent.put(Constants.CHALLENGES, challenges);
+            }
             if (proof.getHelperCommitments() != null && proof.getHelperCommitments().size() != 0) {
                 JSONArray helperCommitmentsArray = new JSONArray();
                 List<BigInteger> helperCommitments = proof.getHelperCommitments();
-                helperCommitmentsArray.put(helperCommitments.get(0).toString());
+                for (BigInteger helperCommitment : helperCommitments) {
+
+                    helperCommitmentsArray.put(helperCommitment.toString());
+                }
                 proofContent.put(Constants.HELPER_COMMITMENTS, helperCommitmentsArray);
                 List<PedersenCommitmentProof> proofs = proof.getProofs();
                 JSONArray uValues = new JSONArray();
@@ -163,32 +174,49 @@ public class IdentityMessagesEncoderDecoder {
                 }
                 proofContent.put(Constants.U_VALUES, uValues);
                 proofContent.put(Constants.V_VALUES, vValues);
-                proofContent.put(Constants.TIMESTAMP_AT_PROOF_CREATION, proof.getTimestampAtProofCreation());
-
+                proofContent.put(Constants.TIMESTAMP_AT_PROOF_CREATION, proof.getTimestampAtProofCreation().toString());
             }
         }
         return proofContent;
     }
 
-    public IdentityProof decodeIdentityProofContent(JSONObject proofContent) throws JSONException {
+    public IdentityProof decodeIdentityProofContent(JSONObject proofContent, String proofType) throws JSONException, ParseException {
         IdentityProof proof = new IdentityProof();
-        String helperCommitmentString = proofContent.optString(Constants.HELPER_COMMITMENT);
-        if (helperCommitmentString != null) {
-            BigInteger helperCommitment = new BigInteger(helperCommitmentString);
-            proof.addHelperCommitment(helperCommitment);
-        }
-        JSONArray helperCommitmentsString = proofContent.optJSONArray(Constants.HELPER_COMMITMENTS);
-        if (helperCommitmentsString != null) {
-            JSONArray uValuesString = proofContent.optJSONArray(Constants.U_VALUES);
-            JSONArray vValuesString = proofContent.optJSONArray(Constants.V_VALUES);
-            for (int i = 0; i < 3; i++) {
-                proof.addHelperCommitment(new BigInteger(helperCommitmentsString.getString(i)));
-                PedersenCommitmentProof idProof = new PedersenCommitmentProof();
-                idProof.setU(new BigInteger(uValuesString.getString(i)));
-                idProof.setV(new BigInteger(vValuesString.getString(i)));
-                proof.addProof(idProof);
+        if (Constants.ZKP_I.equals(proofType)) {
+            String helperCommitmentString = proofContent.optString(Constants.HELPER_COMMITMENT);
+            if (helperCommitmentString != null) {
+                BigInteger helperCommitment = new BigInteger(helperCommitmentString);
+                proof.addHelperCommitment(helperCommitment);
             }
+        }
+        if ((Constants.ZKP_NI.equals(proofType)) || (Constants.ZKP_NI_S.equals(proofType))) {
 
+            JSONArray helperCommitmentsString = proofContent.optJSONArray(Constants.HELPER_COMMITMENTS);
+
+            if (helperCommitmentsString != null && helperCommitmentsString.length() != 0) {
+                JSONArray uValuesString = proofContent.optJSONArray(Constants.U_VALUES);
+                JSONArray vValuesString = proofContent.optJSONArray(Constants.V_VALUES);
+                for (int i = 0; i < 3; i++) {
+                    proof.addHelperCommitment(new BigInteger(helperCommitmentsString.getString(i)));
+                    PedersenCommitmentProof idProof = new PedersenCommitmentProof();
+                    idProof.setU(new BigInteger(uValuesString.getString(i)));
+                    idProof.setV(new BigInteger(vValuesString.getString(i)));
+                    proof.addProof(idProof);
+                }
+            }
+            JSONArray challenges = proofContent.optJSONArray(Constants.CHALLENGES);
+            if (challenges != null) {
+                List<BigInteger> challengeBIG = new ArrayList<>();
+                for (int i = 0; i < 3; i++) {
+                    challengeBIG.add(new BigInteger(challenges.getString(i)));
+                }
+                proof.setChallenges(challengeBIG);
+            }
+            //String timestamp = proofContent.optString(Constants.TIMESTAMP_AT_PROOF_CREATION);
+            //SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+            //Date date = df.parse(timestamp);
+            //Timestamp ts = new Timestamp(date.getTime());
+            //proof.setTimestampAtProofCreation(ts);
         }
         return proof;
     }
@@ -201,10 +229,14 @@ public class IdentityMessagesEncoderDecoder {
         return null;
     }
 
-    public String createIDTResponseByIDMM(String identityToken, IdentityProof identityProof) throws JSONException {
+    public String createIDTResponseByIDMM(String identityToken, IdentityProof identityProof, String sessionID)
+            throws JSONException {
         JSONObject responseJSON = new JSONObject(identityToken);
         JSONObject proofJSON = encodeIdentityProofContent(identityProof);
         responseJSON.put(Constants.PROOF, proofJSON);
+        if (sessionID != null) {
+            responseJSON.put(Constants.SESSION_ID, sessionID);
+        }
         if (Constants.ZKP_I.equals(identityProof.getProofType())) {
             responseJSON.put(Constants.REQUEST_TYPE, Constants.REQ_ZKP_I);
         } else if (Constants.ZKP_NI.equals(identityProof.getProofType())) {
@@ -269,6 +301,13 @@ public class IdentityMessagesEncoderDecoder {
 
     public String decodeAuthResultContent(JSONObject authResult) {
         return authResult.optString(Constants.VERIFICATION_RESULT);
+    }
+
+    public String encodePolicyWithReceipt(String policyString, String receiptString) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("policy", policyString);
+        jsonObject.put("receipt:", receiptString);
+        return jsonObject.toString();
     }
 
 }

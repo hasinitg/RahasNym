@@ -9,7 +9,7 @@
             },
             "conditionSet": [{
                 "appliesTo": ["email"],
-                "disclosure": ["ZKP_I"],
+                "disclosure": ["ZKP_NI_S"],
                 "pseudonymCardinality": ["MULTIPLE"]
             }]
         }]

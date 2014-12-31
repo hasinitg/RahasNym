@@ -67,7 +67,10 @@ public class IDMManager {
         String spPolicy = jsonRequest.getString(Constants.VERIFIER_POLICY);
         //read the pseudonym used with the SP
         String pseudonymWithSP = jsonRequest.getString(Constants.PSEUDONYM_WITH_SP);
-
+        //read receipt if available
+        String receipt = jsonRequest.optString(Constants.TRANSACTION_RECEIPT);
+        //read session id if available
+        String sessionID = jsonRequest.optString(Constants.SESSION_ID);
         //decode sp policy
         IDVPolicy spIDVPolicy = new JSONPolicyDecoder().decodePolicy(spPolicy);
         //combine policy
@@ -89,9 +92,9 @@ public class IDMManager {
         IdentityToken idt = encoderDecoder.decodeIdentityToken(IDTResponse);
         //create proof adhering to policy
         //proofCreator = new IDVProofCreator();
-        IdentityProof proof = proofCreator.createProof(idt, combinedPolicy, emailBIG, secretBIG);
+        IdentityProof proof = proofCreator.createProof(idt, combinedPolicy, emailBIG, secretBIG, receipt);
         //todo: create the response message here
-        String response = encoderDecoder.createIDTResponseByIDMM(IDTResponse, proof);
+        String response = encoderDecoder.createIDTResponseByIDMM(IDTResponse, proof, sessionID);
         return response;
     }
 
@@ -99,7 +102,8 @@ public class IDMManager {
         //decode the challenge
         ProofInfo proofInfo = encoderDecoder.decodeChallengeMessage(challengeMessage);
         //System.out.println("emailBIG at IDMM before challenge-response creation: " + emailBIG);
-        IdentityProof proofResponse = proofCreator.createProofForZKPI(proofInfo.getChallengeValue(), emailBIG, secretBIG);
+        IdentityProof proofResponse = proofCreator.createProofForZKPI(proofInfo.getChallengeValue(), secretBIG, emailBIG);
+        //todo: handling session id is not IDMM's responsibility. move it to Client API.
         String challengeResponse = encoderDecoder.createChallengeResponseByIDMM(proofInfo.getSessionID(), proofResponse);
         return challengeResponse;
     }

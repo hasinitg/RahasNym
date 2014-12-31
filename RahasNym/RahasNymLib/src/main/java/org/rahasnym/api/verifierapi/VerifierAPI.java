@@ -5,11 +5,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.rahasnym.api.Constants;
+import org.rahasnym.api.RandomString;
 import org.rahasnym.api.communication.encdecoder.JSONPolicyDecoder;
+import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
 import org.rahasnym.api.idenity.IdentityToken;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
+import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,7 +34,13 @@ public class VerifierAPI {
         return new JSONPolicyDecoder().readPolicyAsStringFromClassLoader(policyPath);
     }
 
-    public String handleIDVReqMessage(String IDVReqMessage) throws JSONException, ParseException, CryptoAlgorithmException {
+    public String getIReceipt() {
+        String receipt = new RandomString().generateRandomString();
+        return receipt;
+    }
+
+
+    public String handleIDVReqMessage(String IDVReqMessage, String receipt) throws JSONException, ParseException, CryptoAlgorithmException, NoSuchAlgorithmException {
         //identify the request type
         //System.out.println("verifier heard from client: " + IDVReqMessage);
         JSONObject IDVResponse = new JSONObject(new JSONTokener(IDVReqMessage));
@@ -39,9 +49,12 @@ public class VerifierAPI {
         //call identity verification handler which validates the token and verify the identity proof
         if (Constants.REQ_ZKP_I.equals(requestType)) {
             return verificationHandler.handleInitialZKPIRequest(IDVResponse);
-        }
-        if (Constants.AUTH_CHALLENGE_RESPONSE.equals(requestType)) {
+        } else if (Constants.AUTH_CHALLENGE_RESPONSE.equals(requestType)) {
             return verificationHandler.verifyZKPI(IDVResponse);
+        } else if (Constants.REQ_ZKP_NI.equals(requestType)) {
+            return verificationHandler.verifyZKPNI(IDVResponse);
+        } else if (Constants.REQ_ZKP_NI_S.equals(requestType)){
+            return verificationHandler.verifyZKPNIS(IDVResponse, receipt);
         }
 
         //return the response given by the Identity Verification Handler.

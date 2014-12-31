@@ -63,6 +63,9 @@ public class Constants {
     //default IDT Time-to-live is 20 mins.
     public static final long DEFAULT_IDT_TTL = 1200000;
 
+    //default receipt size:
+    public static final int DEFAULT_RECEIPT_SIZE = 1024*100;
+
     public static final String USER_ID = "UserId";
 
     public static final String CONTENT_TYPE = "application/json";
@@ -77,6 +80,11 @@ public class Constants {
     /**
      * HTTP Request Methods used in RESTful communication
      */
+
+    /*client to SP*/
+    public static final String RECEIPT_REQUIRED = "receiptRequired";
+    public static final String TRUE = "true";
+    public static final String FALSE = "false";
 
     /*Constants from SP to Client*/
     public static final String CHALLENGE = "challenge";
@@ -125,6 +133,7 @@ public class Constants {
     public static final String V_VALUES = "V_VALUES";
     public static final String HELPER_COMMITMENT = "helper";
     public static final String HELPER_COMMITMENTS = "helpers";
+    public static final String CHALLENGES = "challenges";
     public static final String HASH = "hash";
     public static final String TIMESTAMP_AT_PROOF_CREATION = "timestampAtProofCreation";
     public static final String ENCRYPTED_PSEUDONYM_AT_IDP = "encryptedPseudonymAtIDP";

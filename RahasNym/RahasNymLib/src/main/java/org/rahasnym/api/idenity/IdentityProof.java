@@ -23,6 +23,7 @@ public class IdentityProof {
     private String secretForPseudonym;
     private String secretForSPID;
     private List<PedersenCommitmentProof> proofs = new ArrayList<>();
+    private List<BigInteger> challenges = new ArrayList<>();
     //private String hash;
     private Timestamp timestampAtProofCreation;
     private String encryptedPseudonymAtIDP;
@@ -113,5 +114,13 @@ public class IdentityProof {
 
     public void setEncryptedPseudonymAtIDP(String encryptedPseudonymAtIDP) {
         this.encryptedPseudonymAtIDP = encryptedPseudonymAtIDP;
+    }
+
+    public List<BigInteger> getChallenges() {
+        return challenges;
+    }
+
+    public void setChallenges(List<BigInteger> challenges) {
+        this.challenges = challenges;
     }
 }
