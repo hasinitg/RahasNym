@@ -102,7 +102,7 @@ public class SPClientIDMProtocol {
     public void connectToRemoteHost(){
         //try{
             ClientAPI clientAPI = new ClientAPI();
-            clientAPI.requestPolicy("http://localhost:8080/amazingshop/service/shop");
+            //clientAPI.requestPolicy("http://localhost:8080/amazingshop/service/shop");
 
             /*HTTPClientRequest getR = new HTTPClientRequest();
             getR.setRequestType(Constants.RequestType.GET);

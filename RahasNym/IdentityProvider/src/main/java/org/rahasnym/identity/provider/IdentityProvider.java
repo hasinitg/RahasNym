@@ -19,6 +19,10 @@ import java.security.NoSuchAlgorithmException;
  * Date: 12/18/14
  * Time: 3:56 PM
  */
+
+/**
+ * This is the RESTful interface of IDP which exposes identity management operations.
+ */
 @Path("/")
 public class IdentityProvider {
     @POST
