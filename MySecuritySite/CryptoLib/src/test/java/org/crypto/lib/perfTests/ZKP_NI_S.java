@@ -28,7 +28,7 @@ import java.util.*;
  */
 public class ZKP_NI_S {
     private static int DATA_SET_SIZE = 1000;
-    private static int RECEIPT_SIZE = 1024 * 200; //10KB
+    private static int RECEIPT_SIZE = 1024 * 1000; //10KB
     //initialize public params:
     private static PedersenPublicParams publicParams;
     private static PedersenCommitmentFactory pedersenCommitmentFactory;

@@ -15,4 +15,5 @@ public class CryptoLibConstants {
     public static int DEFAULT_PBKDF_ITERATIONS = 1000;
     public static int DEFAULT_LENGTH_OF_SALT = 8; //in bytes
     public static int NUMBER_OF_PROOFS_FOR_NI_ZKP = 3;
+    public static final int SECRET_BIT_LENGTH = 150;
 }

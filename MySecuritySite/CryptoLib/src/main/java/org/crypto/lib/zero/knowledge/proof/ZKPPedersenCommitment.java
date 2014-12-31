@@ -148,6 +148,7 @@ public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCo
     }
 
     @Override
+    //todo: add meta data if there is any, to be included in the hash
     public boolean verifyNonInteractiveZKP(PedersenCommitment originalProblem, List<PedersenCommitment> helperProblems,
                                            List<BigInteger> challenges, List<PedersenCommitmentProof> proofs) throws NoSuchAlgorithmException {
         boolean verificationResult = false;
@@ -177,6 +178,7 @@ public class ZKPPedersenCommitment implements ZKP<PedersenCommitment, PedersenCo
     }
 
     @Override
+    //todo: add meta data if there is any, to be included in the hash
     public boolean verifyNonInteractiveZKPWithSignature(PedersenCommitment originalProblem, List<PedersenCommitment> helperProblems,
                                                         byte[] message, List<BigInteger> challenges,
                                                         List<PedersenCommitmentProof> proofs) throws NoSuchAlgorithmException {
