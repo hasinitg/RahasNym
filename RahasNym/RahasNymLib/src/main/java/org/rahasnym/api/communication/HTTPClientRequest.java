@@ -6,6 +6,7 @@ import org.apache.commons.httpclient.methods.*;
 import org.rahasnym.api.Constants;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class HTTPClientRequest {
     String payload;
     int responseStatus;
     String response;
-
+    HttpMethod request;
 
     public void setRequestType(Constants.RequestType requestType) {
         this.reqType = requestType;
@@ -105,15 +106,19 @@ public class HTTPClientRequest {
 
     public int execute() throws IOException {
         HttpClient httpClient = new HttpClient();
-        HttpMethod request = createRequest();
+        request = createRequest();
         responseStatus = httpClient.executeMethod(request);
-        response = request.getResponseBodyAsString();
+        //response = request.getResponseBodyAsString();
         return responseStatus;
     }
 
 
-    public String getResponseString() {
-        return response;
+    public String getResponseString() throws IOException {
+        return request.getResponseBodyAsString();
+    }
+
+    public InputStream getResponseBodyAsStream() throws IOException {
+        return request.getResponseBodyAsStream();
     }
 
 

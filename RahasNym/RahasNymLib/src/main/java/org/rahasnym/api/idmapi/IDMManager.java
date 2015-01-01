@@ -53,7 +53,7 @@ public class IDMManager {
             return processIDTRequestMessage(jsonRequest);
         } else if (reqType.equals(Constants.AUTH_CHALLENGE)) {
             return processChallengeMessage(jsonRequest);
-        } else if (reqType.equals(Constants.ACK_MESSAGE)) {
+        } else if (reqType.equals(Constants.AUTH_RESULT)) {
             return processAckMessage(jsonRequest);
         }
         return Constants.REQUEST_ERROR;

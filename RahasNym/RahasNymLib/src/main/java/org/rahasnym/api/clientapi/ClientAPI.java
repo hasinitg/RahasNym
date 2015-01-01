@@ -18,14 +18,12 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.rahasnym.api.Constants;
 import org.rahasnym.api.RahasNymException;
+import org.rahasnym.api.Util;
 import org.rahasnym.api.communication.HTTPClientRequest;
 import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
 import org.rahasnym.api.verifierapi.VerifierAPI;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
@@ -63,8 +61,8 @@ public class ClientAPI {
             getR.setRequestHeader(Constants.RECEIPT_REQUIRED, Constants.TRUE);
             int status = getR.execute();
             //todo: check if it is a success status, if so, obtain the policy from the string. otherwise, throw an exception
-            String responseString = getR.getResponseString();
-            return responseString;
+            InputStream responseString = getR.getResponseBodyAsStream();
+            return Util.convertInputStreamToString(responseString);
         } catch (IOException e) {
             throw new RahasNymException(e.getMessage());
         }
@@ -83,7 +81,6 @@ public class ClientAPI {
      * @param authInfo@return
      */
     public String authenticate(AuthInfo authInfo) throws RahasNymException {
-        //gets the policy from SP
         //TODO: should initialize the port from the configuration of the client device
         int IDMMPort = Constants.IDM_MODULE_PORT;
         try (
@@ -133,7 +130,7 @@ public class ClientAPI {
                     //System.out.println("Client heard from IDMM: " + challengeResponse);
 
                     String verifierResponse2 = sendIDVRequestToVerifier(challengeResponse, spURL);
-                    //String verifierResponse2 = verifierAPI.handleIDVReqMessage(challengeResponse);
+                    //String verifierResponse2 = verifierAPI.handleIDVReqMessage(challengeResponse, authInfo.getReceipt());
                     //System.out.println("Client heard from verifier: " + verifierResponse2);
 
                     out.println(verifierResponse2);

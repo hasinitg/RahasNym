@@ -52,8 +52,7 @@ public class ClientRequestHandler extends Thread {
         ) {
             //read the policy from client
             String clientRequest = in.readLine();
-            //System.out.println("IDM: heard from client: " + clientRequest);
-            //get the policy sent by client
+
             if (clientRequest != null) {
 
                 IDMManager IDMManager = new IDMManager();
@@ -64,21 +63,21 @@ public class ClientRequestHandler extends Thread {
                 //wait for the client's response.
                 String clientResponse = in.readLine();
                 if (clientResponse != null) {
-                    //System.out.println("IDM: client response : " + clientResponse);
 
+                    //process client response
                     String response2 = IDMManager.processClientMessage(clientResponse);
-                    //System.out.println(response2);
 
-                    //this is the case in non-interactive proof protocols.
-                    if(response2.equals(null)){
+                    //if it is auth result, (in the case of non-interactive proof protocols), IDMM returns nothing.
+                    if(response2 == null){
                         return;
                     }
-                    //send to client:
+
+                    //in the interactive protocol, send response (proof) to client:
                     out.println(response2);
 
-                    //wait for ack:
+                    //wait for auth result:
                     String ack = in.readLine();
-                    if (ack != null && ack.equals("thanks.")) {
+                    if (ack != null) {
                         IDMManager.processClientMessage(ack);
                         return;
                     }

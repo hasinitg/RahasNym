@@ -22,11 +22,11 @@ import java.util.List;
 public class UserDevice {
     private static double MILLIS_IN_NANO = 1000000.0;
     private static int WARM_UP = 100;
-    private static int TESTS = 100;
-    //private static String IDP_URL = "http://localhost:8080/IDP/service/idp";
-    private static String IDP_URL = "http://128.10.25.207:8080/IDP/service/idp";
-    //private static String SP_URL = "http://localhost:8080/amazingshop/service/shop";
-    private static String SP_URL = "http://128.10.25.206:8080/amazingshop/service/shop";
+    private static int TESTS = 1000;
+    private static String IDP_URL = "http://localhost:8080/IDP/service/idp";
+    //private static String IDP_URL = "http://128.10.25.207:8080/IDP/service/idp";
+    private static String SP_URL = "http://localhost:8080/amazingshop/service/shop";
+    //private static String SP_URL = "http://128.10.25.206:8080/amazingshop/service/shop";
 
     public static void main(String[] args) throws RahasNymException, IOException, JSONException {
         //initialize IDMM Config
@@ -53,7 +53,7 @@ public class UserDevice {
             Long start = System.nanoTime();
             ClientAPI client = new ClientAPI();
             String spresponse = client.requestPolicyWithReceipt(SP_URL);
-
+            System.out.println(spresponse);
             //String spresponse = client.requestPolicy("http://localhost:8080/amazingshop/service/shop");
             JSONObject spResp = new JSONObject(new JSONTokener(spresponse));
             String policy = spResp.optString(Constants.POLICY);
@@ -88,12 +88,11 @@ public class UserDevice {
         double average = totalTime/WARM_UP;
         double avgSec = average/MILLIS_IN_NANO;
         System.out.println("Total time in milli sec warm up: " + avgSec);
-        //Long av = time/1000;
-        //System.out.println(time);
-        //record end time
-        /*List<Long> commTimes2 = new ArrayList<>();
+
+        List<Long> commTimes2 = new ArrayList<>();
         for (int i = 0; i < TESTS; i++) {
             Long start = System.nanoTime();
+
             ClientAPI client = new ClientAPI();
             String spresponse = client.requestPolicyWithReceipt(SP_URL);
 
@@ -131,7 +130,7 @@ public class UserDevice {
         }
         double average2 = totalTime2/TESTS;
         double avgSec2 = average2/MILLIS_IN_NANO;
-        System.out.println("Total time in milli sec: " + avgSec2);*/
+        System.out.println("Total time in milli sec: " + avgSec2);
         //calculate average
 
     }

@@ -46,7 +46,7 @@ public class IDVProofCreator {
         } else if (disclosure.equals(Constants.ZKP_NI)) {
             return createProofForZKPNI(identityToken, secretBIG, identityBIG);
         } else if (disclosure.equals(Constants.ZKP_NI_S)) {
-            return createProofForZKPNIS(identityToken, identityBIG, secretBIG, receipt);
+            return createProofForZKPNIS(identityToken, secretBIG, identityBIG, receipt);
         }
         //PedersenPublicParams params = new Util().extractPedersenParamsFromIDT(IDTResponse);
         return null;

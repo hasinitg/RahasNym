@@ -12,7 +12,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.InputStream;
 import java.math.BigInteger;
+import java.util.Scanner;
 
 /**
  * This contains the utility functions of RahasNymLib
@@ -28,5 +30,10 @@ public class Util {
         params.setG(new BigInteger(pedersenParams.optString(Constants.G_PARAM)));
         params.setH(new BigInteger(pedersenParams.optString(Constants.H_PARAM)));
         return params;
+    }
+
+    public static String convertInputStreamToString(InputStream inputStream){
+        Scanner s = new java.util.Scanner(inputStream).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
     }
 }
