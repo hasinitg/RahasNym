@@ -88,7 +88,13 @@ public class IDMManager {
 
         //request IDT
         IDTRequestSender IDTRequester = new IDTRequestSender();
-        String IDTResponse = IDTRequester.requestIDT(combinedPolicy, secretBIG, pseudonymWithSP);
+        String IDTResponse = null;
+        if (jsonRequest.optString(Constants.IS_IN_VM) != null) {
+            //this is for the purpose of running test cases during build time.
+            IDTResponse = IDTRequester.requestIDTInVM(combinedPolicy, secretBIG, pseudonymWithSP);
+        } else {
+            IDTResponse = IDTRequester.requestIDT(combinedPolicy, secretBIG, pseudonymWithSP);
+        }
         IdentityToken idt = encoderDecoder.decodeIdentityToken(IDTResponse);
         //create proof adhering to policy
         //proofCreator = new IDVProofCreator();

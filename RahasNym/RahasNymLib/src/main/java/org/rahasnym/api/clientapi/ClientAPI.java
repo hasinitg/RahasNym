@@ -47,11 +47,14 @@ public class ClientAPI {
         } catch (IOException e) {
             throw new RahasNymException(e.getMessage());
         }
-        //VerifierAPI verifier = new VerifierAPI();
-        //String policy = verifier.getIDVPolicy(
-        //"/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/policies/serverPolicy");
-        //return policy;
     }
+
+    /*This is to be used in test cases run during build time.*/
+    /*public String requestPolicyInVM(String policyPath) throws IOException {
+        VerifierAPI verifier = new VerifierAPI();
+        String policy = verifier.getIDVPolicy(policyPath);
+        return policy;
+    }*/
 
     public String requestPolicyWithReceipt(String url) throws RahasNymException {
         try {
@@ -66,11 +69,15 @@ public class ClientAPI {
         } catch (IOException e) {
             throw new RahasNymException(e.getMessage());
         }
-        //VerifierAPI verifier = new VerifierAPI();
-        //String policy = verifier.getIDVPolicy(
-        //"/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/policies/serverPolicy");
-        //return policy;
+
     }
+
+    /*This is only for the test cases run during build time.*/
+    /*public String requestPolicyWithReceiptInVM(String policyPath) throws IOException {
+        VerifierAPI verifier = new VerifierAPI();
+        String policy = verifier.getIDVPolicy(policyPath);
+        return policy;
+    }*/
 
     /**
      * Client application calls this to perform identity verification with SP according to the agreed policy
@@ -113,10 +120,10 @@ public class ClientAPI {
             //read the response
             String response = in.readLine();
             if (response != null) {
+                //TODO: add these sysouts to debug logs.
                 System.out.println("Client: heard from IDM: " + response);
                 //forward the response to Verifier
                 VerifierAPI verifierAPI = new VerifierAPI();
-                //String verifierResponse1 = verifierAPI.handleIDVReqMessage(response);
 
                 String verifierResponse1 = sendIDVRequestToVerifier(response, spURL);
                 System.out.println("Client: heard from Verifier: " + verifierResponse1);
@@ -127,11 +134,8 @@ public class ClientAPI {
                     //hand over to IDMM and expect response
                     out.println(verifierResponse1);
                     String challengeResponse = in.readLine();
-                    //System.out.println("Client heard from IDMM: " + challengeResponse);
 
                     String verifierResponse2 = sendIDVRequestToVerifier(challengeResponse, spURL);
-                    //String verifierResponse2 = verifierAPI.handleIDVReqMessage(challengeResponse, authInfo.getReceipt());
-                    //System.out.println("Client heard from verifier: " + verifierResponse2);
 
                     out.println(verifierResponse2);
                     respSentToIDMM = true;
@@ -153,13 +157,92 @@ public class ClientAPI {
         } catch (JSONException e) {
             System.out.println("Error in creating the IDT request.");
             e.printStackTrace();
-        } /*catch (CryptoAlgorithmException e) {
+        }
+        return null;
+    }
+
+    /**
+     * This is to be used only in the test cases run during the execution time.
+     * @param authInfo
+     * @return
+     * @throws RahasNymException
+     */
+    public String authenticateINVM(AuthInfo authInfo) throws RahasNymException {
+        //TODO: should initialize the port from the configuration of the client device
+        int IDMMPort = Constants.IDM_MODULE_PORT;
+        try (
+                //todo: read this from configuration
+                //connects to IDMModule
+                Socket clientSocket = new Socket(Constants.LOCAL_HOST, IDMMPort);
+                //obtain output stream
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                //obtain input stream
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        ) {
+            String spURL = authInfo.getSpURL();
+            //create the request:
+            JSONObject request = new JSONObject();
+            String sessionID;
+            if (authInfo.getSessionID() != null) {
+                sessionID = authInfo.getSessionID();
+                request.put(Constants.SESSION_ID, sessionID);
+            }
+
+            request.put(Constants.REQUEST_TYPE, Constants.IDT_REQUEST);
+            request.put(Constants.OPERATION, authInfo.getOperation());
+            request.put(Constants.VERIFIER_POLICY, authInfo.getPolicy());
+            request.put(Constants.PSEUDONYM_WITH_SP, authInfo.getPseudonym());
+            request.put(Constants.IS_IN_VM, Constants.TRUE);
+            if (authInfo.getReceipt() != null) {
+                request.put(Constants.TRANSACTION_RECEIPT, authInfo.getReceipt());
+            }
+            //send the policy
+            out.println(request.toString());
+            //read the response
+            String response = in.readLine();
+            if (response != null) {
+                //TODO: add these sysouts to debug logs.
+                //forward the response to Verifier
+                VerifierAPI verifierAPI = new VerifierAPI();
+                String verifierResponse1 = verifierAPI.handleIDVReqMessage(response, null);
+
+                //identify the response type:
+                JSONObject verifierResponse1JSON = new JSONObject(new JSONTokener(verifierResponse1));
+                boolean respSentToIDMM = false;
+                if (Constants.AUTH_CHALLENGE.equals(verifierResponse1JSON.optString(Constants.REQUEST_TYPE))) {
+                    //hand over to IDMM and expect response
+                    out.println(verifierResponse1);
+                    String challengeResponse = in.readLine();
+
+                    String verifierResponse2 = verifierAPI.handleIDVReqMessage(challengeResponse, authInfo.getReceipt());
+
+                    out.println(verifierResponse2);
+                    respSentToIDMM = true;
+                    verifierResponse1 = verifierResponse2;
+                }
+                //decode auth result
+                IdentityMessagesEncoderDecoder encoderDecoder = new IdentityMessagesEncoderDecoder();
+                //String result = encoderDecoder.decodeAuthResult(verifierResponse1);
+                if (!respSentToIDMM) {
+                    out.println(verifierResponse1);
+                }
+                //returns the response sent by the verifier so that the actual client application can decode as required.
+                return verifierResponse1;
+            }
+            throw new RahasNymException("Response from IDMM is null.");
+        } catch (IOException e) {
+            //TODO: handle the exception properly
+            e.printStackTrace();
+        } catch (JSONException e) {
+            System.out.println("Error in creating the IDT request.");
+            e.printStackTrace();
+        } catch (CryptoAlgorithmException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (ParseException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }*/
+        }
         return null;
     }
 

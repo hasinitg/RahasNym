@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.rahasnym.api.Constants;
+import org.rahasnym.api.RahasNymException;
 import org.rahasnym.api.RandomString;
 import org.rahasnym.api.communication.encdecoder.JSONPolicyDecoder;
 import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
@@ -26,21 +27,23 @@ import java.util.Random;
 
 public class VerifierAPI {
 
-    public String getIDVPolicy(String policyPath) throws IOException {
+    /*public String getIDVPolicy(String policyPath) throws IOException {
         return new JSONPolicyDecoder().readPolicyAsString(policyPath);
-    }
+    }*/
 
     public String getIDVPolicyFromClassLoader(String policyPath) throws IOException {
         return new JSONPolicyDecoder().readPolicyAsStringFromClassLoader(policyPath);
     }
 
-    public String getIReceipt() {
+    /*public String getIReceipt() {
         String receipt = new RandomString().generateRandomString();
         return receipt;
-    }
+    }*/
 
-
-    public String handleIDVReqMessage(String IDVReqMessage, String receipt) throws JSONException, ParseException, CryptoAlgorithmException, NoSuchAlgorithmException {
+    /*Todo: in addition to the below inputs, verifier policy should also be passed into this method.*/
+    public String handleIDVReqMessage(String IDVReqMessage, String receipt) throws JSONException, ParseException,
+            CryptoAlgorithmException, NoSuchAlgorithmException, RahasNymException {
+        //todo:validate the contents in the identity token and proof against the verifier policy.
         //identify the request type
         //System.out.println("verifier heard from client: " + IDVReqMessage);
         JSONObject IDVResponse = new JSONObject(new JSONTokener(IDVReqMessage));
@@ -56,9 +59,7 @@ public class VerifierAPI {
         } else if (Constants.REQ_ZKP_NI_S.equals(requestType)){
             return verificationHandler.verifyZKPNIS(IDVResponse, receipt);
         }
-
-        //return the response given by the Identity Verification Handler.
-        return null;
+        throw new RahasNymException("Un-identified identity verification request.");
     }
 
 }

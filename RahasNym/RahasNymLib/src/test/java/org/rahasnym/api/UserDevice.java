@@ -21,17 +21,19 @@ import java.util.List;
  */
 public class UserDevice {
     private static double MILLIS_IN_NANO = 1000000.0;
-    private static int WARM_UP = 100;
-    private static int TESTS = 1000;
+    private static int WARM_UP = 5;
+    private static int TESTS = 5;
     private static String IDP_URL = "http://localhost:8080/IDP/service/idp";
     //private static String IDP_URL = "http://128.10.25.207:8080/IDP/service/idp";
     private static String SP_URL = "http://localhost:8080/amazingshop/service/shop";
     //private static String SP_URL = "http://128.10.25.206:8080/amazingshop/service/shop";
+    private static String userIDVPolicyPath = "/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/policies/clientPolicy";
+    private static IDMMThread idmmThread = null;
 
     public static void main(String[] args) throws RahasNymException, IOException, JSONException {
         //initialize IDMM Config
         IDMMConfig idmmConfig = IDMMConfig.getInstance();
-        idmmConfig.setUserIDVPolicy("/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/policies/clientPolicy");
+        idmmConfig.setUserIDVPolicy(userIDVPolicyPath);
         idmmConfig.setIDMMPort(Constants.IDM_MODULE_PORT);
         IDPAccessInfo idpAccessInfo = new IDPAccessInfo();
         idpAccessInfo.setUsername("hasini");
@@ -42,7 +44,7 @@ public class UserDevice {
 
         //initialize IDMM
         System.out.println("IDMM starting.");
-        IDMMThread idmmThread = new IDMMThread();
+        idmmThread = new IDMMThread();
         idmmThread.start();
         System.out.println("IDMM started.");
         //run over 1000 times.
@@ -131,8 +133,12 @@ public class UserDevice {
         double average2 = totalTime2/TESTS;
         double avgSec2 = average2/MILLIS_IN_NANO;
         System.out.println("Total time in milli sec: " + avgSec2);
-        //calculate average
-
+        return;
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        idmmThread.stopMe();
+        super.finalize();
+    }
 }

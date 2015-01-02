@@ -60,7 +60,4 @@ public class IDTTokenFactory {
         return IDT;
     }
 
-    //encode idt
-
-    //decode idt
 }

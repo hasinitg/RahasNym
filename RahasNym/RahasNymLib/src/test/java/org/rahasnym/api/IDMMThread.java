@@ -9,9 +9,15 @@ import org.rahasnym.api.idmapi.IDMMAPI;
  * Time: 4:04 PM
  */
 public class IDMMThread extends Thread {
+    private boolean stopped = false;
+    IDMMAPI idmmapi = null;
     @Override
     public void run() {
-        IDMMAPI idmmapi = new IDMMAPI();
+        idmmapi = new IDMMAPI();
         idmmapi.handleIDTRequests();
+    }
+
+    public void stopMe() {
+        idmmapi.stopIDMM();
     }
 }

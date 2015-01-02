@@ -17,9 +17,10 @@ import java.net.ServerSocket;
  */
 public class IDMMAPI {
 
+    boolean listening = true;
+
     public void handleIDTRequests() {
         //listens to clients and handle them until the programme is closed
-        boolean listening = true;
         try (
                 ServerSocket serverSocket = new ServerSocket(IDMMConfig.getInstance().getIDMMPort());
 
@@ -28,12 +29,17 @@ public class IDMMAPI {
                 //TODO: handle this with a thread pool
                 new ClientRequestHandler(serverSocket.accept()).start();
             }
+            return;
         } catch (IOException e) {
             //todo:log the error
             System.out.println("Error in listening on the socket: " + IDMMConfig.getInstance().getIDMMPort());
             //throw new RahasNymException(e.getMessage());
         }
 
+    }
+
+    public void stopIDMM(){
+        listening = false;
     }
 
 }

@@ -65,4 +65,29 @@ public class IDTRequestSender {
         return postR.getResponseString();
         //return response;
     }
+
+    /*This is used for the purpose of testing protocol execution during build time.*/
+    public String requestIDTInVM(IDVPolicy combinedPolicy, BigInteger secretBIG, String pseudoNymWithSP) throws JSONException,
+            CryptoAlgorithmException, NoSuchAlgorithmException {
+        //todo: identify the attribute, corresponding IDP and access information about it, and send the IDT request.
+        String identityAttributeName = Constants.EMAIL_ATTRIBUTE;
+        IDTRequestMessage reqMsg = new IDTRequestMessage();
+        reqMsg.setAttributeName(identityAttributeName);
+        reqMsg.setBiometricIdentityRequired(false);
+        //todo: encrypt this with IDP's public key.
+        reqMsg.setEncryptedSecret(secretBIG.toString());
+        //todo: read the SP_ID from policy
+        //todo: if pseudonym cardinality is single, send pseudonym and sp-identity in plain-text,
+        //todo: if subject verification is: hidden-sp-bound/hidden-pseudonym-bound send them in hidden format.
+        reqMsg.setSpIdentity("amazon.com");
+        reqMsg.setPseudonym(pseudoNymWithSP);
+
+        //todo: encode the message and send to IDT.
+        IdentityMessagesEncoderDecoder encoderDecoder = new IdentityMessagesEncoderDecoder();
+        String encodedIDTReq = encoderDecoder.encodeIDTRequest(reqMsg);
+
+        RequestHandler IDP = new RequestHandler();
+        String response = IDP.handleIDTRequest(encodedIDTReq, "hasini");
+        return response;
+    }
 }

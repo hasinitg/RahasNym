@@ -99,6 +99,7 @@ public class Constants {
     public static final String CHALLENGE_MESSAGE = "challengeMessage";
     public static final String ACK_MESSAGE = "ackMessage";
     public static final String TRANSACTION_RECEIPT = "transactionReceipt";
+    public static final String IS_IN_VM = "isInVM";
 
     /*Constants in IDT request from Client to IDP.*/
     public static final String SECRET = "secret";
