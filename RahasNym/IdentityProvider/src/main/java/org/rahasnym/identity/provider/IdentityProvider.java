@@ -1,7 +1,5 @@
 package org.rahasnym.identity.provider;
 
-import org.crypto.lib.exceptions.CryptoAlgorithmException;
-import org.json.JSONException;
 import org.rahasnym.api.Constants;
 import org.rahasnym.api.communication.JAXRSResponseBuilder;
 import org.rahasnym.api.communication.RahasNymResponse;
@@ -11,7 +9,6 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,18 +29,10 @@ public class IdentityProvider {
             String response = idpAPI.handleIDTRequest(payload, userName);
             RahasNymResponse resp = new RahasNymResponse(Constants.CODE_OK, response);
             return new JAXRSResponseBuilder().buildResponse(resp);
-        } catch (NoSuchAlgorithmException e) {
-            //e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(new RahasNymResponse(
-                    Constants.HTTP_ERROR_CODE, e.getMessage()));
-        } catch (CryptoAlgorithmException e) {
-            //e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(new RahasNymResponse(
-                    Constants.HTTP_ERROR_CODE, e.getMessage()));
-        } catch (JSONException e) {
-            //e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(new RahasNymResponse(
-                    Constants.HTTP_ERROR_CODE, e.getMessage()));
+        } catch (org.rahasnym.api.RahasNymException e) {
+            e.printStackTrace();
+            return new JAXRSResponseBuilder().buildResponse(
+                    new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
         }
     }
 }

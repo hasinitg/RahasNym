@@ -41,25 +41,32 @@ public class VerifierAPI {
     }*/
 
     /*Todo: in addition to the below inputs, verifier policy should also be passed into this method.*/
-    public String handleIDVReqMessage(String IDVReqMessage, String receipt) throws JSONException, ParseException,
-            CryptoAlgorithmException, NoSuchAlgorithmException, RahasNymException {
+    public String handleIDVReqMessage(String IDVReqMessage, String receipt) throws RahasNymException {
         //todo:validate the contents in the identity token and proof against the verifier policy.
+        //todo: perform the common set of operations in validating IDT in any protocol. such as validating against policy,
+        //signature verification and expiration timestamp verification.
         //identify the request type
         //System.out.println("verifier heard from client: " + IDVReqMessage);
-        JSONObject IDVResponse = new JSONObject(new JSONTokener(IDVReqMessage));
-        String requestType = IDVResponse.optString(Constants.REQUEST_TYPE);
-        IdentityVerificationHandler verificationHandler = new IdentityVerificationHandler();
-        //call identity verification handler which validates the token and verify the identity proof
-        if (Constants.REQ_ZKP_I.equals(requestType)) {
-            return verificationHandler.handleInitialZKPIRequest(IDVResponse);
-        } else if (Constants.AUTH_CHALLENGE_RESPONSE.equals(requestType)) {
-            return verificationHandler.verifyZKPI(IDVResponse);
-        } else if (Constants.REQ_ZKP_NI.equals(requestType)) {
-            return verificationHandler.verifyZKPNI(IDVResponse);
-        } else if (Constants.REQ_ZKP_NI_S.equals(requestType)){
-            return verificationHandler.verifyZKPNIS(IDVResponse, receipt);
+        try {
+
+            JSONObject IDVReq = new JSONObject(new JSONTokener(IDVReqMessage));
+            String requestType = IDVReq.optString(Constants.REQUEST_TYPE);
+            IdentityVerificationHandler verificationHandler = new IdentityVerificationHandler();
+            //call identity verification handler which validates the token and verify the identity proof
+            if (Constants.REQ_ZKP_I.equals(requestType)) {
+                return verificationHandler.handleInitialZKPIRequest(IDVReq);
+            } else if (Constants.AUTH_CHALLENGE_RESPONSE.equals(requestType)) {
+                return verificationHandler.verifyZKPI(IDVReq);
+            } else if (Constants.REQ_ZKP_NI.equals(requestType)) {
+                return verificationHandler.verifyZKPNI(IDVReq);
+            } else if (Constants.REQ_ZKP_NI_S.equals(requestType)) {
+                return verificationHandler.verifyZKPNIS(IDVReq, receipt);
+            }
+            throw new RahasNymException("Un-identified identity verification request.");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw new RahasNymException("Error in decoding the identity verification request.");
         }
-        throw new RahasNymException("Un-identified identity verification request.");
     }
 
 }

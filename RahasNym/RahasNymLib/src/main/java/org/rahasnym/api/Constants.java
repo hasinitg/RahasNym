@@ -71,6 +71,9 @@ public class Constants {
     public static final String CONTENT_TYPE = "application/json";
     public static final String CHAR_SET = "UTF-8";
 
+    /*format for parsing the timestamp*/
+    public static final String TIME_STAMP_FORMAT = "yyyy-MM-dd hh:mm:ss.SSS";
+
     //http response codes
     public static final int HTTP_ERROR_CODE = 500;
     public static final int CODE_OK = 200;
@@ -124,6 +127,8 @@ public class Constants {
     public static final String H_PARAM = "H";
     public static final String SIGNATURE = "signature";
     public static final String PUBLIC_CERT = "publicCert";
+    public static final String CERT_ALIAS = "certAlias";
+    public static final String CONCATENATION = "|";
 
     /*Constants in reply from IDMM to client in proof creation.*/
     public static final String PROOF = "proof";

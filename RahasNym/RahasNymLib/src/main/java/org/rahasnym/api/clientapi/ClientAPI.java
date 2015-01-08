@@ -204,7 +204,7 @@ public class ClientAPI {
                 //TODO: add these sysouts to debug logs.
                 //forward the response to Verifier
                 VerifierAPI verifierAPI = new VerifierAPI();
-                String verifierResponse1 = verifierAPI.handleIDVReqMessage(response, null);
+                String verifierResponse1 = verifierAPI.handleIDVReqMessage(response, authInfo.getReceipt());
 
                 //identify the response type:
                 JSONObject verifierResponse1JSON = new JSONObject(new JSONTokener(verifierResponse1));
@@ -236,13 +236,13 @@ public class ClientAPI {
         } catch (JSONException e) {
             System.out.println("Error in creating the IDT request.");
             e.printStackTrace();
-        } catch (CryptoAlgorithmException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } /*catch (CryptoAlgorithmException e) {
+            e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         } catch (ParseException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+            e.printStackTrace();
+        }*/
         return null;
     }
 

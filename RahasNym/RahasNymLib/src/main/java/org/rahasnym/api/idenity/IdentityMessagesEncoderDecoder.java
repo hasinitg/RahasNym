@@ -32,14 +32,14 @@ import java.util.List;
  */
 public class IdentityMessagesEncoderDecoder {
 
-    public String encodeIdentityToken(IdentityToken IDT) throws JSONException {
+    public String encodeIdentityToken(IdentityToken IDT) throws JSONException, ParseException {
         JSONObject IDTContent = createIdentityTokenContent(IDT);
         JSONObject JSONIDT = new JSONObject();
         JSONIDT.put(Constants.IDT, IDTContent);
         return JSONIDT.toString();
     }
 
-    private JSONObject createIdentityTokenContent(IdentityToken IDT) throws JSONException {
+    private JSONObject createIdentityTokenContent(IdentityToken IDT) throws JSONException, ParseException {
         JSONObject IDTContent = new JSONObject();
         IDTContent.put(Constants.FROM, IDT.getPseudoNym());
         IDTContent.put(Constants.TO, IDT.getSpID());
@@ -57,6 +57,9 @@ public class IdentityMessagesEncoderDecoder {
         pedersenParams.put(Constants.G_PARAM, IDT.getPedersenParams().getG().toString());
         pedersenParams.put(Constants.H_PARAM, IDT.getPedersenParams().getH().toString());
         IDTContent.put(Constants.PEDERSEN_PARAMS, pedersenParams);
+        //todo: include the signature
+        IDTContent.put(Constants.SIGNATURE, IDT.getSignature());
+        IDTContent.put(Constants.CERT_ALIAS, IDT.getPublicCertAlias());
         return IDTContent;
     }
 
@@ -76,13 +79,19 @@ public class IdentityMessagesEncoderDecoder {
         identityToken.setIdentityCommitment(new BigInteger(IDTContent.optString(Constants.IDENTITY_COMMITMENT)));
         //read and set timestamp
         String currentTimestamp = IDTContent.optString(Constants.CURRENT_TIMESTAMP);
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+        SimpleDateFormat df = new SimpleDateFormat(Constants.TIME_STAMP_FORMAT);
         Date creationTime = df.parse(currentTimestamp);
         identityToken.setCreationTimestamp(new Timestamp(creationTime.getTime()));
 
         String expirationTimestamp = IDTContent.optString(Constants.EXPIRATION_TIMESTAMP);
         Date expTime = df.parse(expirationTimestamp);
         identityToken.setExpirationTimeStamp(new Timestamp(expTime.getTime()));
+
+        String signature = IDTContent.optString(Constants.SIGNATURE);
+        identityToken.setSignature(signature);
+
+        String certAlias = IDTContent.optString(Constants.CERT_ALIAS);
+        identityToken.setPublicCertAlias(certAlias);
 
         JSONObject paramsObj = IDTContent.optJSONObject(Constants.PEDERSEN_PARAMS);
         PedersenPublicParams params = new PedersenPublicParams();
@@ -303,11 +312,38 @@ public class IdentityMessagesEncoderDecoder {
         return authResult.optString(Constants.VERIFICATION_RESULT);
     }
 
-    public String encodePolicyWithReceipt(String policyString, String receiptString) throws JSONException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("policy", policyString);
-        jsonObject.put("receipt:", receiptString);
-        return jsonObject.toString();
+    public String getConcatenatedInfoFromIDT(IdentityToken IDT) {
+        //concatenated string of information to be signed:
+        StringBuilder concatenatedInfo = new StringBuilder();
+
+        concatenatedInfo.append(IDT.getPseudoNym());
+        concatenatedInfo.append(Constants.CONCATENATION);
+
+        if (IDT.getSpID() != null) {
+            concatenatedInfo.append(IDT.getSpID());
+            concatenatedInfo.append(Constants.CONCATENATION);
+        }
+
+        concatenatedInfo.append(IDT.getAttributeName());
+        concatenatedInfo.append(Constants.CONCATENATION);
+
+        concatenatedInfo.append(IDT.getIdentityCommitment().toString());
+        concatenatedInfo.append(Constants.CONCATENATION);
+
+        concatenatedInfo.append(IDT.getExpirationTimeStamp().toString());
+        concatenatedInfo.append(Constants.CONCATENATION);
+
+        PedersenPublicParams pedersenParams = IDT.getPedersenParams();
+        concatenatedInfo.append(pedersenParams.getG().toString());
+        concatenatedInfo.append(Constants.CONCATENATION);
+        concatenatedInfo.append(pedersenParams.getP().toString());
+        concatenatedInfo.append(Constants.CONCATENATION);
+        concatenatedInfo.append(pedersenParams.getQ().toString());
+        concatenatedInfo.append(Constants.CONCATENATION);
+        concatenatedInfo.append(pedersenParams.getH().toString());
+        concatenatedInfo.append(Constants.CONCATENATION);
+
+        return concatenatedInfo.toString();
     }
 
 }

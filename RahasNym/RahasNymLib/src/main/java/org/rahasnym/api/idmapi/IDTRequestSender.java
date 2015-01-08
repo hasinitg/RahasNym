@@ -1,14 +1,9 @@
 package org.rahasnym.api.idmapi;
 
-import org.crypto.lib.CryptoLibConstants;
-import org.crypto.lib.commitments.pedersen.PedersenCommitment;
-import org.crypto.lib.commitments.pedersen.PedersenCommitmentFactory;
-import org.crypto.lib.commitments.pedersen.PedersenPublicParams;
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
-import org.crypto.lib.util.CryptoUtil;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.rahasnym.api.Constants;
+import org.rahasnym.api.RahasNymException;
 import org.rahasnym.api.communication.HTTPClientRequest;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 import org.rahasnym.api.idenity.IDTRequestMessage;
@@ -67,8 +62,7 @@ public class IDTRequestSender {
     }
 
     /*This is used for the purpose of testing protocol execution during build time.*/
-    public String requestIDTInVM(IDVPolicy combinedPolicy, BigInteger secretBIG, String pseudoNymWithSP) throws JSONException,
-            CryptoAlgorithmException, NoSuchAlgorithmException {
+    public String requestIDTInVM(IDVPolicy combinedPolicy, BigInteger secretBIG, String pseudoNymWithSP) throws RahasNymException, JSONException {
         //todo: identify the attribute, corresponding IDP and access information about it, and send the IDT request.
         String identityAttributeName = Constants.EMAIL_ATTRIBUTE;
         IDTRequestMessage reqMsg = new IDTRequestMessage();
@@ -87,7 +81,7 @@ public class IDTRequestSender {
         String encodedIDTReq = encoderDecoder.encodeIDTRequest(reqMsg);
 
         RequestHandler IDP = new RequestHandler();
-        String response = IDP.handleIDTRequest(encodedIDTReq, "hasini");
-        return response;
+
+        return IDP.handleIDTRequest(encodedIDTReq, "hasini");
     }
 }

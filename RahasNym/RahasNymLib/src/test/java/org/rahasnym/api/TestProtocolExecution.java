@@ -1,6 +1,7 @@
 package org.rahasnym.api;
 
 import junit.framework.Assert;
+import org.crypto.lib.exceptions.CryptoAlgorithmException;
 import org.junit.Test;
 import org.rahasnym.api.clientapi.AuthInfo;
 import org.rahasnym.api.clientapi.ClientAPI;
@@ -8,6 +9,14 @@ import org.rahasnym.api.communication.encdecoder.JSONPolicyDecoder;
 import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
 import org.rahasnym.api.idmapi.IDMMConfig;
 import org.rahasnym.api.idmapi.IDPAccessInfo;
+import org.rahasnym.api.idpapi.IDPConfig;
+import org.rahasnym.api.verifierapi.VerifierCallBackManager;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.*;
+import java.security.cert.CertificateException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,12 +25,14 @@ import org.rahasnym.api.idmapi.IDPAccessInfo;
  * Time: 4:10 PM
  */
 public class TestProtocolExecution {
+    private static String IDPKeyStorePassword = "rahasnymIDP";
+    private static String IDPKeyStorePath = "src/test/java/org/rahasnym/api/IDPkeystore.jks";
+    private static String IDPKeyAlias = "rahasnymIDPCert";
+    private static IDMMThread idmmThread = null;
 
     @Test
     public void testZKPIExecution() {
-        IDMMThread idmmThread = null;
         try {
-
             //initialize IDMM Config
             IDMMConfig idmmConfig = IDMMConfig.getInstance();
             idmmConfig.setUserIDVPolicy("src/test/java/org/rahasnym/api/policies/clientPolicyZKP_I");
@@ -32,11 +43,19 @@ public class TestProtocolExecution {
             idmmConfig.addIDP(Constants.EMAIL_ATTRIBUTE, idpAccessInfo);
 
             //initialize IDMM
-            idmmThread = new IDMMThread();
-            idmmThread.start();
+            if (idmmThread == null) {
+                idmmThread = new IDMMThread();
+                idmmThread.start();
+            }
+
+            //initialize IDP Config
+            configureKeyStoreInIDP();
+
+            //register trust store callback impl in verifier API
+            TrustStoreCallBackImpl trustStoreCallBackImpl = new TrustStoreCallBackImpl();
+            VerifierCallBackManager.registerTrustStoreCallBack(trustStoreCallBackImpl);
 
             ClientAPI client = new ClientAPI();
-             /*String policy = client.requestPolicyInVM("src/test/java/org/rahasnym/api/policies/serverPolicyZKP_I");*/
             JSONPolicyDecoder policyDecoder = new JSONPolicyDecoder();
             String policy = policyDecoder.readPolicyAsString("src/test/java/org/rahasnym/api/policies/serverPolicyZKP_I");
 
@@ -53,16 +72,12 @@ public class TestProtocolExecution {
 
         } catch (Exception e) {
             Assert.fail(e.getMessage());
-        } finally {
-            idmmThread.stopMe();
         }
     }
 
     @Test
     public void testZKPNIExecution() {
-        IDMMThread idmmThread = null;
         try {
-
             //initialize IDMM Config
             IDMMConfig idmmConfig = IDMMConfig.getInstance();
             idmmConfig.setUserIDVPolicy("src/test/java/org/rahasnym/api/policies/clientPolicyZKP_NI");
@@ -73,8 +88,18 @@ public class TestProtocolExecution {
             idmmConfig.addIDP(Constants.EMAIL_ATTRIBUTE, idpAccessInfo);
 
             //initialize IDMM
-            idmmThread = new IDMMThread();
-            idmmThread.start();
+            if (idmmThread == null) {
+
+                idmmThread = new IDMMThread();
+                idmmThread.start();
+            }
+
+            //initialize IDP Config
+            configureKeyStoreInIDP();
+
+            //register trust store callback impl in verifier API
+            TrustStoreCallBackImpl trustStoreCallBackImpl = new TrustStoreCallBackImpl();
+            VerifierCallBackManager.registerTrustStoreCallBack(trustStoreCallBackImpl);
 
             ClientAPI client = new ClientAPI();
             //String policy = client.requestPolicyInVM("src/test/java/org/rahasnym/api/policies/serverPolicyZKP_NI");
@@ -93,16 +118,12 @@ public class TestProtocolExecution {
 
         } catch (Exception e) {
             Assert.fail(e.getMessage());
-        } finally {
-            idmmThread.stopMe();
         }
     }
 
-    /*@Test
+    @Test
     public void testZKPNISExecution() {
-        IDMMThread idmmThread = null;
         try {
-
             //initialize IDMM Config
             IDMMConfig idmmConfig = IDMMConfig.getInstance();
             idmmConfig.setUserIDVPolicy("src/test/java/org/rahasnym/api/policies/clientPolicyZKP_NI_S");
@@ -113,11 +134,19 @@ public class TestProtocolExecution {
             idmmConfig.addIDP(Constants.EMAIL_ATTRIBUTE, idpAccessInfo);
 
             //initialize IDMM
-            idmmThread = new IDMMThread();
-            idmmThread.start();
+            if (idmmThread == null) {
+                idmmThread = new IDMMThread();
+                idmmThread.start();
+            }
+
+            //initialize IDP Config
+            configureKeyStoreInIDP();
+
+            //register trust store callback impl in verifier API
+            TrustStoreCallBackImpl trustStoreCallBackImpl = new TrustStoreCallBackImpl();
+            VerifierCallBackManager.registerTrustStoreCallBack(trustStoreCallBackImpl);
 
             ClientAPI client = new ClientAPI();
-            //String policy = client.requestPolicyInVM("src/test/java/org/rahasnym/api/policies/serverPolicyZKP_NI_S");
             JSONPolicyDecoder policyDecoder = new JSONPolicyDecoder();
             String policy = policyDecoder.readPolicyAsString("src/test/java/org/rahasnym/api/policies/serverPolicyZKP_NI_S");
             String receipt = new RandomString().generateRandomString();
@@ -135,10 +164,18 @@ public class TestProtocolExecution {
 
         } catch (Exception e) {
             Assert.fail(e.getMessage());
-        } finally {
-            idmmThread.stopMe();
         }
-    }*/
 
+    }
 
+    private void configureKeyStoreInIDP() throws CryptoAlgorithmException, NoSuchAlgorithmException,
+            KeyStoreException, IOException, CertificateException, UnrecoverableKeyException {
+        IDPConfig idpConfig = IDPConfig.getInstance();
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        char[] storePass = IDPKeyStorePassword.toCharArray();
+        FileInputStream keyStoreFile = new FileInputStream(IDPKeyStorePath);
+        keyStore.load(keyStoreFile, storePass);
+        idpConfig.setRSAPrivateKey((PrivateKey) keyStore.getKey(IDPKeyAlias, storePass));
+        idpConfig.setCertificateAlias(IDPKeyAlias);
+    }
 }

@@ -26,7 +26,7 @@ public class IdentityToken {
     private Timestamp creationTimestamp;
     private PedersenPublicParams pedersenParams;
     private String signature;
-    private String publicCert;
+    private String publicCertAlias;
 
     public String getBiometricIdentity() {
         return biometricIdentity;
@@ -52,12 +52,12 @@ public class IdentityToken {
         this.pedersenParams = pedersenParams;
     }
 
-    public String getPublicCert() {
-        return publicCert;
+    public String getPublicCertAlias() {
+        return publicCertAlias;
     }
 
-    public void setPublicCert(String publicCert) {
-        this.publicCert = publicCert;
+    public void setPublicCertAlias(String publicCertAlias) {
+        this.publicCertAlias = publicCertAlias;
     }
 
     public BigInteger getIdentityCommitment() {

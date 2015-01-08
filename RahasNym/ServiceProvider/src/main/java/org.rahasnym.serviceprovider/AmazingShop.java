@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.rahasnym.api.Constants;
+import org.rahasnym.api.RahasNymException;
 import org.rahasnym.api.communication.JAXRSResponseBuilder;
 import org.rahasnym.api.communication.RahasNymResponse;
 import org.rahasnym.api.verifierapi.VerifierAPI;
@@ -38,15 +39,17 @@ public class AmazingShop {
                 receipt = SPConfig.getInstance().retrieveReceipt(sessionID);
             }
             VerifierAPI verifierAPI = new VerifierAPI();
+            //Todo: in addition to the below inputs, verifier's policy should also be passed into the below method.
             String response = verifierAPI.handleIDVReqMessage(message, receipt);
-
+            //TODO:in addition to the auth result returned by the API, SP can append additional details such as session-id etc
+            //for the user to carry out further operations.
             RahasNymResponse resp = new RahasNymResponse(Constants.CODE_OK, response);
             return new JAXRSResponseBuilder().buildResponse(resp);
         } catch (JSONException e) {
             e.printStackTrace();
             return new JAXRSResponseBuilder().buildResponse(
                     new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
-        } catch (ParseException e) {
+        } /*catch (ParseException e) {
             e.printStackTrace();
             return new JAXRSResponseBuilder().buildResponse(
                     new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
@@ -58,7 +61,10 @@ public class AmazingShop {
             e.printStackTrace();
             return new JAXRSResponseBuilder().buildResponse(
                     new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
-        } catch (IOException e) {
+        }*/ catch (IOException e) {
+            return new JAXRSResponseBuilder().buildResponse(
+                    new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
+        } catch (RahasNymException e) {
             return new JAXRSResponseBuilder().buildResponse(
                     new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
         }

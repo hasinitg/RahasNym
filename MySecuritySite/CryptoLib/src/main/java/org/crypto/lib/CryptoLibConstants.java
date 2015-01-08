@@ -16,4 +16,7 @@ public class CryptoLibConstants {
     public static int DEFAULT_LENGTH_OF_SALT = 8; //in bytes
     public static int NUMBER_OF_PROOFS_FOR_NI_ZKP = 3;
     public static final int SECRET_BIT_LENGTH = 150;
+
+    public static final String RSA_ENCRYPTION_ALGORITHM = "RSA";
+    public static final String RSA_SIGNATURE_ALGORITHM = "SHA256withRSA";
 }
