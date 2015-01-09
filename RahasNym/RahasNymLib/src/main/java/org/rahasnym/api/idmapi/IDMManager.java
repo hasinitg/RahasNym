@@ -89,7 +89,7 @@ public class IDMManager {
         //request IDT
         IDTRequestSender IDTRequester = new IDTRequestSender();
         String IDTResponse = null;
-        if (jsonRequest.optString(Constants.IS_IN_VM) != null) {
+        if ((jsonRequest.optString(Constants.IS_IN_VM) != null) && (!(jsonRequest.optString(Constants.IS_IN_VM).equals("")))) {
             //this is for the purpose of running test cases during build time.
             IDTResponse = IDTRequester.requestIDTInVM(combinedPolicy, secretBIG, pseudonymWithSP);
         } else {
@@ -116,6 +116,10 @@ public class IDMManager {
 
     private String processAckMessage(JSONObject jsonRequest) {
         //log the client response, whether it is a success or failure.
+        IdentityMessagesEncoderDecoder encoderDecoder = new IdentityMessagesEncoderDecoder();
+        String result = encoderDecoder.decodeAuthResultContent(jsonRequest);
+        //TODO: provide a call back handler for the IDMM developper to register an impl for it and get the auth result if needed.
+        //so that they can do whatever with that result.
         return null;
     }
 

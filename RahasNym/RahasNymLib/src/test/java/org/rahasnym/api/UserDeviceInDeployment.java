@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.rahasnym.api.clientapi.AuthInfo;
 import org.rahasnym.api.clientapi.ClientAPI;
+import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
 import org.rahasnym.api.idmapi.IDMMConfig;
 import org.rahasnym.api.idmapi.IDPAccessInfo;
 
@@ -78,13 +79,16 @@ public class UserDeviceInDeployment {
         if (receipt != null) {
             authInfo.setReceipt(receipt);
         }
-        if (authInfo != null) {
+        if (sessionid != null) {
             authInfo.setSessionID(sessionid);
         }
         authInfo.setSpURL(SP_URL);
         authInfo.setPseudonym("hasi");
         String authResult = client.authenticate(authInfo);
-        System.out.println(authResult);
+        //decode auth result
+        IdentityMessagesEncoderDecoder encoderDecoder = new IdentityMessagesEncoderDecoder();
+        String result = encoderDecoder.decodeAuthResult(authResult);
+        System.out.println(result);
         return;
     }
 

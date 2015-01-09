@@ -44,6 +44,31 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>1.2.2</version>
+                <configuration>
+                    <programs>
+                        <program>
+                            <mainClass>org.rahasnym.idm.IDMMRunner</mainClass>
+                            <name>IDMM</name>
+                        </program>
+                    </programs>
+                    <assembleDirectory>${project.build.directory}/IDMM</assembleDirectory>
+                    <repositoryName>lib</repositoryName>
+                    <repositoryLayout>flat</repositoryLayout>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>assemble</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

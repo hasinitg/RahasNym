@@ -29,35 +29,9 @@
         <session-timeout>60</session-timeout>
     </session-config>
 
-    <!--<security-constraint>
-        <web-resource-collection>
-            <web-resource-name>secured services</web-resource-name>
-            <url-pattern>/registrar/*</url-pattern>
-        </web-resource-collection>
-        &lt;!&ndash;we take default name for everyone role.If it is changed in user-mgt.xml,this needs to be changed as well.&ndash;&gt;
-        &lt;!&ndash;<auth-constraint>
-            <role-name>Internal/everyone</role-name>
-        </auth-constraint>&ndash;&gt;
-        <user-data-constraint>
-            &lt;!&ndash; transport-guarantee can be CONFIDENTIAL, INTEGRAL, or NONE &ndash;&gt;
-            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-        </user-data-constraint>
-    </security-constraint>-->
-
-    <!--<listener>-->
-    <!--<listener-class>org.wso2.carbon.identity.scim.provider.impl.ApplicationInitializer</listener-class>-->
-    <!--</listener>-->
-
-    <!--login-config>
-        <auth-method>BASIC</auth-method>
-    </login-config>
-    <context-param>
-        <param-name>carbon.enable.saas</param-name>
-        <param-value>*</param-value>
-    </context-param-->
-    <!--<welcome-file-list>
-        <welcome-file>welcomepage.html</welcome-file>
-    </welcome-file-list>-->
+    <listener>
+        <listener-class>org.rahasnym.identity.provider.Initializer</listener-class>
+    </listener>
 
 </web-app>
 

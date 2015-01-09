@@ -56,6 +56,13 @@ public class ClientAPI {
         return policy;
     }*/
 
+    /**
+     * This is written only for the purpose of performance testing. Client application and the Service provider
+     * should handle how they exchange transaction receipts.
+     * @param url
+     * @return
+     * @throws RahasNymException
+     */
     public String requestPolicyWithReceipt(String url) throws RahasNymException {
         try {
             HTTPClientRequest getR = new HTTPClientRequest();
@@ -91,7 +98,6 @@ public class ClientAPI {
         //TODO: should initialize the port from the configuration of the client device
         int IDMMPort = Constants.IDM_MODULE_PORT;
         try (
-                //todo: read this from configuration
                 //connects to IDMModule
                 Socket clientSocket = new Socket(Constants.LOCAL_HOST, IDMMPort);
                 //obtain output stream
@@ -141,13 +147,11 @@ public class ClientAPI {
                     respSentToIDMM = true;
                     verifierResponse1 = verifierResponse2;
                 }
-                //decode auth result
-                IdentityMessagesEncoderDecoder encoderDecoder = new IdentityMessagesEncoderDecoder();
-                String result = encoderDecoder.decodeAuthResult(verifierResponse1);
+
                 if (!respSentToIDMM) {
                     out.println(verifierResponse1);
                 }
-                return result;
+                return verifierResponse1;
 
             }
             throw new RahasNymException("Response from IDMM is null.");
