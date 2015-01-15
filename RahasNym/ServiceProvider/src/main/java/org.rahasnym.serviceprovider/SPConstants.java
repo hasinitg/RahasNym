@@ -17,8 +17,13 @@ public class SPConstants {
     public static final String SIGN_UP_OPERATION = "sign_up";
     public static final String PASSWORD = "password";
 
+    public static final String LOGGED_IN_STATUS = "logged-in-status";
+    public static final String LOG_IN_SUCCESS = "log-in-success";
+    public static final String LOG_IN_FAILURE = "log-in-failure";
+
+    public static final String LOGGED_IN_SESSION_ID = "logged-in-session-id";
+
     public enum SignUpStatus {
         SIGNUP_SUCCESS, SIGNUP_FAILURE
-
     }
 }

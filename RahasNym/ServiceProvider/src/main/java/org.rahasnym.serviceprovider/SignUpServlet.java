@@ -1,5 +1,8 @@
 package org.rahasnym.serviceprovider;
 
+import org.crypto.lib.Hash.SHA;
+import org.crypto.lib.util.Base64;
+import org.crypto.lib.util.CryptoUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -15,6 +18,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.UUID;
 
@@ -58,8 +62,9 @@ public class SignUpServlet {
                 User user = new User();
                 user.setUserName(userName);
                 user.setEmailIDT(identityToken);
-                //todo: hash the password and save
-                user.setHashPassword(jsonReq.optString(SPConstants.PASSWORD));
+                String password = jsonReq.optString(SPConstants.PASSWORD);
+                //password hashing is done inside the saveEnrolledUser method.
+                user.setHashPassword(password);
                 UserStore.getInstance().saveEnrolledUser(user);
                 UserStore.getInstance().addJustSignedUp(sessionID);
             }
@@ -78,6 +83,9 @@ public class SignUpServlet {
         } catch (RahasNymException e) {
             e.printStackTrace();
             return new JAXRSResponseBuilder().buildResponse(new RahasNymResponse(Constants.HTTP_ERROR_CODE, "Error in verifying identity."));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return new JAXRSResponseBuilder().buildResponse(new RahasNymResponse(Constants.HTTP_ERROR_CODE, "Error in hashing the password."));
         }
     }
 }
