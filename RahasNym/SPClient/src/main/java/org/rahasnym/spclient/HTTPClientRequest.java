@@ -16,7 +16,7 @@ import java.util.Map;
  * Time: 11:52 AM
  */
 public class HTTPClientRequest {
-    private Constants.RequestType reqType;
+    private SPClientConstants.RequestType reqType;
     Map<String, String> headers;
     String reqURI;
     String payload;
@@ -24,7 +24,7 @@ public class HTTPClientRequest {
     String response;
 
 
-    public void setRequestType(Constants.RequestType requestType) {
+    public void setRequestType(SPClientConstants.RequestType requestType) {
         this.reqType = requestType;
     }
 
@@ -66,7 +66,7 @@ public class HTTPClientRequest {
                     httpMethod = new PostMethod(reqURI);
                     //set payload
                     reqEntity = new StringRequestEntity(payload,
-                            Constants.CONTENT_TYPE, Constants.CHAR_SET);
+                            SPClientConstants.CONTENT_TYPE, SPClientConstants.CHAR_SET);
                     ((PostMethod) httpMethod).setRequestEntity(reqEntity);
                     break;
 
@@ -78,7 +78,7 @@ public class HTTPClientRequest {
                     httpMethod = new PutMethod(reqURI);
                     //set payload
                     reqEntity = new StringRequestEntity(payload,
-                            Constants.CONTENT_TYPE, Constants.CHAR_SET);
+                            SPClientConstants.CONTENT_TYPE, SPClientConstants.CHAR_SET);
                     ((PutMethod) httpMethod).setRequestEntity(reqEntity);
                     break;
 

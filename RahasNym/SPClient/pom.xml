@@ -28,6 +28,13 @@
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
         </dependency>
+        <!--hack-->
+        <dependency>
+            <groupId>java</groupId>
+            <artifactId>java-plugin</artifactId>
+            <version>jre-1.7.0_67</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 

@@ -27,16 +27,17 @@ public class SmallTest {
         cover.put("x", "y");
         System.out.println(cover.toString());
 
-        String UUID = java.util.UUID.randomUUID().toString();
-        System.out.println(UUID);
+
+        //String UUID = java.util.UUID.randomUUID().toString();
+        //System.out.println(UUID);
 
         //byte[] randomReceiptBytes = new byte[8];
         //new Random().nextBytes(randomReceiptBytes);
         //System.out.println(""+new String(randomReceiptBytes, "UTF-8"));
         //String bytes = randomReceiptBytes.toString();
         //System.out.println(bytes);
-        RandomString rand = new RandomString();
-        String s = rand.generateRandomString();
-        System.out.println(s);
+        //RandomString rand = new RandomString();
+        //String s = rand.generateRandomString();
+        //System.out.println(s);
     }
 }

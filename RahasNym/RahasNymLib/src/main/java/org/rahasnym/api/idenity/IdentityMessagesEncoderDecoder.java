@@ -243,9 +243,11 @@ public class IdentityMessagesEncoderDecoder {
         JSONObject responseJSON = new JSONObject(identityToken);
         JSONObject proofJSON = encodeIdentityProofContent(identityProof);
         responseJSON.put(Constants.PROOF, proofJSON);
-        if (sessionID != null) {
+        //it is not a responsibility of IDMM to handle application specific sessions. therefore, commented out the below.
+        //todo: remove it from method signature as well.
+        /*if (sessionID != null) {
             responseJSON.put(Constants.SESSION_ID, sessionID);
-        }
+        }*/
         if (Constants.ZKP_I.equals(identityProof.getProofType())) {
             responseJSON.put(Constants.REQUEST_TYPE, Constants.REQ_ZKP_I);
         } else if (Constants.ZKP_NI.equals(identityProof.getProofType())) {

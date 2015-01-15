@@ -8,7 +8,8 @@ package org.rahasnym.api.verifierapi;
  */
 
 /**
- * This maintains the single proof store at the verifier.
+ * This maintains the proof store at the verifier. The API uses this to handle the ZKP_I protocol.
+ *
  */
 public class ProofStoreManager {
     private static volatile ProofStoreManager proofStoreManager;
@@ -30,11 +31,15 @@ public class ProofStoreManager {
         return proofStoreManager;
     }
 
-    public void addProofInfo(String sessionID, ProofInfo proofInfo){
+    public void addProofInfo(String sessionID, ProofInfo proofInfo) {
         proofStore.put(sessionID, proofInfo);
     }
 
-    public ProofInfo getProofInfo(String sessionID){
+    public ProofInfo getProofInfo(String sessionID) {
         return (ProofInfo) proofStore.get(sessionID);
+    }
+
+    public void removeProofInfo(String sessionID) {
+        proofStore.remove(sessionID);
     }
 }

@@ -7,7 +7,6 @@ import org.crypto.lib.exceptions.CryptoAlgorithmException;
 import org.crypto.lib.zero.knowledge.proof.PedersenCommitmentProof;
 import org.crypto.lib.zero.knowledge.proof.ZKPPedersenCommitment;
 import org.rahasnym.api.clientapi.ClientAPI;
-import org.rahasnym.api.verifierapi.VerifierAPI;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -24,7 +23,7 @@ public class SPClientIDMProtocol {
     public String obtainIdentityToken(){
         //gets the policy from SP
         try (   //connects to IDMModule
-                Socket clientSocket = new Socket(Constants.LOCAL_HOST, Constants.IDM_MODULE_PORT);
+                Socket clientSocket = new Socket(SPClientConstants.LOCAL_HOST, SPClientConstants.IDM_MODULE_PORT);
                 //obtain output stream
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                 //obtain input stream
@@ -37,7 +36,7 @@ public class SPClientIDMProtocol {
                 //decode the response
                 //decodes the first word from the array of strings separated by comma which should indicate which protocol to use.
                 String[] responseArray = response.split(",");
-                if (responseArray[0].equals(Constants.ZKP_I)) {
+                if (responseArray[0].equals(SPClientConstants.ZKP_I)) {
                     //obtain the commitment & public params from the response, send it to the server and obtain the challenge
                     String commitmentString = responseArray[1];
                     //*****TODO: replace challenge creation with obtaining challenge from SP
@@ -105,7 +104,7 @@ public class SPClientIDMProtocol {
             //clientAPI.requestPolicy("http://localhost:8080/amazingshop/service/shop");
 
             /*HTTPClientRequest getR = new HTTPClientRequest();
-            getR.setRequestType(Constants.RequestType.GET);
+            getR.setRequestType(SPClientConstants.RequestType.GET);
             getR.setRequestURI("http://localhost:8080/amazingshop/service/shop");
             getR.execute();*/
 

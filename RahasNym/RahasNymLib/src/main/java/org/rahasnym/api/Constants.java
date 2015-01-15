@@ -64,7 +64,7 @@ public class Constants {
     public static final long DEFAULT_IDT_TTL = 1200000;
 
     //default receipt size:
-    public static final int DEFAULT_RECEIPT_SIZE = 1024*100;
+    public static final int DEFAULT_RECEIPT_SIZE = 1024 * 100;
 
     public static final String USER_ID = "UserId";
 
@@ -79,7 +79,9 @@ public class Constants {
     public static final int CODE_OK = 200;
 
 
-    public enum RequestType{CREATE, UPDATE, REVOKE, GET;};
+    public enum RequestType {CREATE, UPDATE, REVOKE, GET;}
+
+    ;
     /**
      * HTTP Request Methods used in RESTful communication
      */
@@ -145,6 +147,9 @@ public class Constants {
     public static final String ENCRYPTED_PSEUDONYM_AT_IDP = "encryptedPseudonymAtIDP";
     public static final String CHALLENGE_RESPONSE = "challengeResponse";
 
+    /*Identity verification status at verifier.*/
+    public static final int IDENTITY_VERIFIED = 1;
+    public static final int IDENTITY_VERIFICATION_PENDING = 0;
 
     /*Error Messages*/
     public static final String REQUEST_ERROR = "Unidentified Request Type.";

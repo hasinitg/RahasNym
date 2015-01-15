@@ -57,6 +57,7 @@ public class IdentityVerificationHandler {
             proofInfo.setIdentityProof(identityProof);
             proofInfo.setChallengeValue(challenge);
             proofInfo.setSessionID(sessionID);
+            proofInfo.setVerificationStatus(Constants.IDENTITY_VERIFICATION_PENDING);
             ProofStoreManager.getInstance().addProofInfo(sessionID, proofInfo);
             //create challenge message and send
             return encoderDecoder.encodeChallengeMessage(proofInfo);
@@ -82,17 +83,21 @@ public class IdentityVerificationHandler {
             IdentityProof identityProof = encoderDecoder.decodeChallengeResponse(jsonProof);
             //find previous info from proof store
             ProofInfo proofInfo = ProofStoreManager.getInstance().getProofInfo(sessionID);
-            //verify the proof
-            PedersenPublicParams params = proofInfo.getIdentityToken().getPedersenParams();
-            ZKPPedersenCommitment ZKPK = new ZKPPedersenCommitment(params);
-            PedersenCommitment helperCommitment = new PedersenCommitment();
-            helperCommitment.setCommitment(proofInfo.getIdentityProof().getHelperCommitment());
-            PedersenCommitment originalCommitment = new PedersenCommitment();
-            originalCommitment.setCommitment(proofInfo.getIdentityToken().getIdentityCommitment());
-            boolean verificationResult = ZKPK.verifyInteractiveZKP(originalCommitment, helperCommitment,
-                    proofInfo.getChallengeValue(), identityProof.getProof());
-
-            return encoderDecoder.createAuthResultMessage(verificationResult);
+            if (proofInfo != null) {
+                //verify the proof
+                PedersenPublicParams params = proofInfo.getIdentityToken().getPedersenParams();
+                ZKPPedersenCommitment ZKPK = new ZKPPedersenCommitment(params);
+                PedersenCommitment helperCommitment = new PedersenCommitment();
+                helperCommitment.setCommitment(proofInfo.getIdentityProof().getHelperCommitment());
+                PedersenCommitment originalCommitment = new PedersenCommitment();
+                originalCommitment.setCommitment(proofInfo.getIdentityToken().getIdentityCommitment());
+                boolean verificationResult = ZKPK.verifyInteractiveZKP(originalCommitment, helperCommitment,
+                        proofInfo.getChallengeValue(), identityProof.getProof());
+                ProofStoreManager.getInstance().removeProofInfo(sessionID);
+                return encoderDecoder.createAuthResultMessage(verificationResult);
+            } else {
+                throw new RahasNymException("No previous records of this proof found.");
+            }
         } catch (CryptoAlgorithmException e) {
             e.printStackTrace();
             throw new RahasNymException("Error in verifying the zero knowledge proof.");
@@ -102,16 +107,16 @@ public class IdentityVerificationHandler {
         }
     }
 
-    public String verifyZKPNI(JSONObject jsonProof) throws RahasNymException {
+    public String verifyZKPNI(JSONObject jsonReq) throws RahasNymException {
         try {
             IdentityMessagesEncoderDecoder encoderDecoder = new IdentityMessagesEncoderDecoder();
 
-            IdentityToken token = encoderDecoder.decodeIdentityTokenContent((JSONObject) jsonProof.opt(Constants.IDT));
+            IdentityToken token = encoderDecoder.decodeIdentityTokenContent((JSONObject) jsonReq.opt(Constants.IDT));
             verifySignatureOnIDT(token);
             PedersenCommitment originalCommitment = new PedersenCommitment();
             originalCommitment.setCommitment(token.getIdentityCommitment());
 
-            JSONObject proofContent = (JSONObject) jsonProof.opt(Constants.PROOF);
+            JSONObject proofContent = (JSONObject) jsonReq.opt(Constants.PROOF);
             IdentityProof proof = encoderDecoder.decodeIdentityProofContent(proofContent, Constants.ZKP_NI);
             List<BigInteger> challenges = proof.getChallenges();
             List<BigInteger> helperCommitments = proof.getHelperCommitments();

@@ -16,27 +16,25 @@
 
     </jaxrs:server>
 
-    <!--<jaxrs:server id="dining" address="/dining">
+    <jaxrs:server id="signup" address="/signup">
         <jaxrs:serviceBeans>
-            <ref bean="diningBean"/>
+            <ref bean="signUpBean"/>
         </jaxrs:serviceBeans>
-
-        &lt;!&ndash;<jaxrs:providers>
-            <ref bean="authenticationFilter"/>
-        </jaxrs:providers>&ndash;&gt;
-
+        <!--<jaxrs:providers>
+            <ref bean="signUpDispatcher"/>
+        </jaxrs:providers>-->
     </jaxrs:server>
 
-    <jaxrs:server id="healthcenter" address="/healthcenter">
-        <jaxrs:serviceBeans>
-            <ref bean="healthcenterBean"/>
-        </jaxrs:serviceBeans>
-
-        &lt;!&ndash;<jaxrs:providers>
-            <ref bean="authenticationFilter"/>
-        </jaxrs:providers>&ndash;&gt;
-
-    </jaxrs:server>-->
-
+    <!--<bean id="signUpDispatcher" class="org.apache.cxf.jaxrs.provider.RequestDispatcherProvider">
+        <property name="resourcePath" value="/signup_confirmation_failure.html"/>
+        &lt;!&ndash;<property name="classResources">
+            <map>
+                <entry key="org.rahasnym.serviceprovider.SignUpSuccess" value="/signup_confirmation_success.jsp"/>
+                <entry key="org.rahasnym.serviceprovider.SignUpFailure" value="/signup_confirmation_failure.html"/>
+            </map>
+        </property>&ndash;&gt;
+    </bean>-->
     <bean id="shopBean" class="org.rahasnym.serviceprovider.AmazingShop"/>
+    <bean id="signUpBean" class="org.rahasnym.serviceprovider.SignUpServlet"/>
+
 </beans>

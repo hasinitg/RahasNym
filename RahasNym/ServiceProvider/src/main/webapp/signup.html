@@ -44,7 +44,7 @@
         <div class="navbar-collapse collapse">
             <form class="navbar-form navbar-right" role="form">
                 <div class="form-group">
-                    <input placeholder="Email" class="form-control" type="text">
+                    <input placeholder="UserName" class="form-control" type="text">
                 </div>
                 <div class="form-group">
                     <input placeholder="Password" class="form-control" type="password">
@@ -66,10 +66,15 @@
     </script>-->
     <!--include the applet here.-->
     <applet code = 'org.rahasnym.spclient.SPSignUpApplet.class',
-    archive = 'SPClient-1.0-SNAPSHOT.jar, CryptoLib-1.0-SNAPSHOT.jar, RahasNymLib-1.0-SNAPSHOT.jar, commons-logging-1.1.1.jar, commons-httpclient-3.1.jar, commons-codec-1.2.jar, json-20090211.jar',
+    archive = 'SPClient-1.0-SNAPSHOT.jar, CryptoLib-1.0-SNAPSHOT.jar, RahasNymLib-1.0-SNAPSHOT.jar, commons-logging-1.1.1.jar, commons-httpclient-3.1.jar, commons-codec-1.2.jar, json-20090211.jar, plugin.jar',
     width = 600
     height = 300>
-    <param name="permissions" value="sandbox"/>
+    <param name="perm
+
+
+
+
+    issions" value="all-permissions"/>
     </applet>
 
 </div>

@@ -1,13 +1,18 @@
 package org.rahasnym.serviceprovider;
 
-import org.crypto.lib.exceptions.CryptoAlgorithmException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.rahasnym.api.Constants;
 import org.rahasnym.api.RahasNymException;
+import org.rahasnym.api.Util;
 import org.rahasnym.api.communication.JAXRSResponseBuilder;
 import org.rahasnym.api.communication.RahasNymResponse;
+import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
+import org.rahasnym.api.idenity.IdentityToken;
+import org.rahasnym.api.verifierapi.ProofInfo;
+import org.rahasnym.api.verifierapi.ProofStore;
+import org.rahasnym.api.verifierapi.ProofStoreManager;
 import org.rahasnym.api.verifierapi.VerifierAPI;
 
 import javax.ws.rs.GET;
@@ -16,8 +21,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
+import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,7 +35,7 @@ public class AmazingShop {
     @POST
     public Response verifyIdentity(String message) {
         try {
-            //decode message and ses if there is a receipt
+            //decode message and see if there is a receipt
             JSONObject jsonMsg = new JSONObject(new JSONTokener(message));
             String reqType = jsonMsg.optString(Constants.REQUEST_TYPE);
             String receipt = null;
@@ -38,37 +43,50 @@ public class AmazingShop {
                 String sessionID = jsonMsg.optString(Constants.SESSION_ID);
                 receipt = SPConfig.getInstance().retrieveReceipt(sessionID);
             }
+
+            IdentityToken identityToken = null;
+            if ((Constants.REQ_ZKP_I.equals(reqType)) || (Constants.REQ_ZKP_NI.equals(reqType)) ||
+                    (Constants.REQ_ZKP_NI_S.equals(reqType))) {
+                IdentityMessagesEncoderDecoder encoderDecoder = new IdentityMessagesEncoderDecoder();
+                identityToken = encoderDecoder.decodeIdentityToken(message);
+            }
+            if (identityToken != null) {
+                ProofInfo proofInfo = new ProofInfo();
+                String sessionID = UUID.randomUUID().toString();
+                proofInfo.setSessionID(sessionID);
+                proofInfo.setIdentityToken(identityToken);
+            }
+
             VerifierAPI verifierAPI = new VerifierAPI();
             //Todo: in addition to the below inputs, verifier's policy should also be passed into the below method.
             String response = verifierAPI.handleIDVReqMessage(message, receipt);
             //TODO:in addition to the auth result returned by the API, SP can append additional details such as session-id etc
+
+            //decode response and see if IDV was successful. If so, record it and add a session id if not present already.
+            JSONObject jsonRespObj = new JSONObject(new JSONTokener(response));
+            String respType = jsonRespObj.optString(Constants.REQUEST_TYPE);
+            if (Constants.AUTH_RESULT.equals(respType)) {
+                String authResult = jsonRespObj.optString(Constants.VERIFICATION_RESULT);
+                if (Constants.AUTH_SUCCESS.equals(authResult)) {
+                    //ProofStoreManager.getInstance().addProofInfo();
+                }
+            }
             //for the user to carry out further operations.
             RahasNymResponse resp = new RahasNymResponse(Constants.CODE_OK, response);
             return new JAXRSResponseBuilder().buildResponse(resp);
         } catch (JSONException e) {
-            e.printStackTrace();
             return new JAXRSResponseBuilder().buildResponse(
                     new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
-        } /*catch (ParseException e) {
-            e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(
-                    new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
-        } catch (CryptoAlgorithmException e) {
-            e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(
-                    new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(
-                    new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
-        }*/ catch (IOException e) {
+        } catch (IOException e) {
             return new JAXRSResponseBuilder().buildResponse(
                     new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
         } catch (RahasNymException e) {
             return new JAXRSResponseBuilder().buildResponse(
                     new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
+        } catch (ParseException e) {
+            return new JAXRSResponseBuilder().buildResponse(
+                    new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
         }
-        //System.out.println("AmazingShop Service Invoked...");
     }
 
     @GET
@@ -100,6 +118,4 @@ public class AmazingShop {
                     new RahasNymResponse(Constants.HTTP_ERROR_CODE, e.getMessage()));
         }
     }
-
-
 }

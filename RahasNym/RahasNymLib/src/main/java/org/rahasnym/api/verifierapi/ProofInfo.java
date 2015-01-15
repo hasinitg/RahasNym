@@ -20,6 +20,7 @@ public class ProofInfo {
     private IdentityToken identityToken;
     private IdentityProof identityProof;
     private BigInteger challenge;
+    private int verificationStatus;
     //private BigInteger sValue;
 
     public IdentityProof getIdentityProof() {
@@ -54,6 +55,13 @@ public class ProofInfo {
         this.challenge = challenge;
     }
 
+    public int getVerificationStatus() {
+        return verificationStatus;
+    }
+
+    public void setVerificationStatus(int verificationStatus) {
+        this.verificationStatus = verificationStatus;
+    }
     /*public BigInteger getsValue() {
         return sValue;
     }
