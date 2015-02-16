@@ -157,6 +157,7 @@ public class Constants {
     /*Different Request Types that can be exchanged.*/
     public static final String REQ_ZKP_I = "IDV_REQ_ZKP_I";
     public static final String AUTH_CHALLENGE = "Auth_Challenge";
+    public static final String AUTH_CHALLENGE_EXTERNAL = "Auth_Challenge_External";
     public static final String AUTH_CHALLENGE_RESPONSE = "Auth_Challenge_Response";
     public static final String AUTH_RESULT = "Auth_Result";
     public static final String VERIFICATION_RESULT = "VerificationResult";
@@ -167,6 +168,8 @@ public class Constants {
 
     //attribute names:
     public static final String EMAIL_ATTRIBUTE = "email";
+    public static final String STUDENT_ID_ATTRIBUTE = "studentID";
+
 
     //header parameter names
     public static final String USER_NAME = "userName";

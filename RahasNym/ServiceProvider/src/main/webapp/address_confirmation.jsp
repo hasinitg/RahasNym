@@ -1,10 +1,10 @@
 <%@ page import="org.rahasnym.api.Constants" %>
-<%@ page import="org.rahasnym.serviceprovider.UserStore" %>
 <%@ page import="org.rahasnym.serviceprovider.SPConstants" %>
+<%@ page import="org.rahasnym.serviceprovider.UserStore" %>
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>Register for free shipping membership.</title>
 </head>
 <body>
 <%
@@ -22,23 +22,23 @@
 <h3>Welcome to the amazingshop portal <%=userName%>.</h3>
 <%
                 } else {
-                    response.sendRedirect("/amazingshop/login.jsp");
+                    response.sendRedirect("login.jsp");
                 }
             }
         }
+    } else {
+        response.sendRedirect("login.jsp");
     }
 %>
-<%
-    if(!UserStore.getInstance().getUser(userName).isFreeShippingEnabled()) {
-%>
-<p>Are you a student? Obtain your free-shipping membership <a href="free_shipping_membership.jsp">here.</a></p>
-<%
-    }else{
-%>
-<p>You have free shipping membership enabled.</p>
-<%
-    }
-%>
-<p><a href="shopping_portal.jsp"> Continue shipping.</a> </p>
+<p>Please provide the address for the item to be shipped:</p>
+<applet code = 'org.rahasnym.spclient.AddressConfirmationApplet.class', archive = 'SPClient-1.0-SNAPSHOT.jar, CryptoLib-1.0-SNAPSHOT.jar, RahasNymLib-1.0-SNAPSHOT.jar, commons-logging-1.1.1.jar, commons-httpclient-3.1.jar, commons-codec-1.2.jar, json-20090211.jar, plugin.jar',
+width = 600
+height = 100>
+<param name="permissions" value="all-permissions"/>
+<param name=<%=Constants.USER_NAME%> value=<%=userName%>>
+</applet>
+<p><a href="CCN_confirmation.jsp">Continue</a></p>
 <p><a href="logout">logout</a></p>
+
 </body>
+</html>

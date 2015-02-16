@@ -6,10 +6,10 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Created with IntelliJ IDEA.
  * User: hasini
- * Date: 9/15/14
- * Time: 9:56 AM
+ * Date: 1/19/15
+ * Time: 1:30 PM
  */
-public class SPSignUpApplet extends JApplet {
+public class AddressConfirmationApplet extends JApplet {
 
     @Override
     public void init() {
@@ -30,9 +30,8 @@ public class SPSignUpApplet extends JApplet {
     }
 
     private void createUI() {
-        //System.out.println("create UI called.");
-        SignUpPanel signUpPanel = new SignUpPanel(this);
-        signUpPanel.setOpaque(true);
-        setContentPane(signUpPanel);
+        AddressConfirmationPanel addressConfirmationPanel = new AddressConfirmationPanel(this);
+        addressConfirmationPanel.setOpaque(true);
+        setContentPane(addressConfirmationPanel);
     }
 }

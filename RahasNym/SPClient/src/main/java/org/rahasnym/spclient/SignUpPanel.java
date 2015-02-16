@@ -30,15 +30,15 @@ public class SignUpPanel extends JPanel {
     private static String POPULATE_COMMAND = "Get Email IDT";
     private static String SUBMIT_COMMAND = "Submit";
     //private static String OPEN_FILE_COMMAND = "openFile";
-    JLabel nameLabel;
-    JTextField nameText;
-    JLabel emailLabel;
-    JTextField emailText;
-    JLabel passLabel;
-    JPasswordField passText;
-    JLabel repassLabel;
-    JPasswordField repassText;
-    JApplet applet;
+    private JLabel nameLabel;
+    private JTextField nameText;
+    private JLabel emailLabel;
+    private JTextField emailText;
+    private JLabel passLabel;
+    private JPasswordField passText;
+    private JLabel repassLabel;
+    private JPasswordField repassText;
+    private JApplet applet;
 
     public SignUpPanel(JApplet applet) {
         super(new BorderLayout());
@@ -85,7 +85,6 @@ public class SignUpPanel extends JPanel {
     }
 
     class PopulateActionListener implements ActionListener {
-        SPClientIDMProtocol clientIDMProtocol = new SPClientIDMProtocol();
 
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -146,7 +145,6 @@ public class SignUpPanel extends JPanel {
     }
 
     class SubmitActionListener implements ActionListener {
-        SPClientIDMProtocol clientIDMProtocol = new SPClientIDMProtocol();
 
         @Override
         public void actionPerformed(ActionEvent e) {

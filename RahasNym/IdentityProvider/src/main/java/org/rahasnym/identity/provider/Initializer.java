@@ -1,6 +1,8 @@
 package org.rahasnym.identity.provider;
 
 import org.crypto.lib.exceptions.CryptoAlgorithmException;
+import org.rahasnym.api.idenity.AttributeCallBack;
+import org.rahasnym.api.idenity.AttributeCallBackManager;
 import org.rahasnym.api.idpapi.IDPConfig;
 
 import javax.servlet.ServletContextEvent;
@@ -26,6 +28,7 @@ public class Initializer implements ServletContextListener {
     private String IDPKeyStorePath = "IDPkeystore.jks";
     private String keyStorePass = "rahasnymIDP";
     private String certAlias = "rahasnymIDPCert";
+    private String attributeStoreFile = "attributeStore";
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
@@ -39,7 +42,10 @@ public class Initializer implements ServletContextListener {
             idpConfig.setRSAPrivateKey((PrivateKey) keyStore.getKey(certAlias, storePass));
             idpConfig.setCertificateAlias(certAlias);
 
-            //todo: register attribute call back handler.
+            //register attribute call back handler.
+            AttributeCallBack attributeCallBack = new BasicAttributeHandler();
+            ((BasicAttributeHandler) attributeCallBack).setAttributeStoreFile(attributeStoreFile);
+            AttributeCallBackManager.registerAttributeCallBack(attributeCallBack);
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

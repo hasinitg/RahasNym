@@ -5,9 +5,9 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.rahasnym.api.clientapi.AuthInfo;
 import org.rahasnym.api.clientapi.ClientAPI;
-import org.rahasnym.api.idmapi.IDMMAPI;
-import org.rahasnym.api.idmapi.IDMMConfig;
-import org.rahasnym.api.idmapi.IDPAccessInfo;
+import org.rahasnym.api.idenity.AttributeCallBack;
+import org.rahasnym.api.idenity.AttributeCallBackManager;
+import org.rahasnym.api.idmapi.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +37,8 @@ public class UserDeviceForPerfomanceTest {
     * In addition to that, you also need to include the proper SP_Policy in Service Provider webapp and re-deploy it.*/
     private static String protocol = Constants.ZKP_I;
     private static String userIDVPolicyPath = "/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/policies/clientPolicyZKP_I";
-
+    private static String ATTRIBUTE_STORE_PATH = "/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/attributeStore";
+    private static String USER_INFO_PATH = "/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/users";
     //private static String protocol = Constants.ZKP_NI;
     //private static String userIDVPolicyPath = "/home/hasini/Hasini/Experimenting/RahasNym/RahasNymLib/src/test/java/org/rahasnym/api/policies/clientPolicyZKP_NI";
 
@@ -53,7 +54,9 @@ public class UserDeviceForPerfomanceTest {
         idpAccessInfo.setUsername("hasini");
         idpAccessInfo.setUrl(IDP_URL);
         idmmConfig.addIDP(Constants.EMAIL_ATTRIBUTE, idpAccessInfo);
-        //TODO: configure IDP urls
+
+        //configure password and attribute callbacks
+        setPasswordAndAttributeCallBack();
 
         //initialize IDMM
         System.out.println("IDMM starting.");
@@ -160,5 +163,17 @@ public class UserDeviceForPerfomanceTest {
     protected void finalize() throws Throwable {
         idmmThread.stopMe();
         super.finalize();
+    }
+
+    private static void setPasswordAndAttributeCallBack() {
+        //register password call back handler.
+        PasswordCallBack passwordCallBack = new TestingPasswordCallBack();
+        ((TestingPasswordCallBack) passwordCallBack).setConfigurationFile(USER_INFO_PATH);
+        PasswordCallBackManager.registerPasswordCallBack(passwordCallBack);
+
+        //register attribute call back handler.
+        AttributeCallBack attributeCallBack = new TestingAttributeCallBack();
+        ((TestingAttributeCallBack) attributeCallBack).setAttributeStoreFile(ATTRIBUTE_STORE_PATH);
+        AttributeCallBackManager.registerAttributeCallBack(attributeCallBack);
     }
 }

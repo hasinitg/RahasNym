@@ -9,9 +9,7 @@ import org.crypto.lib.exceptions.CryptoAlgorithmException;
 import org.crypto.lib.util.CryptoUtil;
 import org.rahasnym.api.Constants;
 import org.rahasnym.api.RahasNymException;
-import org.rahasnym.api.idenity.IDTRequestMessage;
-import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
-import org.rahasnym.api.idenity.IdentityToken;
+import org.rahasnym.api.idenity.*;
 
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -43,8 +41,10 @@ public class IDTTokenFactory {
             //todo: decrypt the secret
             BigInteger secretBIG = new BigInteger(encryptedSecret);
             //TODO: get the user's attribute value from the AttributeFinder given the user name and the attribute name
-            String email = "hasinitg@gmail.com";
-            BigInteger emailBIG = CryptoUtil.getCommittableThruHash(email, CryptoLibConstants.SECRET_BIT_LENGTH);
+            //String email = "hasinitg@gmail.com";
+            String attributeName = IDTReqMessage.getAttributeName();
+            String attributeValue = AttributeCallBackManager.getAttributeValue(userName, attributeName);
+            BigInteger emailBIG = CryptoUtil.getCommittableThruHash(attributeValue, CryptoLibConstants.SECRET_BIT_LENGTH);
             //System.out.println("emailBIG at IDP: " + emailBIG);
             PedersenCommitment commitment = pedersenCommitmentFactory.createCommitment(emailBIG, secretBIG);
             BigInteger commitmentBIG = commitment.getCommitment();

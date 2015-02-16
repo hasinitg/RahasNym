@@ -39,8 +39,10 @@ public class PolicyCombiner {
     public IDVPolicy getCombinedPolicy(IDVPolicy verifierPolicy, IDVPolicy clientPolicy, String currentOperation)
             throws RahasNymException {
         IDVPolicy combinedPolicy = new IDVPolicy();
-
+        //NOTE: in the combined policy, reuse specifier name and specifier ID for SP_ID and userID respectively.
         String verifierName = verifierPolicy.getSpecifierName();
+        combinedPolicy.setSpecifierName(verifierName);
+
         String overridingAlgorithm = null;
         //get the verifier rule applies to the current operation.
         List<IDVPolicy.Rule> verifierRules = verifierPolicy.getRules();

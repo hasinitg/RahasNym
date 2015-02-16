@@ -10,6 +10,8 @@ import org.rahasnym.api.Constants;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 import org.rahasnym.api.idenity.IdentityProof;
 import org.rahasnym.api.idenity.IdentityToken;
+import org.rahasnym.api.verifierapi.ProofInfo;
+import org.rahasnym.api.verifierapi.ProofStoreManager;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -17,6 +19,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,6 +40,8 @@ public class IDVProofCreator {
                                      BigInteger secretBIG, String receipt)
             throws JSONException, CryptoAlgorithmException, NoSuchAlgorithmException {
         //look at the policy and create the appropriate proof
+        //TODO:here we assume that the combined rule contains only one condition set for one attribute.
+        //but there could be multiple condition sets for multiple attributes. It should be handled by the IDMM.
         IDVPolicy.Rule rule = combinedPolicy.getRules().get(0);
         IDVPolicy.ConditionSet conditionSet = rule.getConditionSets().get(0);
         String disclosure = conditionSet.getDisclosure().get(0);
@@ -52,13 +57,26 @@ public class IDVProofCreator {
         return null;
     }
 
-    public IdentityProof createInitialProofForZKPI(IdentityToken identityToken, BigInteger identityBIG, BigInteger secretBIG) throws JSONException, CryptoAlgorithmException {
+    public IdentityProof createInitialProofForZKPI(IdentityToken identityToken, BigInteger identityBIG, BigInteger secretBIG)
+            throws JSONException, CryptoAlgorithmException {
         IdentityProof proof = new IdentityProof();
         proof.setProofType(Constants.ZKP_I);
         pedersenPublicParams = identityToken.getPedersenParams();
         ZKPK = new ZKPPedersenCommitment(pedersenPublicParams);
         helperCommitment = ZKPK.createHelperProblem(null);
         proof.addHelperCommitment(helperCommitment.getCommitment());
+
+        String sessionID = UUID.randomUUID().toString();
+        ProofInfo proofInfo = new ProofInfo();
+        //add session id to identity proof
+        proof.setSessionID(sessionID);
+        proofInfo.setSessionID(sessionID);
+        proofInfo.setIdentityToken(identityToken);
+        proofInfo.setFullHelperCommitment(helperCommitment);
+        proofInfo.setsValue(identityBIG);
+        proofInfo.setrValue(secretBIG);
+
+        ProofStoreManager.getInstance().addProofInfo(sessionID, proofInfo);
         return proof;
     }
 
@@ -69,6 +87,19 @@ public class IDVProofCreator {
         IdentityProof proof = new IdentityProof();
         proof.setProofType(Constants.ZKP_I);
         PedersenCommitmentProof commitmentProof = ZKPK.createProofForInteractiveZKP(pedersenCommitment, helperCommitment, challenge);
+        proof.addProof(commitmentProof);
+        return proof;
+    }
+
+    public IdentityProof createProofForZKPI(ProofInfo proofinfo) throws CryptoAlgorithmException {
+        PedersenCommitment pedersenCommitment = new PedersenCommitment();
+        pedersenCommitment.setX(proofinfo.getsValue());
+        pedersenCommitment.setR(proofinfo.getrValue());
+        IdentityProof proof = new IdentityProof();
+        proof.setProofType(Constants.ZKP_I);
+        ZKPK = new ZKPPedersenCommitment(proofinfo.getIdentityToken().getPedersenParams());
+        PedersenCommitmentProof commitmentProof = ZKPK.createProofForInteractiveZKP(pedersenCommitment,
+                proofinfo.getFullHelperCommitment(), proofinfo.getChallengeValue());
         proof.addProof(commitmentProof);
         return proof;
     }

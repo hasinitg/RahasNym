@@ -53,6 +53,10 @@ public class UserStore {
         signedUpUsers.put(user.getUserName(), user);
     }
 
+    public User getUser(String userName) {
+        return signedUpUsers.get(userName);
+    }
+
     public boolean isEnrolled(String userName) {
         return signedUpUsers.containsKey(userName);
     }
@@ -85,6 +89,14 @@ public class UserStore {
 
     public void addLoggedIn(String loggedInSessionID, String userName) {
         loggedInUsers.put(loggedInSessionID, userName);
+    }
+
+    public boolean isLoggedIn(String loggedInSessionID) {
+        return loggedInUsers.containsKey(loggedInSessionID);
+    }
+
+    public String getLoggedInUserName(String sessionID) {
+        return loggedInUsers.get(sessionID);
     }
 
     public void removeLoggedIn(String loggedInSessionID) {

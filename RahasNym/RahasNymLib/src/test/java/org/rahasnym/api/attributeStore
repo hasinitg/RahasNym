@@ -1,0 +1,21 @@
+{
+    "Users": [
+        {
+            "name":"hasini",
+            "email": "hasixxxx@gmail.com",
+            "studentID": "673412098743",
+            "CCN": "5412-5490-4356-1243",
+            "shippingAddress": "5467 A Street, Apt 2, Sonar."
+
+        },
+        {
+            "name":"thilina",
+            "email": "thilxxxx@gmail.com",
+            "studentID": "89543467318743",
+            "CCN": "7812-9854-6732-1289",
+            "shippingAddress": "f45s A Street, Apt E, Coo."
+
+        }
+
+    ]
+}

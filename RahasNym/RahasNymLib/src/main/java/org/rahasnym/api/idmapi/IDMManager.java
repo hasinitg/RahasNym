@@ -18,16 +18,19 @@ import org.rahasnym.api.RahasNymException;
 import org.rahasnym.api.communication.encdecoder.JSONPolicyDecoder;
 import org.rahasnym.api.communication.policy.IDVPolicy;
 import org.rahasnym.api.communication.policy.PolicyCombiner;
+import org.rahasnym.api.idenity.AttributeCallBackManager;
 import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
 import org.rahasnym.api.idenity.IdentityProof;
 import org.rahasnym.api.idenity.IdentityToken;
 import org.rahasnym.api.verifierapi.ProofInfo;
+import org.rahasnym.api.verifierapi.ProofStoreManager;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
+import java.util.List;
 
 /**
  * This is responsible for processing the messages sent by client and delegate to the appropriate handler.
@@ -36,7 +39,7 @@ public class IDMManager {
 
     private IDVPolicy combinedPolicy;
     private BigInteger secretBIG;
-    private BigInteger emailBIG;
+    private BigInteger identityBIG;
     private IDVProofCreator proofCreator;
     private IdentityMessagesEncoderDecoder encoderDecoder;
 
@@ -53,6 +56,8 @@ public class IDMManager {
             return processIDTRequestMessage(jsonRequest);
         } else if (reqType.equals(Constants.AUTH_CHALLENGE)) {
             return processChallengeMessage(jsonRequest);
+        } else if (reqType.equals(Constants.AUTH_CHALLENGE_EXTERNAL)) {
+            return processChallengeFromExternalClient(jsonRequest);
         } else if (reqType.equals(Constants.AUTH_RESULT)) {
             return processAckMessage(jsonRequest);
         }
@@ -76,12 +81,10 @@ public class IDMManager {
         //combine policy
         PolicyCombiner policyCombiner = new PolicyCombiner();
         combinedPolicy = policyCombiner.getCombinedPolicy(spIDVPolicy, IDMMConfig.getInstance().getUserIDVPolicy(), operation);
-        //TODO:obtain identity and user-password and create committable values out of them.
-        String email = "hasinitg@gmail.com";
-        emailBIG = CryptoUtil.getCommittableThruHash(email, CryptoLibConstants.SECRET_BIT_LENGTH);
-        //System.out.println("emailBIG at IDMM: " + emailBIG);
+
         //create committable secret from user-provided password.
-        String password = "543&*^";
+        String password = PasswordCallBackManager.getPasswordOfCurrentUser();
+        //String password = "543&*^";
         byte[] salt = CryptoUtil.generateSalt(CryptoLibConstants.DEFAULT_LENGTH_OF_SALT);
         secretBIG = CryptoUtil.getCommittableThruPBKDF(password, salt, CryptoLibConstants.SECRET_BIT_LENGTH,
                 CryptoLibConstants.DEFAULT_PBKDF_ITERATIONS);
@@ -96,21 +99,46 @@ public class IDMManager {
             IDTResponse = IDTRequester.requestIDT(combinedPolicy, secretBIG, pseudonymWithSP);
         }
         IdentityToken idt = encoderDecoder.decodeIdentityToken(IDTResponse);
+
         //create proof adhering to policy
-        //proofCreator = new IDVProofCreator();
-        IdentityProof proof = proofCreator.createProof(idt, combinedPolicy, emailBIG, secretBIG, receipt);
+        //String email = "hasinitg@gmail.com";
+
+        String userName = PasswordCallBackManager.getNameOfCurrentUser();
+        String identityValue = AttributeCallBackManager.getAttributeValue(userName, idt.getAttributeName());
+        identityBIG = CryptoUtil.getCommittableThruHash(identityValue, CryptoLibConstants.SECRET_BIT_LENGTH);
+        IdentityProof proof = proofCreator.createProof(idt, combinedPolicy, identityBIG, secretBIG, receipt);
         //todo: create the response message here
-        String response = encoderDecoder.createIDTResponseByIDMM(IDTResponse, proof, sessionID);
+        String response = encoderDecoder.createIDTResponseByIDMM(IDTResponse, proof, proof.getSessionID());
         return response;
     }
 
+    //this method is used if the protocol is executed by RahasNymClientAPI and IDMMAPI
     private String processChallengeMessage(JSONObject challengeMessage) throws JSONException, CryptoAlgorithmException {
         //decode the challenge
         ProofInfo proofInfo = encoderDecoder.decodeChallengeMessage(challengeMessage);
-        //System.out.println("emailBIG at IDMM before challenge-response creation: " + emailBIG);
-        IdentityProof proofResponse = proofCreator.createProofForZKPI(proofInfo.getChallengeValue(), secretBIG, emailBIG);
+        //System.out.println("identityBIG at IDMM before challenge-response creation: " + identityBIG);
+        //get the secretBIG and identityBIG from proofstore
+        IdentityProof proofResponse = proofCreator.createProofForZKPI(proofInfo.getChallengeValue(), secretBIG, identityBIG);
         //todo: handling session id is not IDMM's responsibility. move it to Client API.
         String challengeResponse = encoderDecoder.createChallengeResponseByIDMM(proofInfo.getSessionID(), proofResponse);
+
+        return challengeResponse;
+    }
+
+    /**
+     * this method is used if the protocol is executed by an external client and RahasNym IDMM API where the state is
+     * not preserved in RahasNym IDMM
+     */
+    private String processChallengeFromExternalClient(JSONObject challenge) throws JSONException, CryptoAlgorithmException {
+        //decode the challenge
+        ProofInfo proofInfo = encoderDecoder.decodeChallengeMessage(challenge);
+        ProofInfo storedProofInfo = ProofStoreManager.getInstance().getProofInfo(proofInfo.getSessionID());
+        storedProofInfo.setChallengeValue(proofInfo.getChallengeValue());
+        //System.out.println("identityBIG at IDMM before challenge-response creation: " + identityBIG);
+        //get the secretBIG and identityBIG from proofstore
+        IdentityProof proofResponse = proofCreator.createProofForZKPI(storedProofInfo);
+        String challengeResponse = encoderDecoder.createChallengeResponseByIDMM(proofResponse);
+
         return challengeResponse;
     }
 

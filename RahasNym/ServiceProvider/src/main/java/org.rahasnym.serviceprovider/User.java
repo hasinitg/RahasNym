@@ -18,7 +18,7 @@ public class User {
     private IdentityToken addressIDT;
     private IdentityProof addressProof;
     private IdentityToken CCNIDT;
-    private boolean isFreeShippingEnabled;
+    private boolean isFreeShippingEnabled = false;
     private IdentityProof CCNProof;
 
     public byte[] getSalt() {
@@ -100,9 +100,6 @@ public class User {
     public void setCCNProof(IdentityProof CCNProof) {
         this.CCNProof = CCNProof;
     }
-
-
-
 
 
 }

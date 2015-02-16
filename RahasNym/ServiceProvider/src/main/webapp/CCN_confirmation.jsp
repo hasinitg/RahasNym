@@ -1,44 +1,37 @@
 <%@ page import="org.rahasnym.api.Constants" %>
-<%@ page import="org.rahasnym.serviceprovider.UserStore" %>
 <%@ page import="org.rahasnym.serviceprovider.SPConstants" %>
+<%@ page import="org.rahasnym.serviceprovider.UserStore" %>
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>Register for free shipping membership.</title>
 </head>
 <body>
 <%
     /*Check if a valid cookie is set.*/
     Cookie[] cookies = request.getCookies();
     String sid = null;
-    String userName = null;
     if (cookies != null) {
         for (Cookie cookie : cookies) {
             if (SPConstants.LOGGED_IN_SESSION_ID.equals(cookie.getName())) {
                 sid = cookie.getValue();
                 if (UserStore.getInstance().isLoggedIn(sid)) {
-                    userName = UserStore.getInstance().getLoggedInUserName(sid);
+                    String userName = UserStore.getInstance().getLoggedInUserName(sid);
 %>
 <h3>Welcome to the amazingshop portal <%=userName%>.</h3>
 <%
                 } else {
-                    response.sendRedirect("/amazingshop/login.jsp");
+                    response.sendRedirect("login.jsp");
                 }
             }
         }
+    } else {
+        response.sendRedirect("login.jsp");
     }
 %>
-<%
-    if(!UserStore.getInstance().getUser(userName).isFreeShippingEnabled()) {
-%>
-<p>Are you a student? Obtain your free-shipping membership <a href="free_shipping_membership.jsp">here.</a></p>
-<%
-    }else{
-%>
-<p>You have free shipping membership enabled.</p>
-<%
-    }
-%>
-<p><a href="shopping_portal.jsp"> Continue shipping.</a> </p>
+<p>The receipt is shown here too.</p>
+<p>The CCN confirmation applet goes here.</p>
 <p><a href="logout">logout</a></p>
+
 </body>
+</html>

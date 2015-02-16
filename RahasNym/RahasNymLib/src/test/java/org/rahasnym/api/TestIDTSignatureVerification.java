@@ -51,7 +51,7 @@ public class TestIDTSignatureVerification {
             BigInteger secretBIG = CryptoUtil.getCommittableThruPBKDF(password, salt, CryptoLibConstants.SECRET_BIT_LENGTH,
                     CryptoLibConstants.DEFAULT_PBKDF_ITERATIONS);
             idtRequestMessage.setEncryptedSecret(secretBIG.toString());
-            IdentityToken IDT = tokenFactory.createIdentityToken(idtRequestMessage, "hasi");
+            IdentityToken IDT = tokenFactory.createIdentityToken(idtRequestMessage, "hasini");
             IdentityMessagesEncoderDecoder encoderDecoder = new IdentityMessagesEncoderDecoder();
             String encodedIDT = encoderDecoder.encodeIdentityToken(IDT);
             System.out.println("Encoded identity token: " + encodedIDT);

@@ -32,6 +32,17 @@
                     "disclosure": ["ZKP_NI"],
                     "pseudonymCardinality": ["SINGLE"]
                 }]
+            },
+            {
+                "id": "rule-3",
+                "target": {
+                    "operations": ["get_free_shipping_membership"]
+                },
+                "conditionSet": [{
+                    "appliesTo": ["studentID"],
+                    "disclosure": ["ZKP_I"],
+                    "pseudonymCardinality": ["SINGLE"]
+                }]
             }
         ]
     }

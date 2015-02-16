@@ -39,7 +39,6 @@ public class IdentityVerificationHandler {
 
     public String handleInitialZKPIRequest(JSONObject requestObject) throws RahasNymException {
         try {
-            JSONObject idt = (JSONObject) requestObject.opt(Constants.IDT);
             IdentityMessagesEncoderDecoder encoderDecoder = new IdentityMessagesEncoderDecoder();
             IdentityToken identityToken = encoderDecoder.decodeIdentityTokenContent((JSONObject) requestObject.opt(Constants.IDT));
             verifySignatureOnIDT(identityToken);

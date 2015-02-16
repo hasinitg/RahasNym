@@ -18,6 +18,7 @@ import java.util.List;
  * This represents the identity information sent in the proof of identity in each ZKPK protocol.
  */
 public class IdentityProof {
+    private String sessionID;
     private String proofType;
     List<BigInteger> helperCommitments = new ArrayList<>();
     private String secretForPseudonym;
@@ -122,5 +123,13 @@ public class IdentityProof {
 
     public void setChallenges(List<BigInteger> challenges) {
         this.challenges = challenges;
+    }
+
+    public String getSessionID() {
+        return sessionID;
+    }
+
+    public void setSessionID(String sessionID) {
+        this.sessionID = sessionID;
     }
 }

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,8 +31,15 @@ public class IDTRequestSender {
 
     public String requestIDT(IDVPolicy combinedPolicy, BigInteger secretBIG, String pseudoNymWithSP)
             throws CryptoAlgorithmException, NoSuchAlgorithmException, InvalidKeySpecException, JSONException, IOException {
-        //todo: identify the attribute, corresponding IDP and access information about it, and send the IDT request.
-        String identityAttributeName = Constants.EMAIL_ATTRIBUTE;
+
+        //TODO: here we assume that combined rule in the combined policy contains only one condition set for one particular attribute.
+        //but there could be multiple attributes for a particular operation with multiple condition sets.
+        IDVPolicy.Rule combinedRule = combinedPolicy.getRules().get(0);
+        IDVPolicy.ConditionSet matchedCS = combinedRule.getConditionSets().get(0);
+        List<String> attributes = matchedCS.getAppliesTo();
+        String identityAttributeName = attributes.get(0);
+
+        //String identityAttributeName = Constants.EMAIL_ATTRIBUTE;
         IDTRequestMessage reqMsg = new IDTRequestMessage();
         reqMsg.setAttributeName(identityAttributeName);
         reqMsg.setBiometricIdentityRequired(false);
@@ -40,7 +48,7 @@ public class IDTRequestSender {
         //todo: read the SP_ID from policy
         //todo: if pseudonym cardinality is single, send pseudonym and sp-identity in plain-text,
         //todo: if subject verification is: hidden-sp-bound/hidden-pseudonym-bound send them in hidden format.
-        reqMsg.setSpIdentity("amazon.com");
+        reqMsg.setSpIdentity(combinedPolicy.getSpecifierName());
         reqMsg.setPseudonym(pseudoNymWithSP);
 
         //todo: encode the message and send to IDT.

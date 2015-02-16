@@ -243,11 +243,9 @@ public class IdentityMessagesEncoderDecoder {
         JSONObject responseJSON = new JSONObject(identityToken);
         JSONObject proofJSON = encodeIdentityProofContent(identityProof);
         responseJSON.put(Constants.PROOF, proofJSON);
-        //it is not a responsibility of IDMM to handle application specific sessions. therefore, commented out the below.
-        //todo: remove it from method signature as well.
-        /*if (sessionID != null) {
+        if (sessionID != null) {
             responseJSON.put(Constants.SESSION_ID, sessionID);
-        }*/
+        }
         if (Constants.ZKP_I.equals(identityProof.getProofType())) {
             responseJSON.put(Constants.REQUEST_TYPE, Constants.REQ_ZKP_I);
         } else if (Constants.ZKP_NI.equals(identityProof.getProofType())) {
@@ -265,6 +263,13 @@ public class IdentityMessagesEncoderDecoder {
         challengeResponseMessage.put(Constants.SESSION_ID, sessionID);
         //challengeResponseMessage.put(Constants.U_VALUE, proof.getProof().getU().toString());
         //challengeResponseMessage.put(Constants.V_VALUE, proof.getProof().getV().toString());
+        return challengeResponseMessage.toString();
+    }
+
+    public String createChallengeResponseByIDMM(IdentityProof proof) throws JSONException {
+        JSONObject proofContent = encodeIdentityProofContent(proof);
+        JSONObject challengeResponseMessage = new JSONObject(proofContent.toString());
+        challengeResponseMessage.put(Constants.REQUEST_TYPE, Constants.AUTH_CHALLENGE_RESPONSE);
         return challengeResponseMessage.toString();
     }
 

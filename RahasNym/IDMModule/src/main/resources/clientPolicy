@@ -11,6 +11,10 @@
                 "appliesTo": ["email"],
                 "disclosure": ["ZKP_NI"],
                 "pseudonymCardinality": ["MULTIPLE"]
+            },{
+                "appliesTo": ["studentID"],
+                "disclosure": ["ZKP_I"],
+                "pseudonymCardinality": ["SINGLE"]
             }]
         }]
     }

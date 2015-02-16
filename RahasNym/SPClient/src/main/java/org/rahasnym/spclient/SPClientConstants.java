@@ -14,6 +14,7 @@ public class SPClientConstants {
     public static String ZKP_I = "ZKP-I";
 
     public static final String USERID = "UserId";
+    public static final String LOGGED_IN_SESSION_ID = "logged-in-session-id";
 
     public static final String CONTENT_TYPE = "application/json";
     public static final String CHAR_SET = "UTF-8";
@@ -26,5 +27,6 @@ public class SPClientConstants {
 
     /*operation names and other info as compatible with policies.*/
     public static final String SIGN_UP_OPERATION = "sign_up";
+    public static final String FREE_SHIPPING_MEMBERSHIP = "get_free_shipping_membership";
     public static final String PASSWORD = "password";
 }

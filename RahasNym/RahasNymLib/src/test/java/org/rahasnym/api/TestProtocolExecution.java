@@ -6,9 +6,13 @@ import org.junit.Test;
 import org.rahasnym.api.clientapi.AuthInfo;
 import org.rahasnym.api.clientapi.ClientAPI;
 import org.rahasnym.api.communication.encdecoder.JSONPolicyDecoder;
+import org.rahasnym.api.idenity.AttributeCallBack;
+import org.rahasnym.api.idenity.AttributeCallBackManager;
 import org.rahasnym.api.idenity.IdentityMessagesEncoderDecoder;
 import org.rahasnym.api.idmapi.IDMMConfig;
 import org.rahasnym.api.idmapi.IDPAccessInfo;
+import org.rahasnym.api.idmapi.PasswordCallBack;
+import org.rahasnym.api.idmapi.PasswordCallBackManager;
 import org.rahasnym.api.idpapi.IDPConfig;
 import org.rahasnym.api.verifierapi.VerifierCallBackManager;
 
@@ -28,6 +32,8 @@ public class TestProtocolExecution {
     private static String IDPKeyStorePassword = "rahasnymIDP";
     private static String IDPKeyStorePath = "src/test/java/org/rahasnym/api/IDPkeystore.jks";
     private static String IDPKeyAlias = "rahasnymIDPCert";
+    private static String ATTRIBUTE_STORE_PATH = "src/test/java/org/rahasnym/api/attributeStore";
+    private static String USER_INFO_PATH = "src/test/java/org/rahasnym/api/users";
     private static IDMMThread idmmThread = null;
 
     @Test
@@ -54,6 +60,9 @@ public class TestProtocolExecution {
             //register trust store callback impl in verifier API
             TrustStoreCallBackImpl trustStoreCallBackImpl = new TrustStoreCallBackImpl();
             VerifierCallBackManager.registerTrustStoreCallBack(trustStoreCallBackImpl);
+
+            //register password and attribute call back
+            setPasswordAndAttributeCallBack();
 
             ClientAPI client = new ClientAPI();
             JSONPolicyDecoder policyDecoder = new JSONPolicyDecoder();
@@ -101,6 +110,9 @@ public class TestProtocolExecution {
             TrustStoreCallBackImpl trustStoreCallBackImpl = new TrustStoreCallBackImpl();
             VerifierCallBackManager.registerTrustStoreCallBack(trustStoreCallBackImpl);
 
+            //register password and attribute call back
+            setPasswordAndAttributeCallBack();
+
             ClientAPI client = new ClientAPI();
             //String policy = client.requestPolicyInVM("src/test/java/org/rahasnym/api/policies/serverPolicyZKP_NI");
             JSONPolicyDecoder policyDecoder = new JSONPolicyDecoder();
@@ -146,6 +158,9 @@ public class TestProtocolExecution {
             TrustStoreCallBackImpl trustStoreCallBackImpl = new TrustStoreCallBackImpl();
             VerifierCallBackManager.registerTrustStoreCallBack(trustStoreCallBackImpl);
 
+            //register password and attribute call back
+            setPasswordAndAttributeCallBack();
+
             ClientAPI client = new ClientAPI();
             JSONPolicyDecoder policyDecoder = new JSONPolicyDecoder();
             String policy = policyDecoder.readPolicyAsString("src/test/java/org/rahasnym/api/policies/serverPolicyZKP_NI_S");
@@ -177,5 +192,17 @@ public class TestProtocolExecution {
         keyStore.load(keyStoreFile, storePass);
         idpConfig.setRSAPrivateKey((PrivateKey) keyStore.getKey(IDPKeyAlias, storePass));
         idpConfig.setCertificateAlias(IDPKeyAlias);
+    }
+
+    private void setPasswordAndAttributeCallBack() {
+        //register password call back handler.
+        PasswordCallBack passwordCallBack = new TestingPasswordCallBack();
+        ((TestingPasswordCallBack) passwordCallBack).setConfigurationFile(USER_INFO_PATH);
+        PasswordCallBackManager.registerPasswordCallBack(passwordCallBack);
+
+        //register attribute call back handler.
+        AttributeCallBack attributeCallBack = new TestingAttributeCallBack();
+        ((TestingAttributeCallBack) attributeCallBack).setAttributeStoreFile(ATTRIBUTE_STORE_PATH);
+        AttributeCallBackManager.registerAttributeCallBack(attributeCallBack);
     }
 }

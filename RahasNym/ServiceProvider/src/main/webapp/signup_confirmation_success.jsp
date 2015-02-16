@@ -31,28 +31,26 @@
     <![endif]-->
 </head>
 <body>
-<h3>Signup successful.</h3>
 <%
-    Date date = new Date();
     Cookie[] cookies = request.getCookies();
     String sid = null;
     if (cookies != null) {
-
         for (Cookie cookie : cookies) {
             if (Constants.SESSION_ID.equals(cookie.getName())) {
                 sid = cookie.getValue();
                 if (UserStore.getInstance().isJustSignedUp(sid)) {
                     %>
-                    <p>You have successfully signed up. Please <a href="login.html">login</a> to continue.</p>
+                    <p>You have successfully signed up. Please <a href="login.jsp">login</a> to continue.</p>
                 <%}
                 break;
             }
         }
     } else {
-        out.println("no cookies found");
+        %>
+        <p>Sign up has not been successful. Please try again <a href="signup.html">here.</a></p>
+        <%
     }
 %>
-<p>The time now is: </p>
 
 </body>
 </html>
