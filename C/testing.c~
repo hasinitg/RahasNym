@@ -1,0 +1,12 @@
+#include <stdio.h>
+
+main(){
+	int c, btn;
+	btn=0;
+	while((c=getchar())!=EOF){
+		if((c==' ')||(c=='\t')||(c=='\n')){
+			++btn;
+		}
+	}
+	printf("%d\n",);
+}

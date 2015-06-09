@@ -6,24 +6,32 @@
             {
                 "id": "rule-1",
                 "target": {
-                    "operations": ["purchase_as_guest"]
+                    "operations": ["purchase_confirm_shipping_address"]
                 },
                 "conditionSet": [
                     {
-                        "appliesTo": ["email","shipping_address"],
+                        "appliesTo": ["shipping_address"],
                         "disclosure": ["ZKP_NI"],
-                        "pseudonymCardinality": ["MULTIPLE","SINGLE"]
-                    },
-                    {
-                        "appliesTo": ["CCN"],
-                        "disclosure": ["ZKP_NI_S"],
-                        "subjectVerification": ["BIOMETRIC_BOUND","HIDDEN_PSEUDONYM_BOUND"],
-                        "pseudonymCardinality": ["MULTIPLE","SINGLE"]
+                        "pseudonymCardinality": ["MULTIPLE"]
                     }
                 ]
             },
             {
                 "id": "rule-2",
+                "target": {
+                    "operations": ["purchase_confirm_CCN"]
+                },
+                "conditionSet": [
+                    {
+                        "appliesTo": ["CCN"],
+                        "disclosure": ["ZKP_NI_S"],
+                        "subjectVerification": ["HIDDEN_PSEUDONYM_BOUND"],
+                        "pseudonymCardinality": ["MULTIPLE"]
+                    }
+                ]
+            },
+            {
+                "id": "rule-3",
                 "target": {
                 "operations": ["sign_up","login"]
                 },
@@ -34,7 +42,7 @@
                 }]
             },
             {
-                "id": "rule-3",
+                "id": "rule-4",
                 "target": {
                     "operations": ["get_free_shipping_membership"]
                 },

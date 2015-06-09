@@ -36,8 +36,8 @@ width = 600
 height = 100>
 <param name="permissions" value="all-permissions"/>
 <param name=<%=Constants.USER_NAME%> value=<%=userName%>>
+<param name=<%=Constants.SESSION_ID%> value=<%=sid%>>
 </applet>
-<p><a href="CCN_confirmation.jsp">Continue</a></p>
 <p><a href="logout">logout</a></p>
 
 </body>

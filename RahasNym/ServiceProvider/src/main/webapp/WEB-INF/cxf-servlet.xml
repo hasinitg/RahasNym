@@ -34,6 +34,15 @@
         </jaxrs:providers>-->
     </jaxrs:server>
 
+    <jaxrs:server id="address" address="/address">
+        <jaxrs:serviceBeans>
+            <ref bean="addressBean"/>
+        </jaxrs:serviceBeans>
+        <!--<jaxrs:providers>
+            <ref bean="signUpDispatcher"/>
+        </jaxrs:providers>-->
+    </jaxrs:server>
+
     <!--<bean id="signUpDispatcher" class="org.apache.cxf.jaxrs.provider.RequestDispatcherProvider">
         <property name="resourcePath" value="/signup_confirmation_failure.html"/>
         &lt;!&ndash;<property name="classResources">
@@ -46,5 +55,6 @@
     <bean id="shopBean" class="org.rahasnym.serviceprovider.AmazingShop"/>
     <bean id="signUpBean" class="org.rahasnym.serviceprovider.SignUpServlet"/>
     <bean id="shippingBean" class="org.rahasnym.serviceprovider.SIDVerificationServlet"/>
+    <bean id="addressBean" class="org.rahasnym.serviceprovider.AddressVerificationServlets"/>
 
 </beans>

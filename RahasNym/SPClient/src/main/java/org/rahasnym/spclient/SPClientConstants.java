@@ -28,5 +28,8 @@ public class SPClientConstants {
     /*operation names and other info as compatible with policies.*/
     public static final String SIGN_UP_OPERATION = "sign_up";
     public static final String FREE_SHIPPING_MEMBERSHIP = "get_free_shipping_membership";
+    public static final String PURCHASE_CONFIRM_SHIPPING_ADDRESS = "purchase_confirm_shipping_address";
+    public static final String PURCHASE_CONFIRM_CCN = "purchase_confirm_CCN";
+
     public static final String PASSWORD = "password";
 }

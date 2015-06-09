@@ -15,6 +15,15 @@
                 "appliesTo": ["studentID"],
                 "disclosure": ["ZKP_I"],
                 "pseudonymCardinality": ["SINGLE"]
+            }, {
+                "appliesTo": ["shipping_address"],
+                "disclosure": ["ZKP_NI"],
+                "pseudonymCardinality": ["MULTIPLE"]
+            },{
+                "appliesTo": ["CCN"],
+                "disclosure": ["ZKP_NI_S"],
+                "subjectVerification": ["HIDDEN_PSEUDONYM_BOUND"],
+                "pseudonymCardinality": ["MULTIPLE"]
             }]
         }]
     }

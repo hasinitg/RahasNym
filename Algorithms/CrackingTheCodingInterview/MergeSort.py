@@ -1,3 +1,4 @@
+#this is not efficient in space wise, should do in-place sorting by using a single helper array in the merge method.
 import math
 
 def merge(left, right):
