@@ -1,6 +1,0 @@
-Average elapsed time for deriving committable values in milli seconds: 1.865562
-Average elapsed time for computing commitment in milli seconds: 1.170003
-Total average time for creating the commitment in milli seconds: 3.035565
-Average elapsed time for creating helper commitment in milli seconds: 1.408429
-Average elapsed time for creating proofs in milli seconds: 1.586531
-Average elapsed time for verifying proofs in milli seconds: 1.772292

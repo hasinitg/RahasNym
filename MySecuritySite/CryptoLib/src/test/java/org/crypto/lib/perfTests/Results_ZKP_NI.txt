@@ -1,4 +1,0 @@
-2014/09/04 03:51:50: Average elapsed time for deriving committable values in milli seconds: 1.78072
-2014/09/04 03:51:50: Average elapsed time for computing commitment in milli seconds: 1.186917
-2014/09/04 03:51:50: Total average time for creating the commitment in milli seconds: 2.967637
-2014/09/04 03:51:53: Average elapsed time for creating helper commitments in milli seconds: 3.690563
